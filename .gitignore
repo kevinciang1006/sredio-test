@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+
+# Editor / agent state
+.claude/
+.vscode/
+.idea/
+
+# Node (for when the Angular project lands here)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Angular build outputs
+dist/
+.angular/
+tmp/
+out-tsc/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# Environment overrides (committed envs stay; secret overrides do not)
+.env
+.env.local
+.env.*.local
