@@ -1,0 +1,17 @@
+<section class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+  <h3 class="text-base font-semibold text-gray-900 mb-3">Per-project breakdown by employee</h3>
+  @if (isLoading()) {
+    <div class="h-[360px] animate-pulse bg-gray-100 rounded"></div>
+  } @else {
+    <apx-chart
+      [series]="series()"
+      [chart]="chartOptions().chart"
+      [plotOptions]="chartOptions().plotOptions"
+      [dataLabels]="chartOptions().dataLabels"
+      [xaxis]="chartOptions().xaxis"
+      [yaxis]="chartOptions().yaxis"
+      [legend]="chartOptions().legend"
+      [tooltip]="chartOptions().tooltip"
+      [fill]="chartOptions().fill" />
+  }
+</section>
