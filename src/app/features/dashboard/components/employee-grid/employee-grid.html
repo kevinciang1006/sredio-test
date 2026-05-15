@@ -1,0 +1,50 @@
+<section class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+  <div class="px-5 py-4 border-b border-gray-100">
+    <h3 class="text-base font-semibold text-gray-900">Employees</h3>
+  </div>
+
+  @if (isLoading()) {
+    <div class="p-5 space-y-2">
+      @for (i of [0,1,2,3,4]; track i) {
+        <div class="h-8 bg-gray-100 rounded animate-pulse"></div>
+      }
+    </div>
+  } @else {
+    <table class="w-full text-sm text-left">
+      <thead class="bg-gray-50 text-xs uppercase text-gray-600">
+        <tr>
+          <th class="px-5 py-3 cursor-pointer select-none" (click)="toggleSort('name')">
+            Name <span>{{ sortIndicator('name') }}</span>
+          </th>
+          <th class="px-5 py-3 cursor-pointer select-none" (click)="toggleSort('hireDate')">
+            Hire date <span>{{ sortIndicator('hireDate') }}</span>
+          </th>
+          <th class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('annualSalary')">
+            Annual salary <span>{{ sortIndicator('annualSalary') }}</span>
+          </th>
+          <th class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('hourlyRate')">
+            Hourly rate <span>{{ sortIndicator('hourlyRate') }}</span>
+          </th>
+          <th class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('ytdHours')">
+            YTD hours <span>{{ sortIndicator('ytdHours') }}</span>
+          </th>
+          <th class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('ytdCost')">
+            YTD cost <span>{{ sortIndicator('ytdCost') }}</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        @for (row of sortedRows(); track row.id) {
+          <tr class="hover:bg-gray-50">
+            <td class="px-5 py-3 font-medium text-gray-900">{{ row.name }}</td>
+            <td class="px-5 py-3 text-gray-600">{{ row.hireDate }}</td>
+            <td class="px-5 py-3 text-right">{{ row.annualSalary | currency:'CAD':'symbol-narrow':'1.0-0' }}</td>
+            <td class="px-5 py-3 text-right">{{ row.hourlyRate | currency:'CAD':'symbol-narrow':'1.2-2' }}</td>
+            <td class="px-5 py-3 text-right">{{ row.ytdHours | number:'1.0-0' }}</td>
+            <td class="px-5 py-3 text-right">{{ row.ytdCost | currency:'CAD':'symbol-narrow':'1.0-0' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
