@@ -1,0 +1,47 @@
+<div class="space-y-6">
+  <app-client-header [client]="client()" [isLoading]="isLoading()" />
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <app-summary-card
+      label="YTD Total Hours"
+      [value]="ytdTotalHours()"
+      format="number"
+      tone="neutral"
+      [isLoading]="isLoading()" />
+    <app-summary-card
+      label="YTD Total Cost"
+      [value]="ytdTotalCost()"
+      format="currency"
+      tone="neutral"
+      [isLoading]="isLoading()" />
+    <app-summary-card
+      label="Projected Full Year Hours"
+      [value]="projectedFullYearHours()"
+      format="number"
+      tone="projected"
+      [isLoading]="isLoading()" />
+    <app-summary-card
+      label="Projected Full Year Cost"
+      [value]="projectedFullYearCost()"
+      format="currency"
+      tone="projected"
+      [isLoading]="isLoading()" />
+  </div>
+
+  <div class="flex items-center justify-end">
+    <app-hours-cost-toggle [mode]="mode()" (modeChange)="onModeChange($event)" />
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <app-project-breakdown-chart
+      [data]="projectsBreakdown()"
+      [mode]="mode()"
+      [isLoading]="isLoading()" />
+    <app-aggregate-chart
+      [data]="aggregateData()"
+      [mode]="mode()"
+      [isLoading]="isLoading()" />
+  </div>
+
+  <app-employee-grid [rows]="employeeRows()" [isLoading]="isLoading()" />
+</div>
