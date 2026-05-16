@@ -1,4 +1,9 @@
-<app-nav-bar [client]="client()" />
-<main class="max-w-7xl mx-auto px-6 py-8">
-  <router-outlet />
-</main>
+<div class="flex min-h-screen bg-gray-50">
+  <app-side-bar />
+  <div class="flex-1 flex flex-col min-w-0">
+    <app-nav-bar />
+    <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-8">
+      <router-outlet />
+    </main>
+  </div>
+</div>
