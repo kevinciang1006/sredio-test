@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "flowbite/src/themes/default.css";
+
+@source "./app/**/*.{html,ts,scss}";
+@source "../node_modules/flowbite";
+
+html, body { height: 100%; margin: 0; font-family: 'Inter', system-ui, sans-serif; }
+body { @apply bg-gray-50 text-gray-900 antialiased; }
