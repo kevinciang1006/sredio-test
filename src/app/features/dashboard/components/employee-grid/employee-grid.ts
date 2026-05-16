@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { EmployeeRow } from '../../models/chart-data.model';
+import { AvatarComponent } from '../../../../shared/components/avatar/avatar';
+import { BadgeComponent } from '../../../../shared/components/badge/badge';
+import { ShortDatePipe } from '../../../../shared/pipes/short-date.pipe';
 
 type SortableCol = keyof Pick<
   EmployeeRow,
@@ -10,7 +13,7 @@ type SortDir = 'asc' | 'desc';
 
 @Component({
   selector: 'app-employee-grid',
-  imports: [CurrencyPipe, DecimalPipe],
+  imports: [CurrencyPipe, DecimalPipe, AvatarComponent, BadgeComponent, ShortDatePipe],
   templateUrl: './employee-grid.html',
   styleUrl: './employee-grid.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

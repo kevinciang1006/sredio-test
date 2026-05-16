@@ -23,6 +23,7 @@ export interface AggregateData {
 export interface EmployeeRow {
   readonly id: string;
   readonly name: string;
+  readonly role: string;
   readonly hireDate: string;
   readonly annualSalary: number;
   readonly hourlyRate: number;

@@ -156,6 +156,7 @@ export class DashboardComponent {
       return {
         id: emp.id,
         name: emp.name,
+        role: emp.role,
         hireDate: emp.hireDate,
         annualSalary: emp.annualSalary,
         hourlyRate: rate,

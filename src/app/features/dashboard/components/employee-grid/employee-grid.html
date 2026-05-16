@@ -10,41 +10,52 @@
       }
     </div>
   } @else {
-    <table class="w-full text-sm text-left">
-      <thead class="bg-gray-50 text-xs uppercase text-gray-600">
-        <tr>
-          <th class="px-5 py-3 cursor-pointer select-none" (click)="toggleSort('name')">
-            Name <span>{{ sortIndicator('name') }}</span>
-          </th>
-          <th class="px-5 py-3 cursor-pointer select-none" (click)="toggleSort('hireDate')">
-            Hire date <span>{{ sortIndicator('hireDate') }}</span>
-          </th>
-          <th class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('annualSalary')">
-            Annual salary <span>{{ sortIndicator('annualSalary') }}</span>
-          </th>
-          <th class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('hourlyRate')">
-            Hourly rate <span>{{ sortIndicator('hourlyRate') }}</span>
-          </th>
-          <th class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('ytdHours')">
-            YTD hours <span>{{ sortIndicator('ytdHours') }}</span>
-          </th>
-          <th class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('ytdCost')">
-            YTD cost <span>{{ sortIndicator('ytdCost') }}</span>
-          </th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-100">
-        @for (row of sortedRows(); track row.id) {
-          <tr class="hover:bg-gray-50">
-            <td class="px-5 py-3 font-medium text-gray-900">{{ row.name }}</td>
-            <td class="px-5 py-3 text-gray-600">{{ row.hireDate }}</td>
-            <td class="px-5 py-3 text-right">{{ row.annualSalary | currency:'CAD':'symbol-narrow':'1.0-0' }}</td>
-            <td class="px-5 py-3 text-right">{{ row.hourlyRate | currency:'CAD':'symbol-narrow':'1.2-2' }}</td>
-            <td class="px-5 py-3 text-right">{{ row.ytdHours | number:'1.0-0' }}</td>
-            <td class="px-5 py-3 text-right">{{ row.ytdCost | currency:'CAD':'symbol-narrow':'1.0-0' }}</td>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left text-gray-500">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+          <tr>
+            <th scope="col" class="px-5 py-3 cursor-pointer select-none" (click)="toggleSort('name')">
+              <span class="flex items-center gap-1">Name {{ sortIndicator('name') }}</span>
+            </th>
+            <th scope="col" class="px-5 py-3">Role</th>
+            <th scope="col" class="px-5 py-3 cursor-pointer select-none" (click)="toggleSort('hireDate')">
+              <span class="flex items-center gap-1">Hire date {{ sortIndicator('hireDate') }}</span>
+            </th>
+            <th scope="col" class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('annualSalary')">
+              <span class="flex items-center justify-end gap-1">Annual salary {{ sortIndicator('annualSalary') }}</span>
+            </th>
+            <th scope="col" class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('hourlyRate')">
+              <span class="flex items-center justify-end gap-1">Hourly rate {{ sortIndicator('hourlyRate') }}</span>
+            </th>
+            <th scope="col" class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('ytdHours')">
+              <span class="flex items-center justify-end gap-1">YTD hours {{ sortIndicator('ytdHours') }}</span>
+            </th>
+            <th scope="col" class="px-5 py-3 cursor-pointer select-none text-right" (click)="toggleSort('ytdCost')">
+              <span class="flex items-center justify-end gap-1">YTD cost {{ sortIndicator('ytdCost') }}</span>
+            </th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          @for (row of sortedRows(); track row.id) {
+            <tr class="bg-white hover:bg-gray-50">
+              <td class="px-5 py-3">
+                <div class="flex items-center gap-3">
+                  <app-avatar [name]="row.name" size="sm" />
+                  <span class="font-medium text-gray-900">{{ row.name }}</span>
+                </div>
+              </td>
+              <td class="px-5 py-3">
+                <app-badge [label]="row.role" variant="blue" />
+              </td>
+              <td class="px-5 py-3 text-gray-600">{{ row.hireDate | shortDate }}</td>
+              <td class="px-5 py-3 text-right">{{ row.annualSalary | currency:'CAD':'symbol-narrow':'1.0-0' }}</td>
+              <td class="px-5 py-3 text-right">{{ row.hourlyRate | currency:'CAD':'symbol-narrow':'1.2-2' }}</td>
+              <td class="px-5 py-3 text-right">{{ row.ytdHours | number:'1.0-0' }}</td>
+              <td class="px-5 py-3 text-right">{{ row.ytdCost | currency:'CAD':'symbol-narrow':'1.0-0' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </section>
