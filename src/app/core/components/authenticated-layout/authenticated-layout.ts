@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavBarComponent } from '../nav-bar/nav-bar';
 import { SideBarComponent } from '../side-bar/side-bar';
@@ -10,4 +10,10 @@ import { SideBarComponent } from '../side-bar/side-bar';
   styleUrl: './authenticated-layout.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AuthenticatedLayoutComponent {}
+export class AuthenticatedLayoutComponent {
+  readonly sidebarCollapsed = signal(false);
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed.update(v => !v);
+  }
+}

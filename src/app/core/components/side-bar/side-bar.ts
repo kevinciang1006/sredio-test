@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
@@ -8,4 +8,6 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './side-bar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SideBarComponent {}
+export class SideBarComponent {
+  readonly collapsed = input(false);
+}

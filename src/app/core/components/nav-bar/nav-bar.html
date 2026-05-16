@@ -1,18 +1,32 @@
-<header class="bg-white border-b border-gray-200 px-6 py-3">
-  <div class="relative inline-block">
+<header class="bg-white border-b border-gray-200 fixed left-0 right-0 top-0 z-50 h-14 flex items-center px-4 gap-3">
+  <button
+    type="button"
+    (click)="sidebarToggle.emit()"
+    class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 focus:outline-none shrink-0">
+    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" clip-rule="evenodd"
+        d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" />
+    </svg>
+    <span class="sr-only">Toggle sidebar</span>
+  </button>
+
+  <a routerLink="/dashboard" class="flex items-center gap-2 text-xl font-semibold text-blue-600 hover:text-blue-700 flex-1">
+    <span class="inline-flex w-8 h-8 rounded bg-blue-600 text-white items-center justify-center text-sm font-bold">S</span>
+    sred.io
+  </a>
+
+  <div class="relative shrink-0">
     <button
       type="button"
       (click)="toggleDropdown()"
-      class="flex items-center gap-2 text-xl font-semibold text-blue-600 hover:text-blue-700 focus:outline-none">
-      <span class="inline-flex w-8 h-8 rounded bg-blue-600 text-white items-center justify-center text-sm font-bold">S</span>
-      sred.io
-      <svg class="w-4 h-4 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-      </svg>
+      class="flex items-center focus:outline-none">
+      @if (currentUser(); as u) {
+        <app-avatar [name]="u.name" size="sm" />
+      }
     </button>
 
     @if (isOpen()) {
-      <div class="absolute left-0 mt-2 w-64 rounded-lg shadow-lg bg-white border border-gray-200 z-50">
+      <div class="absolute right-0 mt-2 w-64 rounded-lg shadow-lg bg-white border border-gray-200 z-50">
         @if (currentUser(); as u) {
           <div class="px-4 py-3 flex items-center gap-3">
             <app-avatar [name]="u.name" size="lg" />

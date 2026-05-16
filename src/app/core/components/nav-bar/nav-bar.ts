@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   inject,
+  output,
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -25,6 +26,7 @@ export class NavBarComponent {
 
   readonly currentUser = this.auth.currentUser;
   readonly isOpen = signal(false);
+  readonly sidebarToggle = output<void>();
 
   toggleDropdown(): void {
     this.isOpen.update(v => !v);
