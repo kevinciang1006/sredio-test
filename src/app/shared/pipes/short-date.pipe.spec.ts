@@ -26,4 +26,9 @@ describe('ShortDatePipe', () => {
     expect(pipe.transform(undefined)).toBe('');
     expect(pipe.transform('')).toBe('');
   });
+
+  it('returns empty string for out-of-range month', () => {
+    expect(pipe.transform('2025-13-01')).toBe('');
+    expect(pipe.transform('2025-00-01')).toBe('');
+  });
 });
