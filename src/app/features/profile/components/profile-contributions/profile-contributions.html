@@ -1,4 +1,5 @@
 @if (!isLoading() && profile()) {
+  @let opts = chartOpts();
   <section class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
     <h2 class="text-base font-semibold text-gray-900 mb-5">Project Contributions</h2>
 
@@ -8,12 +9,12 @@
       <div class="mb-6">
         <apx-chart
           [series]="chartSeries()"
-          [chart]="chartOpts().chart"
-          [plotOptions]="chartOpts().plotOptions"
-          [dataLabels]="chartOpts().dataLabels"
-          [xaxis]="chartOpts().xaxis"
-          [colors]="chartOpts().colors"
-          [tooltip]="chartOpts().tooltip" />
+          [chart]="opts.chart"
+          [plotOptions]="opts.plotOptions"
+          [dataLabels]="opts.dataLabels"
+          [xaxis]="opts.xaxis"
+          [colors]="opts.colors"
+          [tooltip]="opts.tooltip" />
       </div>
 
       <div class="overflow-x-auto">
