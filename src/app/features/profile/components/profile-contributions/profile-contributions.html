@@ -1,0 +1,49 @@
+@if (!isLoading() && profile()) {
+  <section class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <h2 class="text-base font-semibold text-gray-900 mb-5">Project Contributions</h2>
+
+    @if (contributions().length === 0) {
+      <p class="text-sm text-gray-500">No time entries recorded yet.</p>
+    } @else {
+      <div class="mb-6">
+        <apx-chart
+          [series]="chartSeries()"
+          [chart]="chartOpts().chart"
+          [plotOptions]="chartOpts().plotOptions"
+          [dataLabels]="chartOpts().dataLabels"
+          [xaxis]="chartOpts().xaxis"
+          [colors]="chartOpts().colors"
+          [tooltip]="chartOpts().tooltip" />
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+            <tr>
+              <th scope="col" class="px-4 py-3">Project</th>
+              <th scope="col" class="px-4 py-3">SR&amp;ED</th>
+              <th scope="col" class="px-4 py-3 text-right">Hours</th>
+              <th scope="col" class="px-4 py-3 text-right">Cost</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            @for (c of contributions(); track c.projectId) {
+              <tr class="bg-white hover:bg-gray-50">
+                <td class="px-4 py-3 font-medium text-gray-900">{{ c.projectName }}</td>
+                <td class="px-4 py-3">
+                  @if (c.isSredEligible) {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Eligible</span>
+                  } @else {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Not eligible</span>
+                  }
+                </td>
+                <td class="px-4 py-3 text-right">{{ c.hours | number:'1.0-0' }}</td>
+                <td class="px-4 py-3 text-right">{{ c.cost | currency:'CAD':'symbol-narrow':'1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}
