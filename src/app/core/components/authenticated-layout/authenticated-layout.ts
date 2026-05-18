@@ -15,5 +15,8 @@ export class AuthenticatedLayoutComponent {
 
   toggleSidebar(): void {
     this.sidebarCollapsed.update(v => !v);
+    // ApexCharts measures container width on resize events, not CSS transitions.
+    // Fire after the 300ms sidebar animation completes so charts reflow to the new width.
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 310);
   }
 }
