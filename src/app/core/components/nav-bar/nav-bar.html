@@ -19,9 +19,16 @@
     <button
       type="button"
       (click)="toggleDropdown()"
-      class="flex items-center focus:outline-none">
+      class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-gray-100 focus:outline-none">
       @if (currentUser(); as u) {
         <app-avatar [name]="u.name" size="sm" />
+        <div class="min-w-0 text-left">
+          <p class="text-sm font-medium text-gray-900 truncate max-w-40">{{ u.name }}</p>
+          <p class="text-xs text-gray-500 truncate max-w-40">{{ u.email }}</p>
+        </div>
+        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
       }
     </button>
 
