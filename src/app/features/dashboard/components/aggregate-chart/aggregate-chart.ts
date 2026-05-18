@@ -35,6 +35,8 @@ export class AggregateChartComponent {
     chart: {
       type: 'bar' as const,
       height: 320,
+      width: '100%',
+      redrawOnParentResize: true,
       toolbar: { show: false },
     } as ApexChart,
     plotOptions: {

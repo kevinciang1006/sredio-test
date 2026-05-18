@@ -55,6 +55,8 @@ export class ProfileContributionsComponent {
     chart: {
       type: 'bar' as const,
       height: Math.max(120, this.contributions().length * 52),
+      width: '100%',
+      redrawOnParentResize: true,
       toolbar: { show: false },
       animations: { enabled: false },
     } as ApexChart,

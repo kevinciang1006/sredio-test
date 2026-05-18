@@ -34,6 +34,8 @@ export class ProjectBreakdownChartComponent {
       type: 'bar' as const,
       stacked: true,
       height: 360,
+      width: '100%',
+      redrawOnParentResize: true,
       toolbar: { show: false },
     } as ApexChart,
     plotOptions: {
