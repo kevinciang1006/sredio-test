@@ -1,0 +1,34 @@
+<div class="bg-white rounded-lg border border-gray-200 p-6 flex items-center gap-8">
+  @if (isLoading()) {
+    <div class="flex-1 h-16 animate-pulse bg-gray-100 rounded"></div>
+  } @else {
+    <div class="flex-1 text-center border-r border-gray-100">
+      <p class="text-4xl font-bold text-blue-700">
+        @if (mode() === 'hours') {
+          {{ currentValue() | number:'1.0-0' }}
+          <span class="text-2xl font-semibold ml-1">hours</span>
+        } @else {
+          {{ currentValue() | currency:'CAD':'symbol-narrow':'1.0-0' }}
+        }
+      </p>
+      <p class="text-sm text-gray-500 mt-1">{{ periodLabel() }}</p>
+    </div>
+
+    @if (showProjection()) {
+      <div class="flex-1 text-center">
+        <p class="text-3xl font-semibold text-gray-400">
+          <span class="text-lg mr-1 text-gray-300">↗</span>
+          @if (mode() === 'hours') {
+            {{ projectedValue()! | number:'1.0-0' }}
+            <span class="text-xl font-normal ml-1">hours</span>
+          } @else {
+            {{ projectedValue()! | currency:'CAD':'symbol-narrow':'1.0-0' }}
+          }
+        </p>
+        <p class="text-sm text-gray-400 mt-1">Full Year SR&ED (Projected)</p>
+      </div>
+    } @else {
+      <div class="flex-1"></div>
+    }
+  }
+</div>
