@@ -32,6 +32,8 @@ yarn-error.log
 
 # Editor / agent state (preserved from initial repo)
 .claude/
+.playwright-mcp/
+.superpowers/
 
 # Miscellaneous
 /.angular/cache
