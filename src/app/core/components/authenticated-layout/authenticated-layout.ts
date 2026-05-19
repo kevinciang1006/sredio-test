@@ -2,14 +2,14 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs/operators';
-import { NavBarComponent } from '../nav-bar/nav-bar';
+import { TopBarComponent } from '../top-bar/top-bar';
 import { SideBarComponent } from '../side-bar/side-bar';
+import { ToastComponent } from '../../../shared/components/toast/toast';
 
 @Component({
   selector: 'app-authenticated-layout',
-  imports: [RouterOutlet, NavBarComponent, SideBarComponent],
+  imports: [RouterOutlet, TopBarComponent, SideBarComponent, ToastComponent],
   templateUrl: './authenticated-layout.html',
-  styleUrl: './authenticated-layout.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuthenticatedLayoutComponent {
