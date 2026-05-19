@@ -1,0 +1,16 @@
+<div role="group" class="inline-flex rounded-lg border border-gray-200 bg-white shadow-sm p-0.5">
+  @for (tab of tabs; track tab.value) {
+    <button
+      type="button"
+      (click)="select(tab.value)"
+      [class.bg-blue-600]="mode() === tab.value"
+      [class.text-white]="mode() === tab.value"
+      [class.text-gray-700]="mode() !== tab.value"
+      class="px-4 py-1.5 text-sm font-medium rounded-md transition-colors whitespace-nowrap">
+      @if (mode() === tab.value) {
+        <span class="mr-1">✓</span>
+      }
+      {{ tab.label }}
+    </button>
+  }
+</div>
