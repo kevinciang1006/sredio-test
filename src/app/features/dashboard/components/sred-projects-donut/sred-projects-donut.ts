@@ -45,6 +45,8 @@ export class SredProjectsDonutComponent {
       chart: {
         type: 'donut' as const,
         height: 300,
+        width: '100%',
+        redrawOnParentResize: true,
         toolbar: { show: false },
         events: {
           dataPointSelection: (
@@ -75,7 +77,7 @@ export class SredProjectsDonutComponent {
       } as ApexPlotOptions,
       dataLabels: {
         enabled: true,
-        formatter: (val: number) => `${val.toFixed(1)}%`,
+        formatter: (val: string | number | number[]) => `${Number(val).toFixed(1)}%`,
       } as ApexDataLabels,
       labels: bars.map(b => b.projectName),
       colors: bars.map(b => b.color),
