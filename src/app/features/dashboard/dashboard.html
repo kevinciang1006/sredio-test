@@ -1,11 +1,46 @@
 <div class="space-y-5">
   <app-client-header
     [client]="client()"
-    [isLoading]="isLoading()"
-    [activePeriod]="activeClaimPeriod()"
-    (periodChange)="onClaimPeriodChange($event)" />
+    [isLoading]="isLoading()" />
 
-  <app-page-header title="SR&ED Projections">
+  <app-page-header
+    title="SR&ED Projections"
+    [badge]="claimStatus()"
+    [lastUpdatedAt]="lastUpdatedAt()">
+
+    <div class="relative">
+      <button
+        type="button"
+        (click)="togglePeriodDropdown()"
+        class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700">
+        @if (activeClaimPeriod(); as p) {
+          {{ formatPeriodRange(p) }}
+        } @else {
+          Select period
+        }
+        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      @if (isPeriodOpen() && client()) {
+        <div class="absolute right-0 mt-1 w-56 rounded-lg shadow-lg bg-white border border-gray-200 z-30 py-1">
+          @for (p of client()!.claimPeriods; track p.id) {
+            <button
+              type="button"
+              (click)="onClaimPeriodChange(p.id); isPeriodOpen.set(false)"
+              class="flex w-full items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+              <span>{{ formatPeriodRange(p) }}</span>
+              @if (activeClaimPeriod()?.id === p.id) {
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+
     <app-mode-tabs [mode]="mode()" (modeChange)="onModeChange($event)" />
     <button
       type="button"

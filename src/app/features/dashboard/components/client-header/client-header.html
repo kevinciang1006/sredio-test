@@ -1,48 +1,10 @@
-<section class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+<section class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
   @if (isLoading() || !client()) {
-    <div class="animate-pulse space-y-2">
-      <div class="h-6 bg-gray-200 rounded w-1/3"></div>
-      <div class="h-4 bg-gray-200 rounded w-1/4"></div>
-    </div>
+    <div class="animate-pulse h-7 bg-gray-200 rounded w-1/3"></div>
   } @else if (client(); as c) {
-    <div class="flex items-baseline justify-between flex-wrap gap-2">
+    <div class="flex items-baseline gap-3">
       <h1 class="text-2xl font-semibold text-gray-900">{{ c.name }}</h1>
-      <div class="text-sm text-gray-600 flex items-center gap-2">
-        <span>Claim period</span>
-        <div class="relative">
-          <button
-            type="button"
-            (click)="toggle()"
-            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700">
-            @if (activePeriod(); as p) {
-              {{ formatRange(p) }}
-            } @else {
-              Select period
-            }
-            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          @if (isOpen()) {
-            <div class="absolute right-0 mt-1 w-64 rounded-lg shadow-lg bg-white border border-gray-200 z-30 py-1">
-              @for (p of c.claimPeriods; track p.id) {
-                <button
-                  type="button"
-                  (click)="select(p.id)"
-                  class="flex w-full items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                  <span>{{ formatRange(p) }}</span>
-                  @if (activePeriod()?.id === p.id) {
-                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  }
-                </button>
-              }
-            </div>
-          }
-        </div>
-        <span>· Province <span class="font-medium">{{ c.province }}</span></span>
-      </div>
+      <span class="text-sm text-gray-500">· Province <span class="font-medium text-gray-700">{{ c.province }}</span></span>
     </div>
   }
 </section>

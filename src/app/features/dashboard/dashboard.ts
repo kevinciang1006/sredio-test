@@ -41,7 +41,7 @@ import {
 } from './calculations/project-bar-data';
 import { staffBarData } from './calculations/staff-bar-data';
 import { SredMode, QuarterPeriod, EmployeeRow } from './models/chart-data.model';
-import { Client } from '../../core/models/client.model';
+import { Client, ClaimPeriod } from '../../core/models/client.model';
 import { Employee } from '../../core/models/employee.model';
 import { Project } from './models/project.model';
 import { TimeEntry } from './models/time-entry.model';
@@ -131,6 +131,10 @@ export class DashboardComponent {
   });
   readonly selectedEmployeeId = signal<string | null>(null);
   readonly modalMode = signal<SredMode>('hours');
+  readonly isPeriodOpen = signal(false);
+
+  readonly claimStatus = computed(() => this.client()?.claimStatus ?? null);
+  readonly lastUpdatedAt = computed(() => this.client()?.lastUpdatedAt ?? null);
   readonly isRecalculating = signal(false);
 
   readonly isLoading = computed(() =>
@@ -166,7 +170,7 @@ export class DashboardComponent {
       q2: `Apr 1 – Jun 30, ${year}`,
       q3: `Jul 1 – Sep 30, ${year}`,
       q4: `Oct 1 – Dec 31, ${year}`,
-      ytd: `${p.startDate} – ${this.asOf}`,
+      ytd: `${formatShortDate(p.startDate)} – ${formatShortDate(this.asOf)}`,
     };
 
     return PERIODS.map(period => {
@@ -339,6 +343,13 @@ export class DashboardComponent {
     this.selectedPeriod.set(period);
     this.drilledProjectId.set(null);
   }
+  togglePeriodDropdown(): void { this.isPeriodOpen.update(v => !v); }
+
+  formatPeriodRange(p: ClaimPeriod): string {
+    const fmt = (d: string) => new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    return `${fmt(p.startDate)} – ${fmt(p.endDate)} ${p.endDate.slice(0, 4)}`;
+  }
+
   onClaimPeriodChange(periodId: string): void {
     this.activeClaimPeriodId.set(periodId);
     this.selectedPeriod.set('ytd');

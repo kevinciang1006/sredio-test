@@ -1,9 +1,19 @@
 <div class="flex items-start justify-between flex-wrap gap-3">
   <div>
-    <h1 class="text-xl font-bold text-gray-900">{{ title() }}</h1>
-    @if (subtitle()) {
-      <p class="text-sm text-gray-500 mt-0.5">{{ subtitle() }}</p>
-    }
+    <h1 class="text-2xl font-bold text-gray-900">{{ title() }}</h1>
+    <div class="flex items-center gap-2 mt-1">
+      @if (badge()) {
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          {{ badge() }}
+        </span>
+      }
+      @if (subtitle()) {
+        <p class="text-sm text-gray-500">{{ subtitle() }}</p>
+      }
+      @if (lastUpdatedAt()) {
+        <app-info-tooltip [text]="'Last updated ' + lastUpdatedAt()" />
+      }
+    </div>
   </div>
   <div class="flex items-center gap-3 flex-wrap">
     <ng-content />

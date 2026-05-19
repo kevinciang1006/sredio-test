@@ -15,6 +15,8 @@ export const MOCK_CLIENTS: Record<string, Client> = {
     province: 'ON',
     timeZone: 'EST',
     sredCreditRate: 0.45,
+    lastUpdatedAt: '15 May 2026',
+    claimStatus: 'Completed',
   },
   [TENANTS[1].id]: {
     id: 'client-002',
@@ -23,6 +25,8 @@ export const MOCK_CLIENTS: Record<string, Client> = {
     province: 'BC',
     timeZone: 'PST',
     sredCreditRate: 0.40,
+    lastUpdatedAt: '15 May 2026',
+    claimStatus: 'Completed',
   },
   [TENANTS[2].id]: {
     id: 'client-003',
@@ -31,6 +35,8 @@ export const MOCK_CLIENTS: Record<string, Client> = {
     province: 'AB',
     timeZone: 'MST',
     sredCreditRate: 0.35,
+    lastUpdatedAt: '15 May 2026',
+    claimStatus: 'Completed',
   },
   [TENANTS[3].id]: {
     id: 'client-004',
@@ -39,6 +45,8 @@ export const MOCK_CLIENTS: Record<string, Client> = {
     province: 'QC',
     timeZone: 'EST',
     sredCreditRate: 0.30,
+    lastUpdatedAt: '15 May 2026',
+    claimStatus: 'Completed',
   },
 };
 
