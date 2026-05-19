@@ -5,19 +5,26 @@
     [activePeriod]="activeClaimPeriod()"
     (periodChange)="onClaimPeriodChange($event)" />
 
-  <div class="bg-white rounded-lg border border-gray-200 p-5">
-    <div class="flex items-start justify-between flex-wrap gap-3 mb-5">
-      <h1 class="text-xl font-bold text-gray-900">SR&amp;ED Projections</h1>
-      <div class="flex items-center gap-3 flex-wrap">
-        <app-mode-tabs [mode]="mode()" (modeChange)="onModeChange($event)" />
-        <button
-          type="button"
-          class="px-4 py-1.5 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition-colors whitespace-nowrap">
-          Recalculate Projections
-        </button>
-      </div>
-    </div>
+  <app-page-header title="SR&ED Projections">
+    <app-mode-tabs [mode]="mode()" (modeChange)="onModeChange($event)" />
+    <button
+      type="button"
+      (click)="onRecalculate()"
+      [disabled]="isRecalculating()"
+      class="inline-flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors whitespace-nowrap">
+      @if (isRecalculating()) {
+        <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Recalculating…
+      } @else {
+        Recalculate Projections
+      }
+    </button>
+  </app-page-header>
 
+  <div class="bg-white rounded-lg border border-gray-200 p-5">
     @if (isLoading()) {
       <div class="h-14 animate-pulse bg-gray-100 rounded mb-5"></div>
       <div class="h-20 animate-pulse bg-gray-100 rounded"></div>

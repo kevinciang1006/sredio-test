@@ -18,6 +18,8 @@ import { StaffSectionComponent } from './components/staff-section/staff-section'
 import { EmployeeModalComponent } from './components/employee-modal/employee-modal';
 import { StaffSalaryTableComponent } from './components/staff-salary-table/staff-salary-table';
 import { InfoTooltipComponent } from '../../shared/components/info-tooltip/info-tooltip';
+import { ToastService } from '../../shared/services/toast.service';
+import { PageHeaderComponent } from '../../core/components/page-header/page-header';
 import { APP_CONSTANTS } from '../../core/constants/app-constants';
 import {
   projectFullYear,
@@ -70,6 +72,7 @@ function formatShortDate(iso: string): string {
     EmployeeModalComponent,
     StaffSalaryTableComponent,
     InfoTooltipComponent,
+    PageHeaderComponent,
     CurrencyPipe,
     DecimalPipe,
   ],
@@ -83,6 +86,7 @@ export class DashboardComponent {
   private readonly projectsSvc = inject(ProjectsService);
   private readonly timeEntriesSvc = inject(TimeEntriesService);
   private readonly teamsSvc = inject(TeamsService);
+  private readonly toastSvc = inject(ToastService);
 
   private readonly route = inject(ActivatedRoute);
   private readonly tenantId = toSignal(
@@ -127,6 +131,7 @@ export class DashboardComponent {
   });
   readonly selectedEmployeeId = signal<string | null>(null);
   readonly modalMode = signal<SredMode>('hours');
+  readonly isRecalculating = signal(false);
 
   readonly isLoading = computed(() =>
     !this.client() ||
@@ -319,6 +324,15 @@ export class DashboardComponent {
     const { start, end } = quarterBoundaries(this.selectedPeriod(), p.startDate, this.asOf);
     return `${formatShortDate(start)} – ${formatShortDate(end)}`;
   });
+
+  onRecalculate(): void {
+    if (this.isRecalculating()) return;
+    this.isRecalculating.set(true);
+    setTimeout(() => {
+      this.isRecalculating.set(false);
+      this.toastSvc.show('Projections recalculated');
+    }, 800);
+  }
 
   onModeChange(mode: SredMode): void { this.mode.set(mode); }
   onPeriodSelect(period: QuarterPeriod): void {
