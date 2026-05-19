@@ -25,7 +25,6 @@ import { APP_CONSTANTS } from '../../core/constants/app-constants';
 import {
   projectFullYear,
   hourlyRate,
-  daysElapsed,
 } from './calculations';
 import {
   quarterBoundaries,
@@ -225,12 +224,6 @@ export class DashboardComponent {
       p.endDate,
       this.asOf(),
     ).projectedFullYear;
-  });
-
-  readonly ytdDaysElapsed = computed(() => {
-    const p = this.activeClaimPeriod();
-    if (!p) return 0;
-    return daysElapsed(p.startDate, this.asOf());
   });
 
   readonly projectBars = computed(() =>
