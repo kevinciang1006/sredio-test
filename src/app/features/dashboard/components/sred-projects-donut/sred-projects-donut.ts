@@ -37,9 +37,15 @@ export class SredProjectsDonutComponent {
       ? `${Math.round(total).toLocaleString('en-CA')} hrs`
       : CAD_FORMATTER.format(total);
 
-    const tooltipFormatter = m === 'hours'
-      ? (v: number) => `${Math.round(v).toLocaleString('en-CA')} hrs`
-      : (v: number) => CAD_FORMATTER.format(v);
+    const tooltipFormatter = (v: number, opts: { dataPointIndex: number }) => {
+      const valueStr = m === 'hours'
+        ? `${Math.round(v).toLocaleString('en-CA')} hrs`
+        : CAD_FORMATTER.format(v);
+      const bar = bars[opts?.dataPointIndex];
+      return bar?.isSredEligible === false
+        ? `${valueStr}\nNon-SR&ED eligible: hours on admin, operations, and other work that does not qualify for the SR&ED claim.`
+        : valueStr;
+    };
 
     return {
       chart: {
