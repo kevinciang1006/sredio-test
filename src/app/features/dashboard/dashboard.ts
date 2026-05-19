@@ -2,13 +2,12 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, startWith } from 'rxjs/operators';
 import { ClientsService } from './services/clients.service';
 import { EmployeesService } from './services/employees.service';
 import { ProjectsService } from './services/projects.service';
 import { TimeEntriesService } from './services/time-entries.service';
 import { TeamsService } from './services/teams.service';
-import { ClientHeaderComponent } from './components/client-header/client-header';
 import { ModeTabsComponent } from './components/mode-tabs/mode-tabs';
 import { QuarterlyTimelineComponent, QuarterTab } from './components/quarterly-timeline/quarterly-timeline';
 import { DualKpiPanelComponent } from './components/dual-kpi-panel/dual-kpi-panel';
@@ -62,7 +61,6 @@ function formatShortDate(iso: string): string {
 @Component({
   selector: 'app-dashboard',
   imports: [
-    ClientHeaderComponent,
     ModeTabsComponent,
     QuarterlyTimelineComponent,
     DualKpiPanelComponent,
@@ -100,17 +98,29 @@ export class DashboardComponent {
     ),
     { initialValue: null },
   );
-  readonly employees = toSignal<readonly Employee[], readonly Employee[]>(
-    this.employeesSvc.getAll(), { initialValue: [] },
+  readonly employees = toSignal(
+    toObservable(this.tenantId).pipe(
+      switchMap(id => this.employeesSvc.getAll(id).pipe(startWith([] as readonly Employee[]))),
+    ),
+    { initialValue: [] as readonly Employee[] },
   );
-  readonly projects = toSignal<readonly Project[], readonly Project[]>(
-    this.projectsSvc.getAll(), { initialValue: [] },
+  readonly projects = toSignal(
+    toObservable(this.tenantId).pipe(
+      switchMap(id => this.projectsSvc.getAll(id).pipe(startWith([] as readonly Project[]))),
+    ),
+    { initialValue: [] as readonly Project[] },
   );
-  readonly timeEntries = toSignal<readonly TimeEntry[], readonly TimeEntry[]>(
-    this.timeEntriesSvc.getAll(), { initialValue: [] },
+  readonly timeEntries = toSignal(
+    toObservable(this.tenantId).pipe(
+      switchMap(id => this.timeEntriesSvc.getAll(id).pipe(startWith([] as readonly TimeEntry[]))),
+    ),
+    { initialValue: [] as readonly TimeEntry[] },
   );
-  readonly teams = toSignal<readonly Team[], readonly Team[]>(
-    this.teamsSvc.getAll(), { initialValue: [] },
+  readonly teams = toSignal(
+    toObservable(this.tenantId).pipe(
+      switchMap(id => this.teamsSvc.getAll(id).pipe(startWith([] as readonly Team[]))),
+    ),
+    { initialValue: [] as readonly Team[] },
   );
 
   readonly mode = signal<SredMode>('hours');

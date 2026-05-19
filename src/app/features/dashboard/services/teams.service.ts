@@ -3,17 +3,19 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { Team } from '../../../core/models/team.model';
-import { MOCK_TEAMS } from '../mock/teams.mock';
+import { MOCK_TEAMS_BY_TENANT } from '../mock/teams.mock';
+import { TENANTS } from '../../../core/constants/tenants.const';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TeamsService {
   private readonly http = inject(HttpClient);
 
-  getAll(): Observable<readonly Team[]> {
+  getAll(tenantId: string): Observable<readonly Team[]> {
     if (environment.useMocks) {
-      return of(MOCK_TEAMS).pipe(delay(250));
+      const data = MOCK_TEAMS_BY_TENANT[tenantId] ?? MOCK_TEAMS_BY_TENANT[TENANTS[0].id];
+      return of(data).pipe(delay(250));
     }
-    return this.http.get<readonly Team[]>(`${environment.apiBaseUrl}/teams`);
+    return this.http.get<readonly Team[]>(`${environment.apiBaseUrl}/tenants/${tenantId}/teams`);
   }
 }

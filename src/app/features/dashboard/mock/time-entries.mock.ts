@@ -1,4 +1,5 @@
 import { TimeEntry } from '../models/time-entry.model';
+import { TENANTS } from '../../../core/constants/tenants.const';
 
 // Deterministic seeded RNG so the data is identical every run.
 function makeRng(seed: number): () => number {
@@ -9,8 +10,8 @@ function makeRng(seed: number): () => number {
   };
 }
 
-function generate(): readonly TimeEntry[] {
-  const rng = makeRng(0xC0FFEE);
+function generate(seed: number): readonly TimeEntry[] {
+  const rng = makeRng(seed);
   const employees = ['emp-001','emp-002','emp-003','emp-004','emp-005','emp-006','emp-007'];
   // Each employee's project distribution weights (0..1). Some employees focus on certain projects.
   const weights: Record<string, readonly number[]> = {
@@ -77,4 +78,9 @@ function generate(): readonly TimeEntry[] {
   return entries;
 }
 
-export const MOCK_TIME_ENTRIES: readonly TimeEntry[] = generate();
+export const MOCK_TIME_ENTRIES_BY_TENANT: Record<string, readonly TimeEntry[]> = {
+  [TENANTS[0].id]: generate(0xC0FFEE),
+  [TENANTS[1].id]: generate(0xDEADBEEF),
+  [TENANTS[2].id]: generate(0xBEEFCAFE),
+  [TENANTS[3].id]: generate(0xCAFEBABE),
+};

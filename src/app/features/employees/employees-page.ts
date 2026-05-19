@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { map, switchMap, startWith } from 'rxjs/operators';
 import { EmployeesService } from '../dashboard/services/employees.service';
 import { TeamsService } from '../dashboard/services/teams.service';
 import { TimeEntriesService } from '../dashboard/services/time-entries.service';
@@ -24,15 +26,30 @@ export class EmployeesPageComponent {
   private readonly employeesSvc = inject(EmployeesService);
   private readonly teamsSvc = inject(TeamsService);
   private readonly timeEntriesSvc = inject(TimeEntriesService);
+  private readonly route = inject(ActivatedRoute);
 
-  readonly employees = toSignal<readonly Employee[], readonly Employee[]>(
-    this.employeesSvc.getAll(), { initialValue: [] },
+  private readonly tenantId = toSignal(
+    this.route.paramMap.pipe(map(p => p.get('tenantId') ?? '')),
+    { initialValue: this.route.snapshot.params['tenantId'] as string ?? '' },
   );
-  readonly teams = toSignal<readonly Team[], readonly Team[]>(
-    this.teamsSvc.getAll(), { initialValue: [] },
+
+  readonly employees = toSignal(
+    toObservable(this.tenantId).pipe(
+      switchMap(id => this.employeesSvc.getAll(id).pipe(startWith([] as readonly Employee[]))),
+    ),
+    { initialValue: [] as readonly Employee[] },
   );
-  readonly timeEntries = toSignal<readonly TimeEntry[], readonly TimeEntry[]>(
-    this.timeEntriesSvc.getAll(), { initialValue: [] },
+  readonly teams = toSignal(
+    toObservable(this.tenantId).pipe(
+      switchMap(id => this.teamsSvc.getAll(id).pipe(startWith([] as readonly Team[]))),
+    ),
+    { initialValue: [] as readonly Team[] },
+  );
+  readonly timeEntries = toSignal(
+    toObservable(this.tenantId).pipe(
+      switchMap(id => this.timeEntriesSvc.getAll(id).pipe(startWith([] as readonly TimeEntry[]))),
+    ),
+    { initialValue: [] as readonly TimeEntry[] },
   );
 
   readonly search = signal('');
