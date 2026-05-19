@@ -12,7 +12,9 @@ import { ModeTabsComponent } from './components/mode-tabs/mode-tabs';
 import { QuarterlyTimelineComponent, QuarterTab } from './components/quarterly-timeline/quarterly-timeline';
 import { DualKpiPanelComponent } from './components/dual-kpi-panel/dual-kpi-panel';
 import { SredProjectsBarComponent } from './components/sred-projects-bar/sred-projects-bar';
+import { SredProjectsDonutComponent } from './components/sred-projects-donut/sred-projects-donut';
 import { EmployeeBreakdownBarComponent } from './components/employee-breakdown-bar/employee-breakdown-bar';
+import { EmployeeBreakdownDonutComponent } from './components/employee-breakdown-donut/employee-breakdown-donut';
 import { StaffSectionComponent } from './components/staff-section/staff-section';
 import { EmployeeModalComponent } from '../../shared/components/employee-modal/employee-modal';
 import { StaffSalaryTableComponent } from './components/staff-salary-table/staff-salary-table';
@@ -23,6 +25,7 @@ import { APP_CONSTANTS } from '../../core/constants/app-constants';
 import {
   projectFullYear,
   hourlyRate,
+  daysElapsed,
 } from './calculations';
 import {
   quarterBoundaries,
@@ -65,7 +68,9 @@ function formatShortDate(iso: string): string {
     QuarterlyTimelineComponent,
     DualKpiPanelComponent,
     SredProjectsBarComponent,
+    SredProjectsDonutComponent,
     EmployeeBreakdownBarComponent,
+    EmployeeBreakdownDonutComponent,
     StaffSectionComponent,
     EmployeeModalComponent,
     StaffSalaryTableComponent,
@@ -126,6 +131,7 @@ export class DashboardComponent {
   readonly mode = signal<SredMode>('hours');
   readonly selectedPeriod = signal<QuarterPeriod>('ytd');
   readonly drilledProjectId = signal<string | null>(null);
+  readonly chartView = signal<'bar' | 'donut'>('bar');
   readonly activeClaimPeriodId = signal<string | null>(null);
 
   readonly activeClaimPeriod = computed(() => {
@@ -219,6 +225,12 @@ export class DashboardComponent {
       p.endDate,
       this.asOf(),
     ).projectedFullYear;
+  });
+
+  readonly ytdDaysElapsed = computed(() => {
+    const p = this.activeClaimPeriod();
+    if (!p) return 0;
+    return daysElapsed(p.startDate, this.asOf());
   });
 
   readonly projectBars = computed(() =>
@@ -377,6 +389,7 @@ export class DashboardComponent {
     this.selectedPeriod.set('ytd');
     this.drilledProjectId.set(null);
   }
+  onChartViewChange(v: 'bar' | 'donut'): void { this.chartView.set(v); }
   onProjectClick(projectId: string): void { this.drilledProjectId.set(projectId); }
   onDrillBack(): void { this.drilledProjectId.set(null); }
   onEmployeeClick(employeeId: string): void {

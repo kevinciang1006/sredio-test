@@ -79,6 +79,8 @@
         <app-dual-kpi-panel
           [currentValue]="currentKpiValue()"
           [projectedValue]="projectedFullYearValue()"
+          [ytdValue]="ytdValue()"
+          [daysElapsed]="ytdDaysElapsed()"
           [mode]="mode()"
           [selectedPeriod]="selectedPeriod()" />
       </div>
@@ -113,19 +115,54 @@
           </span>
         }
       }
+      @if (!drilledProject()) {
+        <div class="ml-auto flex bg-gray-100 rounded-lg p-0.5 gap-0.5">
+          <button
+            type="button"
+            (click)="onChartViewChange('bar')"
+            [class.bg-blue-600]="chartView() === 'bar'"
+            [class.text-white]="chartView() === 'bar'"
+            [class.text-gray-700]="chartView() !== 'bar'"
+            class="px-3 py-1 text-xs font-medium rounded-md transition-colors">
+            Bar
+          </button>
+          <button
+            type="button"
+            (click)="onChartViewChange('donut')"
+            [class.bg-blue-600]="chartView() === 'donut'"
+            [class.text-white]="chartView() === 'donut'"
+            [class.text-gray-700]="chartView() !== 'donut'"
+            class="px-3 py-1 text-xs font-medium rounded-md transition-colors">
+            Donut
+          </button>
+        </div>
+      }
     </div>
 
     @if (isLoading()) {
       <div class="h-16 animate-pulse bg-gray-100 rounded"></div>
     } @else if (drilledProject()) {
-      <app-employee-breakdown-bar
-        [bars]="employeeBreakdownBars()"
-        [mode]="mode()" />
+      @if (chartView() === 'bar') {
+        <app-employee-breakdown-bar
+          [bars]="employeeBreakdownBars()"
+          [mode]="mode()" />
+      } @else {
+        <app-employee-breakdown-donut
+          [bars]="employeeBreakdownBars()"
+          [mode]="mode()" />
+      }
     } @else {
-      <app-sred-projects-bar
-        [bars]="projectBars()"
-        [mode]="mode()"
-        (projectClick)="onProjectClick($event)" />
+      @if (chartView() === 'bar') {
+        <app-sred-projects-bar
+          [bars]="projectBars()"
+          [mode]="mode()"
+          (projectClick)="onProjectClick($event)" />
+      } @else {
+        <app-sred-projects-donut
+          [bars]="projectBars()"
+          [mode]="mode()"
+          (projectClick)="onProjectClick($event)" />
+      }
     }
   </section>
 
