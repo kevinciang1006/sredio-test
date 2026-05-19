@@ -1,0 +1,26 @@
+<div class="grid grid-cols-5 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 text-center">
+  @for (tab of tabs(); track tab.period) {
+    @let isActive = selected() === tab.period;
+    <button
+      type="button"
+      (click)="select(tab.period)"
+      [class.bg-white]="isActive"
+      [class.shadow-sm]="isActive"
+      [class.border-b-2]="isActive"
+      [class.border-b-blue-600]="isActive"
+      [class.text-blue-700]="isActive"
+      [class.text-gray-600]="!isActive"
+      class="py-3 px-2 transition-colors cursor-pointer">
+      <p class="text-base font-semibold truncate">
+        @if (mode() === 'hours') {
+          {{ tab.value | number:'1.0-0' }}
+          <span class="text-sm font-normal ml-0.5">hrs</span>
+        } @else {
+          {{ tab.value | currency:'CAD':'symbol-narrow':'1.0-0' }}
+        }
+      </p>
+      <p class="text-xs mt-0.5 truncate">{{ tab.sublabel }}</p>
+      <p class="text-xs font-medium mt-0.5">{{ tab.label }}</p>
+    </button>
+  }
+</div>
