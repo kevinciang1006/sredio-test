@@ -15,7 +15,7 @@ import { DualKpiPanelComponent } from './components/dual-kpi-panel/dual-kpi-pane
 import { SredProjectsBarComponent } from './components/sred-projects-bar/sred-projects-bar';
 import { EmployeeBreakdownBarComponent } from './components/employee-breakdown-bar/employee-breakdown-bar';
 import { StaffSectionComponent } from './components/staff-section/staff-section';
-import { EmployeeModalComponent } from './components/employee-modal/employee-modal';
+import { EmployeeModalComponent } from '../../shared/components/employee-modal/employee-modal';
 import { StaffSalaryTableComponent } from './components/staff-salary-table/staff-salary-table';
 import { InfoTooltipComponent } from '../../shared/components/info-tooltip/info-tooltip';
 import { ToastService } from '../../shared/services/toast.service';

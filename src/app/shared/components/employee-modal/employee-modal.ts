@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { CurrencyPipe, DecimalPipe, PercentPipe } from '@angular/common';
-import { Employee } from '../../../../core/models/employee.model';
-import { SredMode, SredProjectBar } from '../../models/chart-data.model';
-import { ModeTabsComponent } from '../mode-tabs/mode-tabs';
-import { SredProjectsBarComponent } from '../sred-projects-bar/sred-projects-bar';
-import { ShortDatePipe } from '../../../../shared/pipes/short-date.pipe';
+import { Employee } from '../../../core/models/employee.model';
+import { SredMode, SredProjectBar } from '../../../features/dashboard/models/chart-data.model';
+import { ModeTabsComponent } from '../../../features/dashboard/components/mode-tabs/mode-tabs';
+import { SredProjectsBarComponent } from '../../../features/dashboard/components/sred-projects-bar/sred-projects-bar';
+import { ShortDatePipe } from '../../pipes/short-date.pipe';
 
 @Component({
   selector: 'app-employee-modal',
