@@ -53,6 +53,6 @@ export interface EmployeeBreakdownBar {
 export interface StaffBarEntry {
   readonly employeeId: string;
   readonly name: string;
-  readonly sredHours: number;
-  readonly unclaimedHours: number;
+  readonly sredValue: number;
+  readonly unclaimedValue: number;
 }

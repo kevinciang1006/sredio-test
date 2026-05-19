@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { Team } from '../../../../core/models/team.model';
 import { Employee } from '../../../../core/models/employee.model';
-import { StaffBarEntry } from '../../models/chart-data.model';
+import { SredMode, StaffBarEntry } from '../../models/chart-data.model';
 import { TeamStaffChartComponent } from '../team-staff-chart/team-staff-chart';
 import { InfoTooltipComponent } from '../../../../shared/components/info-tooltip/info-tooltip';
 
@@ -21,6 +21,7 @@ export class StaffSectionComponent {
   readonly teams = input.required<readonly Team[]>();
   readonly employees = input.required<readonly Employee[]>();
   readonly staffData = input.required<readonly StaffBarEntry[]>();
+  readonly mode = input.required<SredMode>();
   readonly employeeClick = output<string>();
 
   readonly totalCount = computed(() => this.employees().length);

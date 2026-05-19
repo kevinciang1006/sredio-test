@@ -21,6 +21,7 @@
       </div>
       <app-team-staff-chart
         [entries]="group.entries"
+        [mode]="mode()"
         (employeeClick)="employeeClick.emit($event)" />
     </div>
   }

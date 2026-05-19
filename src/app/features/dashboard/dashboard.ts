@@ -253,7 +253,13 @@ export class DashboardComponent {
   });
 
   readonly staffBars = computed(() =>
-    staffBarData(this.periodEntries(), this.employees(), this.projects()),
+    staffBarData(
+      this.periodEntries(),
+      this.employees(),
+      this.projects(),
+      this.mode(),
+      this.client()?.sredCreditRate ?? 0.45,
+    ),
   );
 
   readonly employeeRows = computed<readonly EmployeeRow[]>(() => {

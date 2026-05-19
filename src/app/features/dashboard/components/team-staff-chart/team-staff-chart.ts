@@ -9,7 +9,7 @@ import type {
   ApexLegend,
   ApexTooltip,
 } from 'ng-apexcharts';
-import { StaffBarEntry } from '../../models/chart-data.model';
+import { SredMode, StaffBarEntry } from '../../models/chart-data.model';
 
 @Component({
   selector: 'app-team-staff-chart',
@@ -19,15 +19,33 @@ import { StaffBarEntry } from '../../models/chart-data.model';
 })
 export class TeamStaffChartComponent {
   readonly entries = input.required<readonly StaffBarEntry[]>();
+  readonly mode = input<SredMode>('hours');
   readonly employeeClick = output<string>();
 
-  readonly series = computed(() => [
-    { name: 'SR&ED', data: this.entries().map(e => Math.round(e.sredHours)) },
-    { name: 'Unclaimed', data: this.entries().map(e => Math.round(e.unclaimedHours)) },
-  ]);
+  readonly series = computed(() => {
+    const m = this.mode();
+    const sred = {
+      name: m === 'credits' ? 'SR&ED Credits' : 'SR&ED',
+      data: this.entries().map(e => Math.round(e.sredValue)),
+    };
+    if (m === 'credits') return [sred];
+    return [sred, { name: 'Unclaimed', data: this.entries().map(e => Math.round(e.unclaimedValue)) }];
+  });
 
   readonly chartOptions = computed(() => {
     const entries = this.entries();
+    const m = this.mode();
+
+    const yAxisTitle =
+      m === 'hours' ? 'SR&ED Hours' :
+      m === 'expenditures' ? 'Expenditures ($)' :
+      'SR&ED Credits ($)';
+
+    const tooltipFormatter =
+      m === 'hours'
+        ? (v: number) => `${v.toFixed(0)} hrs`
+        : (v: number) => `$${v.toLocaleString()}`;
+
     return {
       chart: {
         type: 'bar' as const,
@@ -55,11 +73,11 @@ export class TeamStaffChartComponent {
         labels: { rotate: -30, style: { fontSize: '11px' } },
         title: { text: 'SR&ED Employees and Contractors' },
       } as ApexXAxis,
-      yaxis: { title: { text: 'SR&ED Hours' } } as ApexYAxis,
+      yaxis: { title: { text: yAxisTitle } } as ApexYAxis,
       colors: ['#1e40af', '#9ca3af'],
       legend: { show: true, position: 'right' as const } as ApexLegend,
       tooltip: {
-        y: { formatter: (v: number) => `${v.toFixed(0)} hrs` },
+        y: { formatter: tooltipFormatter },
       } as ApexTooltip,
     };
   });
