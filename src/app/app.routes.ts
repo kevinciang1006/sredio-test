@@ -2,12 +2,15 @@ import { Routes } from '@angular/router';
 import { AuthenticatedLayoutComponent } from './core/components/authenticated-layout/authenticated-layout';
 import { GuestLayoutComponent } from './core/components/guest-layout/guest-layout';
 import { authGuard } from './core/guards/auth.guard';
+import { tenantGuard } from './core/guards/tenant.guard';
+import { TENANTS } from './core/constants/tenants.const';
 
 export const routes: Routes = [
+  { path: '', redirectTo: `tenant/${TENANTS[0].id}/dashboard`, pathMatch: 'full' },
   {
-    path: '',
+    path: 'tenant/:tenantId',
     component: AuthenticatedLayoutComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, tenantGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
@@ -33,5 +36,5 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: `tenant/${TENANTS[0].id}/dashboard` },
 ];
