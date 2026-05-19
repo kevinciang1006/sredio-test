@@ -1,46 +1,65 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ClientsService } from './services/clients.service';
 import { EmployeesService } from './services/employees.service';
 import { ProjectsService } from './services/projects.service';
 import { TimeEntriesService } from './services/time-entries.service';
+import { TeamsService } from './services/teams.service';
 import { ClientHeaderComponent } from './components/client-header/client-header';
-import { SummaryCardComponent } from './components/summary-card/summary-card';
-import { HoursCostToggleComponent } from './components/hours-cost-toggle/hours-cost-toggle';
-import { ProjectBreakdownChartComponent } from './components/project-breakdown-chart/project-breakdown-chart';
-import { AggregateChartComponent } from './components/aggregate-chart/aggregate-chart';
-import { EmployeeGridComponent } from './components/employee-grid/employee-grid';
+import { ModeTabsComponent } from './components/mode-tabs/mode-tabs';
+import { QuarterlyTimelineComponent, QuarterTab } from './components/quarterly-timeline/quarterly-timeline';
+import { DualKpiPanelComponent } from './components/dual-kpi-panel/dual-kpi-panel';
+import { SredProjectsBarComponent } from './components/sred-projects-bar/sred-projects-bar';
+import { EmployeeBreakdownBarComponent } from './components/employee-breakdown-bar/employee-breakdown-bar';
+import { StaffSectionComponent } from './components/staff-section/staff-section';
+import { EmployeeModalComponent } from './components/employee-modal/employee-modal';
+import { StaffSalaryTableComponent } from './components/staff-salary-table/staff-salary-table';
 import { APP_CONSTANTS } from '../../core/constants/app-constants';
 import {
-  hourlyRate,
-  projectTotalHours,
-  projectTotalCost,
-  grandTotalHours,
-  grandTotalCost,
-  employeeHoursOnProject,
-  employeeCostOnProject,
   projectFullYear,
+  hourlyRate,
 } from './calculations';
 import {
-  AggregateData,
-  ChartMode,
-  EmployeeRow,
-  ProjectBreakdownData,
-} from './models/chart-data.model';
+  quarterBoundaries,
+  filterEntriesByPeriod,
+} from './calculations/quarterly';
+import {
+  sredTotalHours,
+  sredTotalCost,
+  sredCredits,
+} from './calculations/sred-totals';
+import {
+  projectBarData,
+  employeeBreakdownData,
+  employeeProjectBars,
+} from './calculations/project-bar-data';
+import { staffBarData } from './calculations/staff-bar-data';
+import { SredMode, QuarterPeriod, EmployeeRow } from './models/chart-data.model';
 import { Client } from '../../core/models/client.model';
 import { Employee } from '../../core/models/employee.model';
 import { Project } from './models/project.model';
 import { TimeEntry } from './models/time-entry.model';
+import { Team } from '../../core/models/team.model';
+
+const QUARTER_LABELS: Record<QuarterPeriod, string> = {
+  q1: 'Q1', q2: 'Q2', q3: 'Q3', q4: 'Q4', ytd: 'Year to Date',
+};
 
 @Component({
   selector: 'app-dashboard',
   imports: [
     ClientHeaderComponent,
-    SummaryCardComponent,
-    HoursCostToggleComponent,
-    ProjectBreakdownChartComponent,
-    AggregateChartComponent,
-    EmployeeGridComponent,
+    ModeTabsComponent,
+    QuarterlyTimelineComponent,
+    DualKpiPanelComponent,
+    SredProjectsBarComponent,
+    EmployeeBreakdownBarComponent,
+    StaffSectionComponent,
+    EmployeeModalComponent,
+    StaffSalaryTableComponent,
+    CurrencyPipe,
+    DecimalPipe,
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
@@ -51,24 +70,29 @@ export class DashboardComponent {
   private readonly employeesSvc = inject(EmployeesService);
   private readonly projectsSvc = inject(ProjectsService);
   private readonly timeEntriesSvc = inject(TimeEntriesService);
+  private readonly teamsSvc = inject(TeamsService);
 
   readonly client = toSignal<Client | null, Client | null>(this.clientsSvc.getCurrent(), {
     initialValue: null,
   });
   readonly employees = toSignal<readonly Employee[], readonly Employee[]>(
-    this.employeesSvc.getAll(),
-    { initialValue: [] },
+    this.employeesSvc.getAll(), { initialValue: [] },
   );
   readonly projects = toSignal<readonly Project[], readonly Project[]>(
-    this.projectsSvc.getAll(),
-    { initialValue: [] },
+    this.projectsSvc.getAll(), { initialValue: [] },
   );
   readonly timeEntries = toSignal<readonly TimeEntry[], readonly TimeEntry[]>(
-    this.timeEntriesSvc.getAll(),
-    { initialValue: [] },
+    this.timeEntriesSvc.getAll(), { initialValue: [] },
+  );
+  readonly teams = toSignal<readonly Team[], readonly Team[]>(
+    this.teamsSvc.getAll(), { initialValue: [] },
   );
 
-  readonly mode = signal<ChartMode>('hours');
+  readonly mode = signal<SredMode>('hours');
+  readonly selectedPeriod = signal<QuarterPeriod>('ytd');
+  readonly drilledProjectId = signal<string | null>(null);
+  readonly selectedEmployeeId = signal<string | null>(null);
+  readonly modalMode = signal<SredMode>('hours');
 
   readonly isLoading = computed(() =>
     !this.client() ||
@@ -79,86 +103,114 @@ export class DashboardComponent {
 
   readonly asOf = APP_CONSTANTS.CURRENT_DATE;
 
-  readonly ytdTotalHours = computed(() =>
-    grandTotalHours(this.timeEntries(), this.asOf),
-  );
-
-  readonly ytdTotalCost = computed(() =>
-    grandTotalCost(this.employees(), this.timeEntries(), this.asOf),
-  );
-
-  readonly projectedFullYearHours = computed(() => {
+  readonly periodEntries = computed(() => {
     const c = this.client();
-    if (!c) return 0;
-    return projectFullYear(
-      this.ytdTotalHours(),
-      c.claimPeriod.startDate,
-      c.claimPeriod.endDate,
-      this.asOf,
-    ).projectedFullYear;
+    if (!c) return [];
+    const { start, end } = quarterBoundaries(this.selectedPeriod(), c.claimPeriod.startDate, this.asOf);
+    return filterEntriesByPeriod(this.timeEntries(), start, end);
   });
 
-  readonly projectedFullYearCost = computed(() => {
+  readonly quarterlyTabs = computed<readonly QuarterTab[]>(() => {
     const c = this.client();
-    if (!c) return 0;
-    return projectFullYear(
-      this.ytdTotalCost(),
-      c.claimPeriod.startDate,
-      c.claimPeriod.endDate,
-      this.asOf,
-    ).projectedFullYear;
-  });
-
-  readonly projectsBreakdown = computed<ProjectBreakdownData>(() => {
-    const projects = this.projects();
-    const employees = this.employees();
+    if (!c) return [];
     const entries = this.timeEntries();
-    const isCost = this.mode() === 'cost';
+    const employees = this.employees();
+    const projects = this.projects();
+    const mode = this.mode();
+    const creditRate = c.sredCreditRate ?? 0.45;
+    const year = parseInt(c.claimPeriod.startDate.slice(0, 4), 10);
 
-    return {
-      categories: projects.map(p => p.name),
-      series: employees.map(emp => ({
-        name: emp.name,
-        data: projects.map(p =>
-          isCost
-            ? employeeCostOnProject(emp, p.id, entries, this.asOf)
-            : employeeHoursOnProject(emp.id, p.id, entries, this.asOf),
-        ),
-      })),
+    const PERIODS: QuarterPeriod[] = ['q1', 'q2', 'q3', 'q4', 'ytd'];
+    const SUBLABELS: Record<QuarterPeriod, string> = {
+      q1: `Jan 1 – Mar 31, ${year}`,
+      q2: `Apr 1 – Jun 30, ${year}`,
+      q3: `Jul 1 – Sep 30, ${year}`,
+      q4: `Oct 1 – Dec 31, ${year}`,
+      ytd: `${c.claimPeriod.startDate} – ${this.asOf}`,
     };
+
+    return PERIODS.map(period => {
+      const { start, end } = quarterBoundaries(period, c.claimPeriod.startDate, this.asOf);
+      const pEntries = filterEntriesByPeriod(entries, start, end);
+      let value: number;
+      if (mode === 'hours') {
+        value = sredTotalHours(pEntries, projects);
+      } else {
+        const cost = sredTotalCost(pEntries, employees, projects);
+        value = mode === 'credits' ? sredCredits(cost, creditRate) : cost;
+      }
+      return { period, label: QUARTER_LABELS[period], sublabel: SUBLABELS[period], value };
+    });
   });
 
-  readonly aggregateData = computed<AggregateData>(() => {
-    const projects = this.projects();
-    const entries = this.timeEntries();
-    const employees = this.employees();
-    const isCost = this.mode() === 'cost';
-
-    const data = projects.map(p => ({
-      project: p.name,
-      value: isCost
-        ? projectTotalCost(p.id, employees, entries, this.asOf)
-        : projectTotalHours(p.id, entries, this.asOf),
-    }));
-    const grandTotal = isCost ? this.ytdTotalCost() : this.ytdTotalHours();
-    return { data, grandTotal };
+  readonly currentKpiValue = computed(() => {
+    const tab = this.quarterlyTabs().find(t => t.period === this.selectedPeriod());
+    return tab?.value ?? 0;
   });
+
+  readonly projectedFullYearValue = computed<number | null>(() => {
+    if (this.selectedPeriod() !== 'ytd') return null;
+    const c = this.client();
+    if (!c) return null;
+    return projectFullYear(
+      this.currentKpiValue(),
+      c.claimPeriod.startDate,
+      c.claimPeriod.endDate,
+      this.asOf,
+    ).projectedFullYear;
+  });
+
+  readonly projectBars = computed(() =>
+    projectBarData(
+      this.periodEntries(),
+      this.employees(),
+      this.projects(),
+      this.mode(),
+      this.client()?.sredCreditRate ?? 0.45,
+    ),
+  );
+
+  readonly drilledProject = computed(() => {
+    const id = this.drilledProjectId();
+    return id ? (this.projects().find(p => p.id === id) ?? null) : null;
+  });
+
+  readonly employeeBreakdownBars = computed(() => {
+    const projectId = this.drilledProjectId();
+    if (!projectId) return [];
+    return employeeBreakdownData(
+      this.periodEntries(),
+      this.employees(),
+      projectId,
+      this.mode(),
+      this.client()?.sredCreditRate ?? 0.45,
+      this.drilledProject()?.isSredEligible ?? false,
+    );
+  });
+
+  readonly staffBars = computed(() =>
+    staffBarData(this.periodEntries(), this.employees(), this.projects()),
+  );
 
   readonly employeeRows = computed<readonly EmployeeRow[]>(() => {
-    const entries = this.timeEntries();
-    const projects = this.projects();
+    const c = this.client();
+    if (!c) return [];
+    const { start, end } = quarterBoundaries('ytd', c.claimPeriod.startDate, this.asOf);
+    const ytdEntries = filterEntriesByPeriod(this.timeEntries(), start, end);
     return this.employees().map(emp => {
-      const ytdHours = projects.reduce(
-        (sum, p) => sum + employeeHoursOnProject(emp.id, p.id, entries, this.asOf),
-        0,
-      );
+      const ytdHours = ytdEntries
+        .filter(e => e.employeeId === emp.id)
+        .reduce((sum, e) => sum + e.hours, 0);
       const rate = hourlyRate(emp);
       return {
         id: emp.id,
         name: emp.name,
         role: emp.role,
         hireDate: emp.hireDate,
+        endDate: emp.endDate,
         annualSalary: emp.annualSalary,
+        confirmedSalary: emp.confirmedSalary,
+        isSpecialEmployee: emp.isSpecialEmployee ?? false,
         hourlyRate: rate,
         ytdHours,
         ytdCost: ytdHours * rate,
@@ -166,7 +218,58 @@ export class DashboardComponent {
     });
   });
 
-  onModeChange(next: ChartMode): void {
-    this.mode.set(next);
+  readonly selectedEmployee = computed(() => {
+    const id = this.selectedEmployeeId();
+    return id ? (this.employees().find(e => e.id === id) ?? null) : null;
+  });
+
+  readonly modalProjectBars = computed(() => {
+    const emp = this.selectedEmployee();
+    if (!emp) return [];
+    return employeeProjectBars(
+      this.periodEntries(),
+      emp,
+      this.projects(),
+      this.modalMode(),
+      this.client()?.sredCreditRate ?? 0.45,
+    );
+  });
+
+  readonly modalSredHours = computed(() => {
+    const id = this.selectedEmployeeId();
+    if (!id) return 0;
+    return sredTotalHours(
+      this.periodEntries().filter(e => e.employeeId === id),
+      this.projects(),
+    );
+  });
+
+  readonly modalTotalHours = computed(() => {
+    const id = this.selectedEmployeeId();
+    if (!id) return 0;
+    return this.periodEntries()
+      .filter(e => e.employeeId === id)
+      .reduce((sum, e) => sum + e.hours, 0);
+  });
+
+  readonly modalPeriodLabel = computed(() => {
+    const c = this.client();
+    if (!c) return '';
+    const { start, end } = quarterBoundaries(this.selectedPeriod(), c.claimPeriod.startDate, this.asOf);
+    return `${start} – ${end}`;
+  });
+
+  onModeChange(mode: SredMode): void { this.mode.set(mode); }
+  onPeriodSelect(period: QuarterPeriod): void {
+    this.selectedPeriod.set(period);
+    this.drilledProjectId.set(null);
   }
+  onProjectClick(projectId: string): void { this.drilledProjectId.set(projectId); }
+  onDrillBack(): void { this.drilledProjectId.set(null); }
+  onEmployeeClick(employeeId: string): void {
+    this.selectedEmployeeId.set(employeeId);
+    this.modalMode.set(this.mode());
+  }
+  onModalClose(): void { this.selectedEmployeeId.set(null); }
+  onModalModeChange(mode: SredMode): void { this.modalMode.set(mode); }
 }

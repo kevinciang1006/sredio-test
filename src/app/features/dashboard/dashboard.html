@@ -1,47 +1,88 @@
-<div class="space-y-6">
+<div class="space-y-5">
   <app-client-header [client]="client()" [isLoading]="isLoading()" />
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <app-summary-card
-      label="YTD Total Hours"
-      [value]="ytdTotalHours()"
-      format="number"
-      tone="neutral"
-      [isLoading]="isLoading()" />
-    <app-summary-card
-      label="YTD Total Cost"
-      [value]="ytdTotalCost()"
-      format="currency"
-      tone="neutral"
-      [isLoading]="isLoading()" />
-    <app-summary-card
-      label="Projected Full Year Hours"
-      [value]="projectedFullYearHours()"
-      format="number"
-      tone="projected"
-      [isLoading]="isLoading()" />
-    <app-summary-card
-      label="Projected Full Year Cost"
-      [value]="projectedFullYearCost()"
-      format="currency"
-      tone="projected"
-      [isLoading]="isLoading()" />
+  <div class="bg-white rounded-lg border border-gray-200 p-5">
+    <div class="flex items-start justify-between flex-wrap gap-3 mb-5">
+      <h1 class="text-xl font-bold text-gray-900">SR&amp;ED Projections</h1>
+      <div class="flex items-center gap-3 flex-wrap">
+        <app-mode-tabs [mode]="mode()" (modeChange)="onModeChange($event)" />
+        <button
+          type="button"
+          class="px-4 py-1.5 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 transition-colors whitespace-nowrap">
+          Recalculate Projections
+        </button>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="h-14 animate-pulse bg-gray-100 rounded mb-5"></div>
+      <div class="h-20 animate-pulse bg-gray-100 rounded"></div>
+    } @else {
+      <app-quarterly-timeline
+        [tabs]="quarterlyTabs()"
+        [selected]="selectedPeriod()"
+        [mode]="mode()"
+        (periodSelect)="onPeriodSelect($event)" />
+
+      <div class="mt-4">
+        <app-dual-kpi-panel
+          [currentValue]="currentKpiValue()"
+          [projectedValue]="projectedFullYearValue()"
+          [mode]="mode()"
+          [selectedPeriod]="selectedPeriod()" />
+      </div>
+    }
   </div>
 
-  <div class="flex items-center justify-end">
-    <app-hours-cost-toggle [mode]="mode()" (modeChange)="onModeChange($event)" />
-  </div>
+  <section class="bg-white rounded-lg border border-gray-200 p-5">
+    <div class="flex items-center gap-2 mb-4">
+      @if (drilledProject()) {
+        <button
+          type="button"
+          (click)="onDrillBack()"
+          class="p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <span class="text-sm text-gray-500">/ {{ drilledProject()!.name }}</span>
+      }
+      <h2 class="text-base font-semibold text-gray-900">SR&amp;ED Projects</h2>
+    </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <app-project-breakdown-chart
-      [data]="projectsBreakdown()"
-      [mode]="mode()"
-      [isLoading]="isLoading()" />
-    <app-aggregate-chart
-      [data]="aggregateData()"
-      [mode]="mode()"
-      [isLoading]="isLoading()" />
-  </div>
+    @if (isLoading()) {
+      <div class="h-16 animate-pulse bg-gray-100 rounded"></div>
+    } @else if (drilledProject()) {
+      <app-employee-breakdown-bar
+        [bars]="employeeBreakdownBars()"
+        [mode]="mode()" />
+    } @else {
+      <app-sred-projects-bar
+        [bars]="projectBars()"
+        [mode]="mode()"
+        (projectClick)="onProjectClick($event)" />
+    }
+  </section>
 
-  <app-employee-grid [rows]="employeeRows()" [isLoading]="isLoading()" />
+  <app-staff-section
+    [teams]="teams()"
+    [employees]="employees()"
+    [staffData]="staffBars()"
+    (employeeClick)="onEmployeeClick($event)" />
+
+  <app-staff-salary-table
+    [rows]="employeeRows()"
+    [isLoading]="isLoading()" />
 </div>
+
+@if (selectedEmployee()) {
+  <app-employee-modal
+    [employee]="selectedEmployee()!"
+    [projectBars]="modalProjectBars()"
+    [sredHours]="modalSredHours()"
+    [totalHours]="modalTotalHours()"
+    [periodLabel]="modalPeriodLabel()"
+    [mode]="modalMode()"
+    (close)="onModalClose()"
+    (modeChange)="onModalModeChange($event)" />
+}
