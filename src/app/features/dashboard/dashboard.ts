@@ -112,6 +112,19 @@ export class DashboardComponent {
   readonly mode = signal<SredMode>('hours');
   readonly selectedPeriod = signal<QuarterPeriod>('ytd');
   readonly drilledProjectId = signal<string | null>(null);
+  readonly activeClaimPeriodId = signal<string | null>(null);
+
+  readonly activeClaimPeriod = computed(() => {
+    const c = this.client();
+    if (!c) return null;
+    const id = this.activeClaimPeriodId();
+    const found = id ? c.claimPeriods.find(p => p.id === id) : null;
+    if (found) return found;
+    // Default: period containing today (asOf)
+    return c.claimPeriods.find(p => p.startDate <= this.asOf && p.endDate >= this.asOf)
+      ?? c.claimPeriods[c.claimPeriods.length - 1]
+      ?? null;
+  });
   readonly selectedEmployeeId = signal<string | null>(null);
   readonly modalMode = signal<SredMode>('hours');
 
@@ -125,21 +138,22 @@ export class DashboardComponent {
   readonly asOf = APP_CONSTANTS.CURRENT_DATE;
 
   readonly periodEntries = computed(() => {
-    const c = this.client();
-    if (!c) return [];
-    const { start, end } = quarterBoundaries(this.selectedPeriod(), c.claimPeriod.startDate, this.asOf);
+    const p = this.activeClaimPeriod();
+    if (!p) return [];
+    const { start, end } = quarterBoundaries(this.selectedPeriod(), p.startDate, this.asOf);
     return filterEntriesByPeriod(this.timeEntries(), start, end);
   });
 
   readonly quarterlyTabs = computed<readonly QuarterTab[]>(() => {
     const c = this.client();
-    if (!c) return [];
+    const p = this.activeClaimPeriod();
+    if (!c || !p) return [];
     const entries = this.timeEntries();
     const employees = this.employees();
     const projects = this.projects();
     const mode = this.mode();
     const creditRate = c.sredCreditRate ?? 0.45;
-    const year = parseInt(c.claimPeriod.startDate.slice(0, 4), 10);
+    const year = parseInt(p.startDate.slice(0, 4), 10);
 
     const PERIODS: QuarterPeriod[] = ['q1', 'q2', 'q3', 'q4', 'ytd'];
     const SUBLABELS: Record<QuarterPeriod, string> = {
@@ -147,11 +161,11 @@ export class DashboardComponent {
       q2: `Apr 1 – Jun 30, ${year}`,
       q3: `Jul 1 – Sep 30, ${year}`,
       q4: `Oct 1 – Dec 31, ${year}`,
-      ytd: `${c.claimPeriod.startDate} – ${this.asOf}`,
+      ytd: `${p.startDate} – ${this.asOf}`,
     };
 
     return PERIODS.map(period => {
-      const { start, end } = quarterBoundaries(period, c.claimPeriod.startDate, this.asOf);
+      const { start, end } = quarterBoundaries(period, p.startDate, this.asOf);
       const pEntries = filterEntriesByPeriod(entries, start, end);
       let value: number;
       if (mode === 'hours') {
@@ -175,12 +189,12 @@ export class DashboardComponent {
   });
 
   readonly projectedFullYearValue = computed<number | null>(() => {
-    const c = this.client();
-    if (!c) return null;
+    const p = this.activeClaimPeriod();
+    if (!p) return null;
     return projectFullYear(
       this.ytdValue(),
-      c.claimPeriod.startDate,
-      c.claimPeriod.endDate,
+      p.startDate,
+      p.endDate,
       this.asOf,
     ).projectedFullYear;
   });
@@ -225,9 +239,9 @@ export class DashboardComponent {
   );
 
   readonly employeeRows = computed<readonly EmployeeRow[]>(() => {
-    const c = this.client();
-    if (!c) return [];
-    const { start, end } = quarterBoundaries('ytd', c.claimPeriod.startDate, this.asOf);
+    const p = this.activeClaimPeriod();
+    if (!p) return [];
+    const { start, end } = quarterBoundaries('ytd', p.startDate, this.asOf);
     const ytdEntries = filterEntriesByPeriod(this.timeEntries(), start, end);
     return this.employees().map(emp => {
       const ytdHours = ytdEntries
@@ -300,15 +314,20 @@ export class DashboardComponent {
   });
 
   readonly modalPeriodLabel = computed(() => {
-    const c = this.client();
-    if (!c) return '';
-    const { start, end } = quarterBoundaries(this.selectedPeriod(), c.claimPeriod.startDate, this.asOf);
+    const p = this.activeClaimPeriod();
+    if (!p) return '';
+    const { start, end } = quarterBoundaries(this.selectedPeriod(), p.startDate, this.asOf);
     return `${formatShortDate(start)} – ${formatShortDate(end)}`;
   });
 
   onModeChange(mode: SredMode): void { this.mode.set(mode); }
   onPeriodSelect(period: QuarterPeriod): void {
     this.selectedPeriod.set(period);
+    this.drilledProjectId.set(null);
+  }
+  onClaimPeriodChange(periodId: string): void {
+    this.activeClaimPeriodId.set(periodId);
+    this.selectedPeriod.set('ytd');
     this.drilledProjectId.set(null);
   }
   onProjectClick(projectId: string): void { this.drilledProjectId.set(projectId); }
