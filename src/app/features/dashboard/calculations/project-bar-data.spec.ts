@@ -65,3 +65,12 @@ describe('employeeBreakdownData', () => {
     expect(result[0].employeeId).toBe('a');
   });
 });
+
+describe('employeeProjectBars', () => {
+  it('returns per-project bars for a single employee, excluding zero-value projects', () => {
+    const bars = employeeProjectBars(ENTRIES, EMPLOYEES[0], PROJECTS, 'hours', 0.45);
+    expect(bars.find(b => b.projectId === 'sred')?.value).toBe(10);
+    expect(bars.find(b => b.projectId === 'unclaimed')?.value).toBe(5);
+    expect(bars).toHaveLength(2); // emp 'a' has hours on both projects
+  });
+});
