@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { ClientsService } from './services/clients.service';
 import { EmployeesService } from './services/employees.service';
 import { ProjectsService } from './services/projects.service';
@@ -72,7 +73,10 @@ export class DashboardComponent {
   private readonly timeEntriesSvc = inject(TimeEntriesService);
   private readonly teamsSvc = inject(TeamsService);
 
-  readonly client = toSignal<Client | null, Client | null>(this.clientsSvc.getCurrent(), {
+  private readonly route = inject(ActivatedRoute);
+  private readonly tenantId = this.route.snapshot.params['tenantId'] as string;
+
+  readonly client = toSignal<Client | null, Client | null>(this.clientsSvc.getCurrent(this.tenantId), {
     initialValue: null,
   });
   readonly employees = toSignal<readonly Employee[], readonly Employee[]>(
