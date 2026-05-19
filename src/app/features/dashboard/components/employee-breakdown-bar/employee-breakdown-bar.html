@@ -7,7 +7,8 @@
         type="button"
         [style.width]="widthPct(bar.value)"
         [style.background-color]="colorFor(i)"
-        class="flex flex-col items-center justify-center text-white text-xs font-medium overflow-hidden min-w-0 shrink-0 cursor-default">
+        [appTooltip]="tooltipFor(bar)"
+        class="flex flex-col items-center justify-center text-white text-xs font-medium overflow-hidden min-w-[80px] shrink cursor-default">
         <span class="truncate px-1 text-center leading-tight">{{ bar.name }}</span>
         <span class="truncate px-1 text-center leading-tight opacity-90">
           @if (mode() === 'hours') {

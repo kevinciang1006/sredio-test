@@ -16,6 +16,8 @@ export class EmployeeModalComponent {
   readonly employee = input.required<Employee>();
   readonly projectBars = input.required<readonly SredProjectBar[]>();
   readonly sredHours = input.required<number>();
+  readonly sredCost = input.required<number>();
+  readonly sredCredits = input.required<number>();
   readonly totalHours = input.required<number>();
   readonly periodLabel = input<string>('');
   readonly mode = input<SredMode>('hours');

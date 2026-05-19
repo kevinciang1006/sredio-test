@@ -4,8 +4,9 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.768-.231-1.48-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.768.231-1.48.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
     </svg>
-    <h2 class="text-base font-semibold text-gray-900">
+    <h2 class="text-base font-semibold text-gray-900 inline-flex items-center gap-1.5">
       Total Staff Included in Claim ({{ totalCount() }})
+      <app-info-tooltip text="All employees on the client roster, grouped by team. The SR&ED bar for each shows eligible (claimed) versus unclaimed hours for the selected period." />
     </h2>
   </div>
 

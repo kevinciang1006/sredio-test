@@ -8,8 +8,9 @@
           type="button"
           [style.width]="widthPct(bar.value)"
           [style.background-color]="bar.color"
+          [appTooltip]="tooltipFor(bar)"
           (click)="projectClick.emit(bar.projectId)"
-          class="relative flex flex-col items-center justify-center text-white text-xs font-medium overflow-hidden hover:opacity-90 transition-opacity cursor-pointer min-w-0 shrink-0">
+          class="relative flex flex-col items-center justify-center text-white text-xs font-medium overflow-hidden hover:opacity-90 transition-opacity cursor-pointer min-w-[80px] shrink">
           <span class="truncate px-1 text-center leading-tight">{{ bar.projectName }}</span>
           <span class="truncate px-1 text-center leading-tight opacity-90">
             @if (mode() === 'hours') {

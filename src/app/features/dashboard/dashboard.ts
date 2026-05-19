@@ -17,6 +17,7 @@ import { EmployeeBreakdownBarComponent } from './components/employee-breakdown-b
 import { StaffSectionComponent } from './components/staff-section/staff-section';
 import { EmployeeModalComponent } from './components/employee-modal/employee-modal';
 import { StaffSalaryTableComponent } from './components/staff-salary-table/staff-salary-table';
+import { InfoTooltipComponent } from '../../shared/components/info-tooltip/info-tooltip';
 import { APP_CONSTANTS } from '../../core/constants/app-constants';
 import {
   projectFullYear,
@@ -68,6 +69,7 @@ function formatShortDate(iso: string): string {
     StaffSectionComponent,
     EmployeeModalComponent,
     StaffSalaryTableComponent,
+    InfoTooltipComponent,
     CurrencyPipe,
     DecimalPipe,
   ],
@@ -274,6 +276,21 @@ export class DashboardComponent {
     );
   });
 
+  readonly modalSredCost = computed(() => {
+    const id = this.selectedEmployeeId();
+    if (!id) return 0;
+    return sredTotalCost(
+      this.periodEntries().filter(e => e.employeeId === id),
+      this.employees(),
+      this.projects(),
+    );
+  });
+
+  readonly modalSredCredits = computed(() => {
+    const rate = this.client()?.sredCreditRate ?? 0.45;
+    return sredCredits(this.modalSredCost(), rate);
+  });
+
   readonly modalTotalHours = computed(() => {
     const id = this.selectedEmployeeId();
     if (!id) return 0;
@@ -286,7 +303,7 @@ export class DashboardComponent {
     const c = this.client();
     if (!c) return '';
     const { start, end } = quarterBoundaries(this.selectedPeriod(), c.claimPeriod.startDate, this.asOf);
-    return `${start} – ${end}`;
+    return `${formatShortDate(start)} – ${formatShortDate(end)}`;
   });
 
   onModeChange(mode: SredMode): void { this.mode.set(mode); }

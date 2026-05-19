@@ -1,18 +1,24 @@
-<section class="bg-white rounded-lg border border-gray-200">
-  <button
-    type="button"
-    (click)="toggleCollapse()"
-    class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors">
-    <h2 class="text-base font-semibold text-gray-900">Staff Salary</h2>
-    <svg
-      class="w-4 h-4 text-gray-400 transition-transform"
-      [class.rotate-180]="isCollapsed()"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
+<section class="bg-white rounded-lg border border-gray-200 mt-5">
+  <div class="flex items-center justify-between px-5 py-4">
+    <h2 class="text-base font-semibold text-gray-900 inline-flex items-center gap-1.5">
+      Staff Salary
+      <app-info-tooltip text="Annual salary, confirmed payroll, derived hourly rate, and year-to-date hours for every employee. Click a column header to sort." />
+    </h2>
+    <button
+      type="button"
+      (click)="toggleCollapse()"
+      [attr.aria-label]="isCollapsed() ? 'Expand staff salary table' : 'Collapse staff salary table'"
+      class="p-1 rounded hover:bg-gray-100 transition-colors">
+      <svg
+        class="w-4 h-4 text-gray-400 transition-transform"
+        [class.rotate-180]="isCollapsed()"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+  </div>
 
   @if (!isCollapsed()) {
     @if (isLoading()) {
@@ -22,18 +28,45 @@
         <table class="w-full text-sm text-left text-gray-500">
           <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-t border-gray-100">
             <tr>
-              <th class="px-5 py-3">Name</th>
-              <th class="px-5 py-3">Start Date</th>
-              <th class="px-5 py-3">End Date</th>
-              <th class="px-5 py-3 text-right">Expected Salary</th>
-              <th class="px-5 py-3 text-right">Confirmed Salary</th>
-              <th class="px-5 py-3 text-right">Hourly Rate</th>
-              <th class="px-5 py-3 text-right">Hours Worked</th>
-              <th class="px-5 py-3 text-center">Special</th>
+              <th class="px-5 py-3">
+                <button type="button" (click)="setSort('name')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+                  Name <span class="text-[10px]">{{ arrow('name') }}</span>
+                </button>
+              </th>
+              <th class="px-5 py-3">
+                <button type="button" (click)="setSort('hireDate')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+                  Start Date <span class="text-[10px]">{{ arrow('hireDate') }}</span>
+                </button>
+              </th>
+              <th class="px-5 py-3">
+                <button type="button" (click)="setSort('endDate')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+                  End Date <span class="text-[10px]">{{ arrow('endDate') }}</span>
+                </button>
+              </th>
+              <th class="px-5 py-3 text-right">
+                <button type="button" (click)="setSort('annualSalary')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+                  Expected Salary <span class="text-[10px]">{{ arrow('annualSalary') }}</span>
+                </button>
+              </th>
+              <th class="px-5 py-3 text-right">
+                <button type="button" (click)="setSort('confirmedSalary')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+                  Confirmed Salary <span class="text-[10px]">{{ arrow('confirmedSalary') }}</span>
+                </button>
+              </th>
+              <th class="px-5 py-3 text-right">
+                <button type="button" (click)="setSort('hourlyRate')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+                  Hourly Rate <span class="text-[10px]">{{ arrow('hourlyRate') }}</span>
+                </button>
+              </th>
+              <th class="px-5 py-3 text-right">
+                <button type="button" (click)="setSort('ytdHours')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+                  Hours Worked <span class="text-[10px]">{{ arrow('ytdHours') }}</span>
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            @for (row of rows(); track row.id) {
+            @for (row of sortedRows(); track row.id) {
               <tr class="bg-white hover:bg-gray-50">
                 <td class="px-5 py-3 font-medium text-gray-900">{{ row.name }}</td>
                 <td class="px-5 py-3">{{ row.hireDate | shortDate }}</td>
@@ -50,13 +83,6 @@
                   {{ row.hourlyRate | currency:'CAD':'symbol-narrow':'1.2-2' }}
                 </td>
                 <td class="px-5 py-3 text-right">{{ row.ytdHours | number:'1.0-0' }}</td>
-                <td class="px-5 py-3 text-center">
-                  <input
-                    type="checkbox"
-                    [checked]="row.isSpecialEmployee ?? false"
-                    disabled
-                    class="rounded" />
-                </td>
               </tr>
             }
           </tbody>

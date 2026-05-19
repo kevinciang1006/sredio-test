@@ -1,9 +1,0 @@
-@use 'tailwindcss';
-@use 'flowbite/src/themes/default';
-
-@source "./app/**/*.{html,ts,scss}";
-@source "../node_modules/flowbite";
-
-/* Global tweaks */
-html, body { height: 100%; margin: 0; font-family: 'Inter', system-ui, sans-serif; }
-body { @apply bg-gray-50 text-gray-900 antialiased; }

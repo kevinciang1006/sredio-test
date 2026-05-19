@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { QuarterPeriod, SredMode } from '../../models/chart-data.model';
+import { InfoTooltipComponent } from '../../../../shared/components/info-tooltip/info-tooltip';
 
 @Component({
   selector: 'app-dual-kpi-panel',
-  imports: [CurrencyPipe, DecimalPipe],
+  imports: [CurrencyPipe, DecimalPipe, InfoTooltipComponent],
   templateUrl: './dual-kpi-panel.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -15,9 +16,7 @@ export class DualKpiPanelComponent {
   readonly selectedPeriod = input<QuarterPeriod>('ytd');
   readonly isLoading = input(false);
 
-  readonly showProjection = computed(
-    () => this.selectedPeriod() === 'ytd' && this.projectedValue() !== null,
-  );
+  readonly showProjection = computed(() => this.projectedValue() !== null);
 
   readonly periodLabel = computed(() => {
     switch (this.selectedPeriod()) {
@@ -28,4 +27,13 @@ export class DualKpiPanelComponent {
       case 'q4': return 'Q4 SR&ED';
     }
   });
+
+  readonly currentTooltip = computed(() => {
+    const period = this.selectedPeriod();
+    const periodText = period === 'ytd' ? 'year-to-date' : period.toUpperCase();
+    return `Your ${periodText} SR&ED total based on tracked time entries in the selected mode (hours, expenditures, or credits).`;
+  });
+
+  readonly projectedTooltip =
+    'Forecasted full-year SR&ED total. Linear extrapolation from YTD: (YTD value ÷ days elapsed) × days in claim period.';
 }

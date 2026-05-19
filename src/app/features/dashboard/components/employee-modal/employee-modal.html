@@ -6,13 +6,13 @@
     class="absolute inset-0 bg-black/40"
     (click)="close.emit()"></div>
 
-  <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between px-6 pt-5 pb-3 border-b border-gray-100">
-      <h2 class="text-base font-semibold text-gray-900">{{ employee().name }}</h2>
+  <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between px-8 pt-6 pb-4 border-b border-gray-100">
+      <h2 class="text-lg font-semibold text-gray-900">{{ employee().name }}</h2>
       <app-mode-tabs [mode]="mode()" (modeChange)="modeChange.emit($event)" />
     </div>
 
-    <div class="px-6 py-4 grid grid-cols-2 gap-x-8 gap-y-1 text-sm border-b border-gray-100">
+    <div class="px-8 py-5 grid grid-cols-2 gap-x-8 gap-y-2 text-sm border-b border-gray-100">
       <div>
         <span class="font-medium text-gray-700">Date Range: </span>
         <span class="text-gray-600">{{ periodLabel() }}</span>
@@ -31,24 +31,26 @@
       </div>
     </div>
 
-    <div class="px-6 py-4">
+    <div class="px-8 py-5">
       <h3 class="text-sm font-semibold text-gray-700 mb-3">SR&amp;ED Projects</h3>
       <app-sred-projects-bar [bars]="projectBars()" [mode]="mode()" />
     </div>
 
-    <div class="px-6 py-4 border-t border-gray-100 grid grid-cols-3 gap-4 text-sm">
+    <div class="px-8 py-5 border-t border-gray-100 grid grid-cols-3 gap-4 text-sm">
       <div>
-        <p class="font-semibold text-gray-900">
+        <p class="font-semibold text-gray-900 text-base">
           @if (mode() === 'hours') {
             {{ sredHours() | number:'1.0-0' }}
           } @else if (mode() === 'expenditures') {
-            {{ sredHours() | currency:'CAD':'symbol-narrow':'1.0-0' }}
+            {{ sredCost() | currency:'CAD':'symbol-narrow':'1.0-0' }}
+          } @else {
+            {{ sredCredits() | currency:'CAD':'symbol-narrow':'1.0-0' }}
           }
         </p>
-        <p class="text-gray-500 text-xs">SR&amp;ED Hours</p>
+        <p class="text-gray-500 text-xs">SR&amp;ED Value</p>
       </div>
       <div>
-        <p class="font-semibold text-gray-900">{{ totalHours() | number:'1.0-0' }}</p>
+        <p class="font-semibold text-gray-900 text-base">{{ totalHours() | number:'1.0-0' }}</p>
         <p class="text-gray-500 text-xs">Total Hours</p>
       </div>
       <div>
@@ -56,7 +58,7 @@
       </div>
     </div>
 
-    <div class="px-6 pb-5 flex justify-end">
+    <div class="px-8 pb-6 flex justify-end">
       <button
         type="button"
         (click)="close.emit()"
