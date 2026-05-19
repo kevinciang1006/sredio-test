@@ -24,8 +24,8 @@ function generate(): readonly TimeEntry[] {
   };
   const projects = ['proj-001','proj-002','proj-003','proj-004','proj-005'];
 
-  const start = new Date('2025-01-01').getTime();
-  const end   = new Date('2025-09-30').getTime();
+  const start = new Date('2024-01-01').getTime();
+  const end   = new Date('2026-05-19').getTime();
   const ms = 1000 * 60 * 60 * 24;
 
   const entries: TimeEntry[] = [];
