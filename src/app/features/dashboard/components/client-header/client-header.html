@@ -7,10 +7,41 @@
   } @else if (client(); as c) {
     <div class="flex items-baseline justify-between flex-wrap gap-2">
       <h1 class="text-2xl font-semibold text-gray-900">{{ c.name }}</h1>
-      <div class="text-sm text-gray-600">
-        Claim period <span class="font-medium">{{ c.claimPeriods[0].startDate }}</span> →
-        <span class="font-medium">{{ c.claimPeriods[0].endDate }}</span>
-        · Province <span class="font-medium">{{ c.province }}</span>
+      <div class="text-sm text-gray-600 flex items-center gap-2">
+        <span>Claim period</span>
+        <div class="relative">
+          <button
+            type="button"
+            (click)="toggle()"
+            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-gray-200 hover:bg-gray-50 text-sm font-medium text-gray-700">
+            @if (activePeriod(); as p) {
+              {{ formatRange(p) }}
+            } @else {
+              Select period
+            }
+            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          @if (isOpen()) {
+            <div class="absolute right-0 mt-1 w-64 rounded-lg shadow-lg bg-white border border-gray-200 z-30 py-1">
+              @for (p of c.claimPeriods; track p.id) {
+                <button
+                  type="button"
+                  (click)="select(p.id)"
+                  class="flex w-full items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <span>{{ formatRange(p) }}</span>
+                  @if (activePeriod()?.id === p.id) {
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  }
+                </button>
+              }
+            </div>
+          }
+        </div>
+        <span>· Province <span class="font-medium">{{ c.province }}</span></span>
       </div>
     </div>
   }

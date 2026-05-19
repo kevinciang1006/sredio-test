@@ -1,5 +1,9 @@
 <div class="space-y-5">
-  <app-client-header [client]="client()" [isLoading]="isLoading()" />
+  <app-client-header
+    [client]="client()"
+    [isLoading]="isLoading()"
+    [activePeriod]="activeClaimPeriod()"
+    (periodChange)="onClaimPeriodChange($event)" />
 
   <div class="bg-white rounded-lg border border-gray-200 p-5">
     <div class="flex items-start justify-between flex-wrap gap-3 mb-5">
