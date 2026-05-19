@@ -4,11 +4,11 @@ export const APP_CONSTANTS = {
   LOCAL_STORAGE_KEYS: {
     AUTH_TOKEN: 'sredio.auth.token',
     AUTH_USER: 'sredio.auth.user',
+    LAST_TENANT_ID: 'sredio.last-tenant-id',
   },
 } as const;
 
 export const ROUTES = {
   LOGIN: 'login',
-  DASHBOARD: 'dashboard',
-  PROFILE: 'profile',
+  TENANT_ROOT: 'tenant',
 } as const;
