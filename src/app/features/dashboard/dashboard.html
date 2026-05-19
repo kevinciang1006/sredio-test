@@ -91,6 +91,12 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
+      }
+      <h2 class="text-base font-semibold text-gray-900 inline-flex items-center gap-1.5">
+        SR&amp;ED Projects
+        <app-info-tooltip text="Each project's contribution to the SR&ED total for the selected period. Click a segment to drill into employee contributions." />
+      </h2>
+      @if (drilledProject()) {
         <span class="text-sm text-gray-500">/ {{ drilledProject()!.name }}</span>
         @if (drilledProjectValue() !== null) {
           <span class="text-sm font-semibold text-gray-700 ml-1">
@@ -102,10 +108,6 @@
           </span>
         }
       }
-      <h2 class="text-base font-semibold text-gray-900 inline-flex items-center gap-1.5">
-        SR&amp;ED Projects
-        <app-info-tooltip text="Each project's contribution to the SR&ED total for the selected period. Click a segment to drill into employee contributions." />
-      </h2>
     </div>
 
     @if (isLoading()) {
