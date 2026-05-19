@@ -116,10 +116,11 @@
         }
       }
       @if (!drilledProject()) {
-        <div class="ml-auto flex bg-gray-100 rounded-lg p-0.5 gap-0.5">
+        <div role="group" aria-label="Chart view" class="ml-auto flex bg-gray-100 rounded-lg p-0.5 gap-0.5">
           <button
             type="button"
             (click)="onChartViewChange('bar')"
+            [attr.aria-pressed]="chartView() === 'bar'"
             [class.bg-blue-600]="chartView() === 'bar'"
             [class.text-white]="chartView() === 'bar'"
             [class.text-gray-700]="chartView() !== 'bar'"
@@ -129,6 +130,7 @@
           <button
             type="button"
             (click)="onChartViewChange('donut')"
+            [attr.aria-pressed]="chartView() === 'donut'"
             [class.bg-blue-600]="chartView() === 'donut'"
             [class.text-white]="chartView() === 'donut'"
             [class.text-gray-700]="chartView() !== 'donut'"

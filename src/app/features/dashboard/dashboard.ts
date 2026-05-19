@@ -389,6 +389,7 @@ export class DashboardComponent {
     this.selectedPeriod.set('ytd');
     this.drilledProjectId.set(null);
   }
+  // chartView persists across drill depth: donut top-level → donut employee breakdown
   onChartViewChange(v: 'bar' | 'donut'): void { this.chartView.set(v); }
   onProjectClick(projectId: string): void { this.drilledProjectId.set(projectId); }
   onDrillBack(): void { this.drilledProjectId.set(null); }
