@@ -1,0 +1,76 @@
+<div class="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+  <table class="w-full text-sm text-left text-gray-500">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-100">
+      <tr>
+        <th class="px-5 py-3">
+          <button type="button" (click)="sort.emit('name')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+            Name <span class="text-[10px]">{{ arrow('name') }}</span>
+          </button>
+        </th>
+        <th class="px-5 py-3">
+          <button type="button" (click)="sort.emit('teamName')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+            Team <span class="text-[10px]">{{ arrow('teamName') }}</span>
+          </button>
+        </th>
+        <th class="px-5 py-3">
+          <button type="button" (click)="sort.emit('role')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+            Role <span class="text-[10px]">{{ arrow('role') }}</span>
+          </button>
+        </th>
+        <th class="px-5 py-3">
+          <button type="button" (click)="sort.emit('status')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+            Status <span class="text-[10px]">{{ arrow('status') }}</span>
+          </button>
+        </th>
+        <th class="px-5 py-3">
+          <button type="button" (click)="sort.emit('hireDate')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+            Start <span class="text-[10px]">{{ arrow('hireDate') }}</span>
+          </button>
+        </th>
+        <th class="px-5 py-3">
+          <button type="button" (click)="sort.emit('endDate')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+            End <span class="text-[10px]">{{ arrow('endDate') }}</span>
+          </button>
+        </th>
+        <th class="px-5 py-3 text-right">
+          <button type="button" (click)="sort.emit('annualSalary')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+            Expected <span class="text-[10px]">{{ arrow('annualSalary') }}</span>
+          </button>
+        </th>
+        <th class="px-5 py-3 text-right">
+          <button type="button" (click)="sort.emit('hourlyRate')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+            Hourly Rate <span class="text-[10px]">{{ arrow('hourlyRate') }}</span>
+          </button>
+        </th>
+        <th class="px-5 py-3 text-right">
+          <button type="button" (click)="sort.emit('ytdHours')" class="inline-flex items-center gap-1 uppercase hover:text-gray-900">
+            Hours <span class="text-[10px]">{{ arrow('ytdHours') }}</span>
+          </button>
+        </th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      @for (row of rows(); track row.id) {
+        <tr class="bg-white hover:bg-gray-50 cursor-pointer" (click)="rowClick.emit(row.id)">
+          <td class="px-5 py-3 font-medium text-gray-900">{{ row.name }}</td>
+          <td class="px-5 py-3">{{ row.teamName }}</td>
+          <td class="px-5 py-3">{{ row.role }}</td>
+          <td class="px-5 py-3">
+            <span
+              [class]="'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ' + (row.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700')">
+              {{ row.status === 'active' ? 'Active' : 'Terminated' }}
+            </span>
+          </td>
+          <td class="px-5 py-3">{{ row.hireDate | shortDate }}</td>
+          <td class="px-5 py-3">{{ row.endDate ? (row.endDate | shortDate) : '—' }}</td>
+          <td class="px-5 py-3 text-right">{{ row.annualSalary | currency:'CAD':'symbol-narrow':'1.0-0' }}</td>
+          <td class="px-5 py-3 text-right">{{ row.hourlyRate | currency:'CAD':'symbol-narrow':'1.2-2' }}</td>
+          <td class="px-5 py-3 text-right">{{ row.ytdHours | number:'1.0-0' }}</td>
+        </tr>
+      }
+      @if (rows().length === 0) {
+        <tr><td colspan="9" class="px-5 py-8 text-center text-gray-400">No employees match your filters.</td></tr>
+      }
+    </tbody>
+  </table>
+</div>

@@ -23,6 +23,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/profile/profile').then(m => m.ProfileComponent),
       },
+      {
+        path: 'employees',
+        loadComponent: () =>
+          import('./features/employees/employees-page').then(m => m.EmployeesPageComponent),
+      },
     ],
   },
   {
