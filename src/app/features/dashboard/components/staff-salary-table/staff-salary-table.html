@@ -1,0 +1,67 @@
+<section class="bg-white rounded-lg border border-gray-200">
+  <button
+    type="button"
+    (click)="toggleCollapse()"
+    class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors">
+    <h2 class="text-base font-semibold text-gray-900">Staff Salary</h2>
+    <svg
+      class="w-4 h-4 text-gray-400 transition-transform"
+      [class.rotate-180]="isCollapsed()"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+
+  @if (!isCollapsed()) {
+    @if (isLoading()) {
+      <div class="h-32 mx-5 mb-5 animate-pulse bg-gray-100 rounded"></div>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-t border-gray-100">
+            <tr>
+              <th class="px-5 py-3">Name</th>
+              <th class="px-5 py-3">Start Date</th>
+              <th class="px-5 py-3">End Date</th>
+              <th class="px-5 py-3 text-right">Expected Salary</th>
+              <th class="px-5 py-3 text-right">Confirmed Salary</th>
+              <th class="px-5 py-3 text-right">Hourly Rate</th>
+              <th class="px-5 py-3 text-right">Hours Worked</th>
+              <th class="px-5 py-3 text-center">Special</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            @for (row of rows(); track row.id) {
+              <tr class="bg-white hover:bg-gray-50">
+                <td class="px-5 py-3 font-medium text-gray-900">{{ row.name }}</td>
+                <td class="px-5 py-3">{{ row.hireDate | shortDate }}</td>
+                <td class="px-5 py-3">{{ row.endDate ? (row.endDate | shortDate) : '—' }}</td>
+                <td class="px-5 py-3 text-right">
+                  {{ row.annualSalary | currency:'CAD':'symbol-narrow':'1.0-0' }}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  {{ row.confirmedSalary != null
+                    ? (row.confirmedSalary | currency:'CAD':'symbol-narrow':'1.0-0')
+                    : '—' }}
+                </td>
+                <td class="px-5 py-3 text-right">
+                  {{ row.hourlyRate | currency:'CAD':'symbol-narrow':'1.2-2' }}
+                </td>
+                <td class="px-5 py-3 text-right">{{ row.ytdHours | number:'1.0-0' }}</td>
+                <td class="px-5 py-3 text-center">
+                  <input
+                    type="checkbox"
+                    [checked]="row.isSpecialEmployee ?? false"
+                    disabled
+                    class="rounded" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>
