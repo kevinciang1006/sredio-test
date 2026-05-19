@@ -22,20 +22,38 @@ const ENTRIES = [
   e('b', 'p-sred', 3),
 ];
 
+// annualSalary=60000, HOURS_PER_YEAR=2000 → hourlyRate=30
+const HOURLY_RATE = 30;
+
 describe('staffBarData', () => {
-  it('splits hours into SR&ED and unclaimed per employee', () => {
-    const result = staffBarData(ENTRIES, EMPLOYEES, PROJECTS);
+  it('hours mode: splits hours into SR&ED and unclaimed per employee', () => {
+    const result = staffBarData(ENTRIES, EMPLOYEES, PROJECTS, 'hours', 0.45);
     const a = result.find(r => r.employeeId === 'a');
     const b = result.find(r => r.employeeId === 'b');
-    expect(a?.sredHours).toBe(8);
-    expect(a?.unclaimedHours).toBe(4);
-    expect(b?.sredHours).toBe(3);
-    expect(b?.unclaimedHours).toBe(0);
+    expect(a?.sredValue).toBe(8);
+    expect(a?.unclaimedValue).toBe(4);
+    expect(b?.sredValue).toBe(3);
+    expect(b?.unclaimedValue).toBe(0);
+  });
+
+  it('expenditures mode: computes cost (hours × hourlyRate) per segment', () => {
+    const result = staffBarData(ENTRIES, EMPLOYEES, PROJECTS, 'expenditures', 0.45);
+    const a = result.find(r => r.employeeId === 'a');
+    expect(a?.sredValue).toBeCloseTo(8 * HOURLY_RATE);
+    expect(a?.unclaimedValue).toBeCloseTo(4 * HOURLY_RATE);
+  });
+
+  it('credits mode: applies creditRate to SR&ED cost, unclaimedValue is 0', () => {
+    const creditRate = 0.45;
+    const result = staffBarData(ENTRIES, EMPLOYEES, PROJECTS, 'credits', creditRate);
+    const a = result.find(r => r.employeeId === 'a');
+    expect(a?.sredValue).toBeCloseTo(8 * HOURLY_RATE * creditRate);
+    expect(a?.unclaimedValue).toBe(0);
   });
 
   it('returns an entry for every employee even with zero hours', () => {
-    const result = staffBarData([], EMPLOYEES, PROJECTS);
+    const result = staffBarData([], EMPLOYEES, PROJECTS, 'hours', 0.45);
     expect(result).toHaveLength(2);
-    expect(result.every(r => r.sredHours === 0 && r.unclaimedHours === 0)).toBe(true);
+    expect(result.every(r => r.sredValue === 0 && r.unclaimedValue === 0)).toBe(true);
   });
 });
