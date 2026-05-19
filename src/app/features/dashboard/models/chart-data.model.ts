@@ -1,4 +1,6 @@
 export type ChartMode = 'hours' | 'cost';
+export type SredMode = 'hours' | 'expenditures' | 'credits';
+export type QuarterPeriod = 'q1' | 'q2' | 'q3' | 'q4' | 'ytd';
 
 export interface ProjectBreakdownSeries {
   readonly name: string;
@@ -25,8 +27,32 @@ export interface EmployeeRow {
   readonly name: string;
   readonly role: string;
   readonly hireDate: string;
+  readonly endDate?: string;
   readonly annualSalary: number;
+  readonly confirmedSalary?: number;
   readonly hourlyRate: number;
   readonly ytdHours: number;
   readonly ytdCost: number;
+  readonly isSpecialEmployee?: boolean;
+}
+
+export interface SredProjectBar {
+  readonly projectId: string;
+  readonly projectName: string;
+  readonly value: number;
+  readonly isSredEligible: boolean;
+  readonly color: string;
+}
+
+export interface EmployeeBreakdownBar {
+  readonly employeeId: string;
+  readonly name: string;
+  readonly value: number;
+}
+
+export interface StaffBarEntry {
+  readonly employeeId: string;
+  readonly name: string;
+  readonly sredHours: number;
+  readonly unclaimedHours: number;
 }

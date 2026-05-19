@@ -7,4 +7,5 @@ export interface Client {
   };
   readonly province: string;
   readonly timeZone: string;
+  readonly sredCreditRate?: number;
 }

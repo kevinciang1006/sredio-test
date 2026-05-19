@@ -9,4 +9,5 @@ export const MOCK_CLIENT: Client = {
   },
   province: 'ON',
   timeZone: 'EST',
+  sredCreditRate: 0.45,
 };
