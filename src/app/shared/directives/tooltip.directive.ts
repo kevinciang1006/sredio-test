@@ -27,7 +27,7 @@ export class TooltipDirective implements OnDestroy {
       'pointer-events-none', 'fixed', 'z-[60]',
       'bg-gray-900', 'text-white', 'text-xs',
       'px-2', 'py-1', 'rounded', 'shadow-lg',
-      'whitespace-nowrap', 'max-w-xs',
+      'max-w-xs',
     ];
     for (const c of classes) this.renderer.addClass(tip, c);
     this.renderer.setProperty(tip, 'textContent', text);

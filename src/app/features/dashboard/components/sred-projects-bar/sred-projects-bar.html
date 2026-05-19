@@ -11,8 +11,8 @@
           [appTooltip]="tooltipFor(bar)"
           (click)="projectClick.emit(bar.projectId)"
           class="relative flex flex-col items-center justify-center text-white text-xs font-medium overflow-hidden hover:opacity-90 transition-opacity cursor-pointer min-w-[80px] shrink">
-          <span class="truncate px-1 text-center leading-tight">{{ bar.projectName }}</span>
-          <span class="truncate px-1 text-center leading-tight opacity-90">
+          <span class="block w-full max-w-full truncate px-1 text-center leading-tight">{{ bar.projectName }}</span>
+          <span class="block w-full max-w-full truncate px-1 text-center leading-tight opacity-90">
             @if (mode() === 'hours') {
               {{ bar.value | number:'1.0-0' }} hrs
             } @else {
