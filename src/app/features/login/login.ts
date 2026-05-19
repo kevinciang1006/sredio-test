@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/api/auth.service';
+import { TENANTS } from '../../core/constants/tenants.const';
+import { APP_CONSTANTS } from '../../core/constants/app-constants';
 
 @Component({
   selector: 'app-login',
@@ -32,7 +34,11 @@ export class LoginComponent {
     this.errorMessage.set(null);
 
     this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => void this.router.navigate(['/dashboard']),
+      next: () => {
+        const lastId = localStorage.getItem(APP_CONSTANTS.LOCAL_STORAGE_KEYS.LAST_TENANT_ID);
+        const tenantId = (lastId && TENANTS.some(t => t.id === lastId)) ? lastId : TENANTS[0].id;
+        void this.router.navigate(['/tenant', tenantId, 'dashboard']);
+      },
       error: (err: { message?: string }) => {
         this.errorMessage.set(err.message ?? 'Login failed.');
         this.isSubmitting.set(false);
