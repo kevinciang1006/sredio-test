@@ -133,8 +133,7 @@ export class DashboardComponent {
   readonly modalMode = signal<SredMode>('hours');
   readonly isPeriodOpen = signal(false);
 
-  readonly claimStatus = computed(() => this.client()?.claimStatus ?? null);
-  readonly lastUpdatedAt = computed(() => this.client()?.lastUpdatedAt ?? null);
+  readonly lastUpdatedAt = signal('15 May 2026');
   readonly isRecalculating = signal(false);
 
   readonly isLoading = computed(() =>
@@ -334,6 +333,9 @@ export class DashboardComponent {
     this.isRecalculating.set(true);
     setTimeout(() => {
       this.isRecalculating.set(false);
+      this.lastUpdatedAt.set(
+        new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      );
       this.toastSvc.show('Projections recalculated');
     }, 800);
   }

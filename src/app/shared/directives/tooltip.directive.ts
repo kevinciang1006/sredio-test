@@ -14,7 +14,7 @@ export class TooltipDirective implements OnDestroy {
   private readonly renderer = inject(Renderer2);
 
   readonly appTooltip = input.required<string>();
-  readonly appTooltipPosition = input<'top' | 'bottom'>('top');
+  readonly appTooltipPosition = input<'top' | 'bottom' | 'right'>('top');
 
   private tooltipEl: HTMLElement | null = null;
 
@@ -27,7 +27,7 @@ export class TooltipDirective implements OnDestroy {
       'pointer-events-none', 'fixed', 'z-[60]',
       'bg-gray-900', 'text-white', 'text-xs',
       'px-2', 'py-1', 'rounded', 'shadow-lg',
-      'max-w-xs',
+      'max-w-xs', 'whitespace-pre-line',
     ];
     for (const c of classes) this.renderer.addClass(tip, c);
     this.renderer.setProperty(tip, 'textContent', text);
@@ -39,13 +39,20 @@ export class TooltipDirective implements OnDestroy {
     const tipRect = tip.getBoundingClientRect();
     const pos = this.appTooltipPosition();
 
-    const top = pos === 'top'
-      ? rect.top - tipRect.height - 8
-      : rect.bottom + 8;
-    const left = rect.left + rect.width / 2 - tipRect.width / 2;
+    let top: number;
+    let left: number;
+    if (pos === 'right') {
+      top = rect.top + rect.height / 2 - tipRect.height / 2;
+      left = rect.right + 8;
+    } else {
+      top = pos === 'top'
+        ? rect.top - tipRect.height - 8
+        : rect.bottom + 8;
+      left = rect.left + rect.width / 2 - tipRect.width / 2;
+    }
 
     const clampedLeft = Math.max(4, Math.min(left, window.innerWidth - tipRect.width - 4));
-    const clampedTop = Math.max(4, top);
+    const clampedTop = Math.max(4, Math.min(top, window.innerHeight - tipRect.height - 4));
 
     this.renderer.setStyle(tip, 'top', `${clampedTop}px`);
     this.renderer.setStyle(tip, 'left', `${clampedLeft}px`);

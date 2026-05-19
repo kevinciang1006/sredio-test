@@ -3,7 +3,7 @@ import { TENANTS } from '../constants/tenants.const';
 
 export const MOCK_ADMIN_USER: AdminUser = {
   id: TENANTS[0].adminId,
-  name: 'Xavier Beaumont',
+  name: 'Xavier Ali',
   email: 'xavier@sredio.io',
   role: 'admin',
 };
