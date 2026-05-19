@@ -5,7 +5,7 @@
     <ul class="space-y-1 list-none m-0 p-0">
       <li class="relative group">
         <a
-          routerLink="/dashboard"
+          [routerLink]="['/tenant', tenantId(), 'dashboard']"
           routerLinkActive
           #dashRla="routerLinkActive"
           [class]="'flex items-center p-2 rounded-lg transition-colors hover:bg-gray-100 ' + (dashRla.isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-900')">
@@ -25,7 +25,7 @@
       </li>
       <li class="relative group">
         <a
-          routerLink="/profile"
+          [routerLink]="['/tenant', tenantId(), 'profile']"
           routerLinkActive
           #profileRla="routerLinkActive"
           [class]="'flex items-center p-2 rounded-lg transition-colors hover:bg-gray-100 ' + (profileRla.isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-900')">

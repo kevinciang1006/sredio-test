@@ -10,4 +10,5 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class SideBarComponent {
   readonly collapsed = input(false);
+  readonly tenantId = input.required<string>();
 }

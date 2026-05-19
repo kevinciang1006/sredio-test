@@ -2,11 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { isValidTenant } from './tenant.guard';
 
 describe('isValidTenant', () => {
-  it('returns true for a known tenant UUID', () => {
-    expect(isValidTenant('f47ac10b-58cc-4372-a567-0e02b2c3d479')).toBe(true);
-  });
-
-  it('returns true for each of the 4 tenants', () => {
+  it('returns true for all 4 known tenant UUIDs', () => {
     const ids = [
       'f47ac10b-58cc-4372-a567-0e02b2c3d479',
       'a3bb189e-8bf9-3888-9912-ace4e6543002',

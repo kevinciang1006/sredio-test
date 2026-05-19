@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { map, switchMap } from 'rxjs/operators';
 import { ClientsService } from './services/clients.service';
 import { EmployeesService } from './services/employees.service';
 import { ProjectsService } from './services/projects.service';
@@ -47,6 +48,14 @@ const QUARTER_LABELS: Record<QuarterPeriod, string> = {
   q1: 'Q1', q2: 'Q2', q3: 'Q3', q4: 'Q4', ytd: 'Year to Date',
 };
 
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] as const;
+
+function formatShortDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(n => parseInt(n, 10));
+  if (Number.isNaN(y) || Number.isNaN(m) || Number.isNaN(d)) return iso;
+  return `${d} ${MONTH_NAMES[m - 1]} ${y}`;
+}
+
 @Component({
   selector: 'app-dashboard',
   imports: [
@@ -74,11 +83,17 @@ export class DashboardComponent {
   private readonly teamsSvc = inject(TeamsService);
 
   private readonly route = inject(ActivatedRoute);
-  private readonly tenantId = this.route.snapshot.params['tenantId'] as string;
+  private readonly tenantId = toSignal(
+    this.route.paramMap.pipe(map(p => p.get('tenantId') ?? '')),
+    { initialValue: this.route.snapshot.params['tenantId'] as string ?? '' },
+  );
 
-  readonly client = toSignal<Client | null, Client | null>(this.clientsSvc.getCurrent(this.tenantId), {
-    initialValue: null,
-  });
+  readonly client = toSignal<Client | null, Client | null>(
+    toObservable(this.tenantId).pipe(
+      switchMap(id => this.clientsSvc.getCurrent(id)),
+    ),
+    { initialValue: null },
+  );
   readonly employees = toSignal<readonly Employee[], readonly Employee[]>(
     this.employeesSvc.getAll(), { initialValue: [] },
   );
@@ -152,12 +167,16 @@ export class DashboardComponent {
     return tab?.value ?? 0;
   });
 
+  readonly ytdValue = computed(() => {
+    const tab = this.quarterlyTabs().find(t => t.period === 'ytd');
+    return tab?.value ?? 0;
+  });
+
   readonly projectedFullYearValue = computed<number | null>(() => {
-    if (this.selectedPeriod() !== 'ytd') return null;
     const c = this.client();
     if (!c) return null;
     return projectFullYear(
-      this.currentKpiValue(),
+      this.ytdValue(),
       c.claimPeriod.startDate,
       c.claimPeriod.endDate,
       this.asOf,
@@ -177,6 +196,13 @@ export class DashboardComponent {
   readonly drilledProject = computed(() => {
     const id = this.drilledProjectId();
     return id ? (this.projects().find(p => p.id === id) ?? null) : null;
+  });
+
+  readonly drilledProjectValue = computed<number | null>(() => {
+    const id = this.drilledProjectId();
+    if (!id) return null;
+    const bar = this.projectBars().find(b => b.projectId === id);
+    return bar?.value ?? 0;
   });
 
   readonly employeeBreakdownBars = computed(() => {

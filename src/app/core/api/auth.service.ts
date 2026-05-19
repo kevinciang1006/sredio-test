@@ -31,6 +31,7 @@ export class AuthService {
     this._currentUser.set(null);
     localStorage.removeItem(APP_CONSTANTS.LOCAL_STORAGE_KEYS.AUTH_TOKEN);
     localStorage.removeItem(APP_CONSTANTS.LOCAL_STORAGE_KEYS.AUTH_USER);
+    localStorage.removeItem(APP_CONSTANTS.LOCAL_STORAGE_KEYS.LAST_TENANT_ID);
   }
 
   private persist(token: string, user: AdminUser): void {
