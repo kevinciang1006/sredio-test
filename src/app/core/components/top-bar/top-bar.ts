@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map, startWith } from 'rxjs/operators';
 import { AuthService } from '../../api/auth.service';
 import { AvatarComponent } from '../../../shared/components/avatar/avatar';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
@@ -23,9 +25,17 @@ export class TopBarComponent {
   readonly isOpen = signal(false);
   readonly isTenantOpen = signal(false);
 
+  private readonly routerUrl = toSignal(
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      map(() => this.router.url),
+      startWith(this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+
   readonly currentTenantId = computed(() => {
-    const url = this.router.url;
-    const m = url.match(/\/tenant\/([^/]+)/);
+    const m = this.routerUrl().match(/\/tenant\/([^/]+)/);
     return m ? m[1] : '';
   });
 

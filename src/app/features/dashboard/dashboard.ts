@@ -88,8 +88,8 @@ export class DashboardComponent {
 
   private readonly route = inject(ActivatedRoute);
   private readonly tenantId = toSignal(
-    this.route.paramMap.pipe(map(p => p.get('tenantId') ?? '')),
-    { initialValue: this.route.snapshot.params['tenantId'] as string ?? '' },
+    this.route.parent!.paramMap.pipe(map(p => p.get('tenantId') ?? '')),
+    { initialValue: this.route.parent!.snapshot.params['tenantId'] as string ?? '' },
   );
 
   readonly client = toSignal<Client | null, Client | null>(
