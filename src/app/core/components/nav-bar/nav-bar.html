@@ -10,10 +10,42 @@
     <span class="sr-only">Toggle sidebar</span>
   </button>
 
-  <a routerLink="/dashboard" class="flex items-center gap-2 text-xl font-semibold text-blue-600 hover:text-blue-700 flex-1">
+  <span class="flex items-center gap-2 text-xl font-semibold text-blue-600 shrink-0">
     <span class="inline-flex w-8 h-8 rounded bg-blue-600 text-white items-center justify-center text-sm font-bold">S</span>
     sred.io
-  </a>
+  </span>
+
+  <div class="relative shrink-0">
+    <button
+      type="button"
+      (click)="toggleTenantDropdown()"
+      class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 focus:outline-none text-sm font-medium text-gray-700">
+      {{ currentTenant()?.name ?? 'Select tenant' }}
+      <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+
+    @if (isTenantOpen()) {
+      <div class="absolute left-0 mt-2 w-52 rounded-lg shadow-lg bg-white border border-gray-200 z-50 py-1">
+        @for (t of tenants; track t.id) {
+          <button
+            type="button"
+            (click)="switchTenant(t.id)"
+            class="flex w-full items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+            <span>{{ t.name }}</span>
+            @if (t.id === currentTenantId()) {
+              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            }
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="flex-1"></div>
 
   <div class="relative shrink-0">
     <button
@@ -33,19 +65,9 @@
     </button>
 
     @if (isOpen()) {
-      <div class="absolute right-0 mt-2 w-64 rounded-lg shadow-lg bg-white border border-gray-200 z-50">
-        @if (currentUser(); as u) {
-          <div class="px-4 py-3 flex items-center gap-3">
-            <app-avatar [name]="u.name" size="lg" />
-            <div class="min-w-0">
-              <p class="text-sm font-semibold text-gray-900 truncate">{{ u.name }}</p>
-              <p class="text-xs text-gray-500 truncate">{{ u.email }}</p>
-            </div>
-          </div>
-        }
-        <hr class="border-gray-100" />
+      <div class="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white border border-gray-200 z-50">
         <a
-          routerLink="/profile"
+          [routerLink]="['/tenant', currentTenantId(), 'profile']"
           (click)="isOpen.set(false)"
           class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
           <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
