@@ -1,0 +1,22 @@
+@if (total() === 0) {
+  <p class="text-sm text-gray-400 py-4 text-center">No employee data for this project/period.</p>
+} @else {
+  <div class="flex w-full h-16 rounded overflow-hidden gap-0.5">
+    @for (bar of bars(); track bar.employeeId; let i = $index) {
+      <button
+        type="button"
+        [style.width]="widthPct(bar.value)"
+        [style.background-color]="colorFor(i)"
+        class="flex flex-col items-center justify-center text-white text-xs font-medium overflow-hidden min-w-0 shrink-0 cursor-default">
+        <span class="truncate px-1 text-center leading-tight">{{ bar.name }}</span>
+        <span class="truncate px-1 text-center leading-tight opacity-90">
+          @if (mode() === 'hours') {
+            {{ bar.value | number:'1.0-0' }} hrs
+          } @else {
+            {{ bar.value | currency:'CAD':'symbol-narrow':'1.0-0' }}
+          }
+        </span>
+      </button>
+    }
+  </div>
+}
