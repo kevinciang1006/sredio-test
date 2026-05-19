@@ -1,5 +1,5 @@
 export const APP_CONSTANTS = {
-  CURRENT_DATE: '2025-09-30',
+  CURRENT_DATE: '2026-05-19',
   HOURS_PER_YEAR: 2000,
   LOCAL_STORAGE_KEYS: {
     AUTH_TOKEN: 'sredio.auth.token',

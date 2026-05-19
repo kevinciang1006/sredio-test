@@ -21,6 +21,11 @@ export class ClientHeaderComponent {
   }
 
   formatRange(p: ClaimPeriod): string {
-    return `${p.startDate} → ${p.endDate}`;
+    const fmt = (d: string) => {
+      const dt = new Date(d + 'T00:00:00');
+      return dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    };
+    const year = p.endDate.slice(0, 4);
+    return `${fmt(p.startDate)} – ${fmt(p.endDate)} ${year}`;
   }
 }
