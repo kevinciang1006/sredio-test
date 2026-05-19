@@ -135,7 +135,7 @@ export class DashboardComponent {
     const found = id ? c.claimPeriods.find(p => p.id === id) : null;
     if (found) return found;
     // Default: period containing today (asOf)
-    return c.claimPeriods.find(p => p.startDate <= this.asOf && p.endDate >= this.asOf)
+    return c.claimPeriods.find(p => p.startDate <= APP_CONSTANTS.CURRENT_DATE && p.endDate >= APP_CONSTANTS.CURRENT_DATE)
       ?? c.claimPeriods[c.claimPeriods.length - 1]
       ?? null;
   });
@@ -153,12 +153,16 @@ export class DashboardComponent {
     this.timeEntries().length === 0,
   );
 
-  readonly asOf = APP_CONSTANTS.CURRENT_DATE;
+  readonly asOf = computed(() => {
+    const p = this.activeClaimPeriod();
+    if (!p) return APP_CONSTANTS.CURRENT_DATE;
+    return p.endDate < APP_CONSTANTS.CURRENT_DATE ? p.endDate : APP_CONSTANTS.CURRENT_DATE;
+  });
 
   readonly periodEntries = computed(() => {
     const p = this.activeClaimPeriod();
     if (!p) return [];
-    const { start, end } = quarterBoundaries(this.selectedPeriod(), p.startDate, this.asOf);
+    const { start, end } = quarterBoundaries(this.selectedPeriod(), p.startDate, this.asOf());
     return filterEntriesByPeriod(this.timeEntries(), start, end);
   });
 
@@ -179,11 +183,11 @@ export class DashboardComponent {
       q2: `Apr 1 – Jun 30, ${year}`,
       q3: `Jul 1 – Sep 30, ${year}`,
       q4: `Oct 1 – Dec 31, ${year}`,
-      ytd: `${formatShortDate(p.startDate)} – ${formatShortDate(this.asOf)}`,
+      ytd: `${formatShortDate(p.startDate)} – ${formatShortDate(this.asOf())}`,
     };
 
     return PERIODS.map(period => {
-      const { start, end } = quarterBoundaries(period, p.startDate, this.asOf);
+      const { start, end } = quarterBoundaries(period, p.startDate, this.asOf());
       const pEntries = filterEntriesByPeriod(entries, start, end);
       let value: number;
       if (mode === 'hours') {
@@ -213,7 +217,7 @@ export class DashboardComponent {
       this.ytdValue(),
       p.startDate,
       p.endDate,
-      this.asOf,
+      this.asOf(),
     ).projectedFullYear;
   });
 
@@ -265,7 +269,7 @@ export class DashboardComponent {
   readonly employeeRows = computed<readonly EmployeeRow[]>(() => {
     const p = this.activeClaimPeriod();
     if (!p) return [];
-    const { start, end } = quarterBoundaries('ytd', p.startDate, this.asOf);
+    const { start, end } = quarterBoundaries('ytd', p.startDate, this.asOf());
     const ytdEntries = filterEntriesByPeriod(this.timeEntries(), start, end);
     return this.employees().map(emp => {
       const ytdHours = ytdEntries
@@ -340,7 +344,7 @@ export class DashboardComponent {
   readonly modalPeriodLabel = computed(() => {
     const p = this.activeClaimPeriod();
     if (!p) return '';
-    const { start, end } = quarterBoundaries(this.selectedPeriod(), p.startDate, this.asOf);
+    const { start, end } = quarterBoundaries(this.selectedPeriod(), p.startDate, this.asOf());
     return `${formatShortDate(start)} – ${formatShortDate(end)}`;
   });
 
