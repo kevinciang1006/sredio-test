@@ -41,7 +41,7 @@ import {
   employeeProjectBars,
 } from './calculations/project-bar-data';
 import { staffBarData } from './calculations/staff-bar-data';
-import { SredMode, QuarterPeriod, EmployeeRow } from './models/chart-data.model';
+import { SredMode, QuarterPeriod, EmployeeRow, ChartView } from './models/chart-data.model';
 import { Client, ClaimPeriod } from '../../core/models/client.model';
 import { Employee } from '../../core/models/employee.model';
 import { Project } from './models/project.model';
@@ -130,7 +130,7 @@ export class DashboardComponent {
   readonly mode = signal<SredMode>('hours');
   readonly selectedPeriod = signal<QuarterPeriod>('ytd');
   readonly drilledProjectId = signal<string | null>(null);
-  readonly chartView = signal<'bar' | 'donut'>('bar');
+  readonly chartView = signal<ChartView>('bar');
   readonly activeClaimPeriodId = signal<string | null>(null);
 
   readonly activeClaimPeriod = computed(() => {
@@ -383,7 +383,7 @@ export class DashboardComponent {
     this.drilledProjectId.set(null);
   }
   // chartView persists across drill depth: donut top-level → donut employee breakdown
-  onChartViewChange(v: 'bar' | 'donut'): void { this.chartView.set(v); }
+  onChartViewChange(v: ChartView): void { this.chartView.set(v); }
   onProjectClick(projectId: string): void { this.drilledProjectId.set(projectId); }
   onDrillBack(): void { this.drilledProjectId.set(null); }
   onEmployeeClick(employeeId: string): void {

@@ -1,6 +1,7 @@
 export type ChartMode = 'hours' | 'cost';
 export type SredMode = 'hours' | 'expenditures' | 'credits';
 export type QuarterPeriod = 'q1' | 'q2' | 'q3' | 'q4' | 'ytd';
+export type ChartView = 'bar' | 'donut';
 
 export interface ProjectBreakdownSeries {
   readonly name: string;
