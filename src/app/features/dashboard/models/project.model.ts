@@ -3,4 +3,5 @@ export interface Project {
   readonly name: string;
   readonly description: string;
   readonly isSredEligible: boolean;
+  readonly color: string;
 }

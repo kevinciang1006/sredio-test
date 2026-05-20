@@ -5,17 +5,6 @@ import { SredMode, SredProjectBar, EmployeeBreakdownBar } from '../models/chart-
 import { hourlyRate } from './hourly-rate';
 import { sredCredits } from './sred-totals';
 
-const SRED_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
-const UNCLAIMED_COLOR = '#9ca3af';
-
-function buildColorMap(projects: readonly Project[]): Map<string, string> {
-  const colors = new Map<string, string>();
-  let idx = 0;
-  for (const p of projects) {
-    colors.set(p.id, p.isSredEligible ? SRED_COLORS[idx++ % SRED_COLORS.length] : UNCLAIMED_COLOR);
-  }
-  return colors;
-}
 
 function entryValue(
   entries: readonly TimeEntry[],
@@ -38,7 +27,6 @@ export function projectBarData(
   mode: SredMode,
   creditRate: number,
 ): SredProjectBar[] {
-  const colorMap = buildColorMap(projects);
   const rateById = new Map(employees.map(emp => [emp.id, hourlyRate(emp)]));
 
   return projects.map(project => {
@@ -59,7 +47,7 @@ export function projectBarData(
       projectName: project.name,
       value,
       isSredEligible: project.isSredEligible,
-      color: colorMap.get(project.id) ?? UNCLAIMED_COLOR,
+      color: project.color,
     };
   });
 }
@@ -91,7 +79,6 @@ export function employeeProjectBars(
   mode: SredMode,
   creditRate: number,
 ): SredProjectBar[] {
-  const colorMap = buildColorMap(projects);
   const rate = hourlyRate(employee);
 
   return projects
@@ -105,7 +92,7 @@ export function employeeProjectBars(
         projectName: project.name,
         value,
         isSredEligible: project.isSredEligible,
-        color: colorMap.get(project.id) ?? UNCLAIMED_COLOR,
+        color: project.color,
       };
     })
     .filter(b => b.value > 0);
