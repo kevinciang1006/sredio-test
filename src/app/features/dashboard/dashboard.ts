@@ -13,8 +13,12 @@ import { QuarterlyTimelineComponent, QuarterTab } from './components/quarterly-t
 import { DualKpiPanelComponent } from './components/dual-kpi-panel/dual-kpi-panel';
 import { SredProjectsBarComponent } from './components/sred-projects-bar/sred-projects-bar';
 import { SredProjectsDonutComponent } from './components/sred-projects-donut/sred-projects-donut';
+import { SredProjectsEchartsComponent } from './components/sred-projects-echarts/sred-projects-echarts';
+import { SredCreditsPolarComponent } from './components/sred-credits-polar/sred-credits-polar';
+import { ChartViewTabsComponent } from './components/chart-view-tabs/chart-view-tabs';
 import { EmployeeBreakdownBarComponent } from './components/employee-breakdown-bar/employee-breakdown-bar';
 import { EmployeeBreakdownDonutComponent } from './components/employee-breakdown-donut/employee-breakdown-donut';
+import { EmployeeBreakdownEchartsComponent } from './components/employee-breakdown-echarts/employee-breakdown-echarts';
 import { StaffSectionComponent } from './components/staff-section/staff-section';
 import { EmployeeModalComponent } from '../../shared/components/employee-modal/employee-modal';
 import { StaffSalaryTableComponent } from './components/staff-salary-table/staff-salary-table';
@@ -69,8 +73,12 @@ function formatShortDate(iso: string): string {
     DualKpiPanelComponent,
     SredProjectsBarComponent,
     SredProjectsDonutComponent,
+    SredProjectsEchartsComponent,
+    SredCreditsPolarComponent,
     EmployeeBreakdownBarComponent,
     EmployeeBreakdownDonutComponent,
+    EmployeeBreakdownEchartsComponent,
+    ChartViewTabsComponent,
     StaffSectionComponent,
     EmployeeModalComponent,
     StaffSalaryTableComponent,
@@ -103,6 +111,7 @@ export class DashboardComponent {
     ),
     { initialValue: null },
   );
+  readonly creditRate = computed(() => this.client()?.sredCreditRate ?? 0.45);
   readonly employees = toSignal(
     toObservable(this.tenantId).pipe(
       switchMap(id => this.employeesSvc.getAll(id).pipe(startWith([] as readonly Employee[]))),
@@ -131,7 +140,7 @@ export class DashboardComponent {
   readonly mode = signal<SredMode>('hours');
   readonly selectedPeriod = signal<QuarterPeriod>('ytd');
   readonly drilledProjectId = signal<string | null>(null);
-  readonly chartView = signal<ChartView>('bar');
+  readonly chartView = signal<ChartView>('donut');
   readonly activeClaimPeriodId = signal<string | null>(null);
 
   readonly activeClaimPeriod = computed(() => {
@@ -393,13 +402,22 @@ export class DashboardComponent {
   // chartView persists across drill depth: donut top-level → donut employee breakdown
   onChartViewChange(v: ChartView): void { this.chartView.set(v); }
   onProjectClick(projectId: string): void {
-    if (!document.startViewTransition) { this.drilledProjectId.set(projectId); return; }
-    document.startViewTransition(() => { this.drilledProjectId.set(projectId); });
+    // Donut view: CSS slide-in animation handles the transition; no view transition needed.
+    if (!document.startViewTransition || this.chartView() === 'donut') {
+      this.drilledProjectId.set(projectId); return;
+    }
+    document.documentElement.classList.add('drilling-in');
+    const t = document.startViewTransition(() => { this.drilledProjectId.set(projectId); });
+    t.finished.then(() => document.documentElement.classList.remove('drilling-in'));
   }
 
   onDrillBack(): void {
-    if (!document.startViewTransition) { this.drilledProjectId.set(null); return; }
-    document.startViewTransition(() => { this.drilledProjectId.set(null); });
+    if (!document.startViewTransition || this.chartView() === 'donut') {
+      this.drilledProjectId.set(null); return;
+    }
+    document.documentElement.classList.add('drilling-out');
+    const t = document.startViewTransition(() => { this.drilledProjectId.set(null); });
+    t.finished.then(() => document.documentElement.classList.remove('drilling-out'));
   }
   onEmployeeClick(employeeId: string): void {
     this.selectedEmployeeId.set(employeeId);
