@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { Team } from '../../../../core/models/team.model';
 import { Employee } from '../../../../core/models/employee.model';
-import { SredMode, StaffBarEntry, StaffDisplayMode } from '../../models/chart-data.model';
+import { SredMode, StaffBarEntry } from '../../models/chart-data.model';
 import { StaffEmployeeCardComponent } from '../staff-employee-card/staff-employee-card';
 import { InfoTooltipComponent } from '../../../../shared/components/info-tooltip/info-tooltip';
 
@@ -10,12 +10,6 @@ interface TeamGroup {
   readonly teamId: string | null;
   readonly entries: readonly StaffBarEntry[];
 }
-
-const DISPLAY_MODE_OPTIONS: readonly { value: StaffDisplayMode; label: string }[] = [
-  { value: 'sred', label: 'SR&ED' },
-  { value: 'unclaimed', label: 'Unclaimed' },
-  { value: 'both', label: 'Both' },
-];
 
 @Component({
   selector: 'app-staff-section',
@@ -31,14 +25,6 @@ export class StaffSectionComponent {
   readonly employeeClick = output<string>();
 
   readonly totalCount = computed(() => this.employees().length);
-
-  readonly displayMode = signal<StaffDisplayMode>('both');
-
-  readonly displayModeOptions = DISPLAY_MODE_OPTIONS;
-
-  setDisplayMode(m: StaffDisplayMode): void {
-    this.displayMode.set(m);
-  }
 
   readonly groups = computed<readonly TeamGroup[]>(() => {
     const teams = this.teams();

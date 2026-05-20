@@ -8,21 +8,6 @@
       Total Staff Included in Claim ({{ totalCount() }})
       <app-info-tooltip text="All employees on the client roster, grouped by team. The gauge shows SR&ED eligible hours as a proportion of total hours. Click a card to view employee project breakdown." />
     </h2>
-    <div class="ml-auto flex bg-gray-100 rounded-lg p-0.5 gap-0.5" role="group" aria-label="Staff gauge view">
-      @for (opt of displayModeOptions; track opt.value) {
-        <button
-          type="button"
-          class="px-3 py-1 text-xs font-semibold rounded-md transition-all"
-          [class.bg-white]="displayMode() === opt.value"
-          [class.shadow-sm]="displayMode() === opt.value"
-          [class.text-gray-900]="displayMode() === opt.value"
-          [class.text-gray-500]="displayMode() !== opt.value"
-          [attr.aria-pressed]="displayMode() === opt.value"
-          (click)="setDisplayMode(opt.value)">
-          {{ opt.label }}
-        </button>
-      }
-    </div>
   </div>
 
   @for (group of groups(); track group.label) {
@@ -39,7 +24,6 @@
           <app-staff-employee-card
             [entry]="entry"
             [mode]="mode()"
-            [displayMode]="displayMode()"
             (viewDetails)="employeeClick.emit(entry.employeeId)" />
         }
       </div>

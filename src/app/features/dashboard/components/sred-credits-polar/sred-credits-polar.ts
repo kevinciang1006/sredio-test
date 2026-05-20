@@ -23,22 +23,20 @@ export class SredCreditsPolarComponent {
   readonly chartOption = computed(() => {
     const bars = this.visibleBars();
     const rate = Math.max(this.creditRate(), 0.01);
-    const totalExpenditure = bars.reduce((s, b) => s + b.value / rate, 0);
 
     return {
-      polar: { radius: ['15%', '80%'] },
+      polar: { radius: [0, '70%'] },
       angleAxis: {
-        max: totalExpenditure,
-        startAngle: 90,
-        show: false,
-      },
-      radiusAxis: {
         type: 'category' as const,
         data: bars.map(b => b.projectName),
+        startAngle: 75,
         axisLabel: { fontSize: 11, color: '#374151', interval: 0 },
         axisTick: { show: false },
         axisLine: { show: false },
         splitLine: { show: false },
+      },
+      radiusAxis: {
+        show: false,
       },
       tooltip: {
         trigger: 'item' as const,
@@ -61,14 +59,8 @@ export class SredCreditsPolarComponent {
             value: b.value,
             itemStyle: { color: b.color },
           })),
-          label: {
-            show: true,
-            position: 'insideStart' as const,
-            formatter: (params: { value: number }) => CAD_FORMATTER.format(params.value),
-            color: '#fff',
-            fontWeight: 'bold' as const,
-            fontSize: 11,
-          },
+          label: { show: false },
+          barCategoryGap: '0%',
         },
         {
           type: 'bar' as const,
@@ -80,6 +72,7 @@ export class SredCreditsPolarComponent {
             itemStyle: { color: b.color, opacity: 0.3 },
           })),
           label: { show: false },
+          barCategoryGap: '0%',
         },
       ],
     };

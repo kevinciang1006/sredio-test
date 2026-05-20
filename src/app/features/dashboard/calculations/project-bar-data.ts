@@ -40,7 +40,7 @@ export function projectBarData(
       const cost = projEntries.reduce((sum, e) => {
         return sum + e.hours * (rateById.get(e.employeeId) ?? 0);
       }, 0);
-      value = mode === 'credits' ? (project.isSredEligible ? sredCredits(cost, creditRate) : 0) : cost;
+      value = mode === 'credits' ? (project.isSredEligible ? sredCredits(cost, creditRate) : cost) : cost;
     }
 
     return {

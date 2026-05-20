@@ -14,7 +14,6 @@ import { DualKpiPanelComponent } from './components/dual-kpi-panel/dual-kpi-pane
 import { SredProjectsBarComponent } from './components/sred-projects-bar/sred-projects-bar';
 import { SredProjectsDonutComponent } from './components/sred-projects-donut/sred-projects-donut';
 import { SredProjectsEchartsComponent } from './components/sred-projects-echarts/sred-projects-echarts';
-import { SredCreditsPolarComponent } from './components/sred-credits-polar/sred-credits-polar';
 import { ChartViewTabsComponent } from './components/chart-view-tabs/chart-view-tabs';
 import { EmployeeBreakdownBarComponent } from './components/employee-breakdown-bar/employee-breakdown-bar';
 import { EmployeeBreakdownDonutComponent } from './components/employee-breakdown-donut/employee-breakdown-donut';
@@ -74,7 +73,6 @@ function formatShortDate(iso: string): string {
     SredProjectsBarComponent,
     SredProjectsDonutComponent,
     SredProjectsEchartsComponent,
-    SredCreditsPolarComponent,
     EmployeeBreakdownBarComponent,
     EmployeeBreakdownDonutComponent,
     EmployeeBreakdownEchartsComponent,
@@ -385,7 +383,6 @@ export class DashboardComponent {
   onModeChange(mode: SredMode): void { this.mode.set(mode); }
   onPeriodSelect(period: QuarterPeriod): void {
     this.selectedPeriod.set(period);
-    this.drilledProjectId.set(null);
   }
   togglePeriodDropdown(): void { this.isPeriodOpen.update(v => !v); }
 

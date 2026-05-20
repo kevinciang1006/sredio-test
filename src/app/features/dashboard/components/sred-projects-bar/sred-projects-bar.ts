@@ -18,8 +18,6 @@ const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
   .bar-btn:hover {
     transform: scale(1.05);
     filter: brightness(1.10);
-    outline: 3px solid rgba(255,255,255,0.85);
-    outline-offset: -2px;
     position: relative;
     z-index: 1;
   }`],

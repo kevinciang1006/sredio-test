@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { describe, it, expect } from 'vitest';
 import { DashboardComponent } from './dashboard';
 import { DualKpiPanelComponent } from './components/dual-kpi-panel/dual-kpi-panel';
@@ -13,10 +13,15 @@ import { TeamsService } from './services/teams.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { ActivatedRoute } from '@angular/router';
 
-// ── Minimal fixtures ────────────────────────────────────────────────────────
+// ── Fixtures ─────────────────────────────────────────────────────────────────
 // APP_CONSTANTS.CURRENT_DATE = '2026-05-19'
-// Claim period: 2026-01-01 → 2026-12-31, so YTD window is Jan 1 → May 19 2026
-// 3 entries × 8 hrs = 24 SR&ED hours expected in YTD
+// Claim period: 2026-01-01 → 2026-12-31
+//
+// Q1 entries (Jan): 3 × 8 = 24 hrs  (inside Q1 and YTD)
+// Q2 entry  (Apr): 1 × 8 = 8 hrs   (inside Q2 and YTD, outside Q1)
+// ─────────────────────────────────────────────────────────────────
+// Expected: Q1 = 24 hrs, Q2 = 8 hrs, YTD = 32 hrs
+// This makes currentValue and ytdValue distinguishable when on Q1.
 
 const MOCK_CLIENT = {
   id: 'c-test',
@@ -38,14 +43,17 @@ const MOCK_PROJECTS = [
 ];
 
 const MOCK_TIME_ENTRIES = [
+  // Q1 — Jan 5, 6, 7 → 24 hrs
   { id: 'e1', employeeId: 'emp-1', projectId: 'proj-sred', date: '2026-01-05', hours: 8 },
   { id: 'e2', employeeId: 'emp-1', projectId: 'proj-sred', date: '2026-01-06', hours: 8 },
   { id: 'e3', employeeId: 'emp-1', projectId: 'proj-sred', date: '2026-01-07', hours: 8 },
+  // Q2 — Apr 15 → 8 hrs (in YTD, not in Q1)
+  { id: 'e4', employeeId: 'emp-1', projectId: 'proj-sred', date: '2026-04-15', hours: 8 },
 ];
 
-const EXPECTED_YTD_HOURS = 24;
+const Q1_HOURS = 24;
+const YTD_HOURS = 32;
 
-// ── Route mock ──────────────────────────────────────────────────────────────
 function makeRouteMock() {
   const parent = {
     paramMap: of(convertToParamMap({ tenantId: 'tenant-1' })),
@@ -54,46 +62,161 @@ function makeRouteMock() {
   return { parent };
 }
 
-// ── Test ────────────────────────────────────────────────────────────────────
-describe('DashboardComponent → DualKpiPanelComponent binding', () => {
-  async function setup() {
+// ── Setup helpers ─────────────────────────────────────────────────────────────
+
+async function setupWithData() {
+  await TestBed.configureTestingModule({
+    imports: [DashboardComponent],
+    providers: [
+      { provide: ActivatedRoute, useValue: makeRouteMock() },
+      { provide: ClientsService,     useValue: { getCurrent: () => of(MOCK_CLIENT) } },
+      { provide: EmployeesService,   useValue: { getAll: () => of(MOCK_EMPLOYEES) } },
+      { provide: ProjectsService,    useValue: { getAll: () => of(MOCK_PROJECTS) } },
+      { provide: TimeEntriesService, useValue: { getAll: () => of(MOCK_TIME_ENTRIES) } },
+      { provide: TeamsService,       useValue: { getAll: () => of([]) } },
+      { provide: ToastService,       useValue: { show: () => {} } },
+    ],
+  }).compileComponents();
+
+  const fixture = TestBed.createComponent(DashboardComponent);
+  fixture.detectChanges();
+  await fixture.whenStable();
+  fixture.detectChanges();
+  return fixture;
+}
+
+function dualKpiPanel(fixture: ReturnType<typeof TestBed.createComponent<DashboardComponent>>) {
+  return fixture.debugElement
+    .query(By.directive(DualKpiPanelComponent))
+    .componentInstance as DualKpiPanelComponent;
+}
+
+// ── Tests ─────────────────────────────────────────────────────────────────────
+
+describe('DashboardComponent → DualKpiPanelComponent bindings', () => {
+
+  it('passes ytdValue (always YTD total, not period-specific)', async () => {
+    const fixture = await setupWithData();
+    expect(dualKpiPanel(fixture).ytdValue()).toBe(YTD_HOURS);
+  });
+
+  it('passes daysElapsed so the projection equation is non-zero', async () => {
+    const fixture = await setupWithData();
+    expect(dualKpiPanel(fixture).daysElapsed()).toBeGreaterThan(0);
+  });
+
+  it('passes currentValue = Q1 hours (not YTD) when period switches to Q1', async () => {
+    const fixture = await setupWithData();
+    fixture.componentInstance.onPeriodSelect('q1');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(dualKpiPanel(fixture).currentValue()).toBe(Q1_HOURS);
+  });
+
+  it('keeps ytdValue stable at YTD total even after switching to Q1', async () => {
+    const fixture = await setupWithData();
+    fixture.componentInstance.onPeriodSelect('q1');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // ytdValue must stay at full YTD, never shrink to the selected period
+    expect(dualKpiPanel(fixture).ytdValue()).toBe(YTD_HOURS);
+  });
+
+  it('passes mode to dual-kpi-panel when mode changes', async () => {
+    const fixture = await setupWithData();
+    fixture.componentInstance.onModeChange('expenditures');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(dualKpiPanel(fixture).mode()).toBe('expenditures');
+  });
+
+  it('passes selectedPeriod to dual-kpi-panel when period changes', async () => {
+    const fixture = await setupWithData();
+    fixture.componentInstance.onPeriodSelect('q1');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(dualKpiPanel(fixture).selectedPeriod()).toBe('q1');
+  });
+
+  it('passes a non-null projectedValue on YTD tab (mid-year projection)', async () => {
+    const fixture = await setupWithData();
+    // Default period is ytd; projected should be > ytdValue since we are mid-year
+    const projected = dualKpiPanel(fixture).projectedValue();
+    expect(projected).not.toBeNull();
+    expect(projected!).toBeGreaterThan(YTD_HOURS);
+  });
+});
+
+describe('DashboardComponent — loading state', () => {
+
+  it('hides dual-kpi-panel while data is still loading', async () => {
+    const entries$ = new Subject<typeof MOCK_TIME_ENTRIES>();
+
     await TestBed.configureTestingModule({
       imports: [DashboardComponent],
       providers: [
-        { provide: ActivatedRoute, useValue: makeRouteMock() },
-        { provide: ClientsService, useValue: { getCurrent: () => of(MOCK_CLIENT) } },
-        { provide: EmployeesService, useValue: { getAll: () => of(MOCK_EMPLOYEES) } },
-        { provide: ProjectsService, useValue: { getAll: () => of(MOCK_PROJECTS) } },
-        { provide: TimeEntriesService, useValue: { getAll: () => of(MOCK_TIME_ENTRIES) } },
-        { provide: TeamsService, useValue: { getAll: () => of([]) } },
-        { provide: ToastService, useValue: { show: () => {} } },
+        { provide: ActivatedRoute,    useValue: makeRouteMock() },
+        { provide: ClientsService,    useValue: { getCurrent: () => of(MOCK_CLIENT) } },
+        { provide: EmployeesService,  useValue: { getAll: () => of(MOCK_EMPLOYEES) } },
+        { provide: ProjectsService,   useValue: { getAll: () => of(MOCK_PROJECTS) } },
+        { provide: TimeEntriesService, useValue: { getAll: () => entries$ } },
+        { provide: TeamsService,      useValue: { getAll: () => of([]) } },
+        { provide: ToastService,      useValue: { show: () => {} } },
       ],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(DashboardComponent);
     fixture.detectChanges();
     await fixture.whenStable();
-    fixture.detectChanges();
-    return fixture;
-  }
 
-  it('passes ytdValue to <app-dual-kpi-panel> so the YTD card shows the correct hours', async () => {
-    const fixture = await setup();
-
+    // Time entries have not emitted yet — panel must be absent (skeleton shown instead)
     const panelEl = fixture.debugElement.query(By.directive(DualKpiPanelComponent));
-    expect(panelEl).toBeTruthy();
-
-    const panel = panelEl.componentInstance as DualKpiPanelComponent;
-    expect(panel.ytdValue()).toBe(EXPECTED_YTD_HOURS);
+    expect(panelEl).toBeNull();
   });
 
-  it('passes daysElapsed to <app-dual-kpi-panel> so the projection formula is correct', async () => {
-    const fixture = await setup();
+  it('shows dual-kpi-panel after all data arrives', async () => {
+    const entries$ = new Subject<typeof MOCK_TIME_ENTRIES>();
+
+    await TestBed.configureTestingModule({
+      imports: [DashboardComponent],
+      providers: [
+        { provide: ActivatedRoute,    useValue: makeRouteMock() },
+        { provide: ClientsService,    useValue: { getCurrent: () => of(MOCK_CLIENT) } },
+        { provide: EmployeesService,  useValue: { getAll: () => of(MOCK_EMPLOYEES) } },
+        { provide: ProjectsService,   useValue: { getAll: () => of(MOCK_PROJECTS) } },
+        { provide: TimeEntriesService, useValue: { getAll: () => entries$ } },
+        { provide: TeamsService,      useValue: { getAll: () => of([]) } },
+        { provide: ToastService,      useValue: { show: () => {} } },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(DashboardComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    entries$.next(MOCK_TIME_ENTRIES);
+    entries$.complete();
+    fixture.detectChanges();
+    await fixture.whenStable();
 
     const panelEl = fixture.debugElement.query(By.directive(DualKpiPanelComponent));
-    const panel = panelEl.componentInstance as DualKpiPanelComponent;
+    expect(panelEl).not.toBeNull();
+  });
+});
 
-    // Jan 1 → May 19 2026 = 138 days elapsed
-    expect(panel.daysElapsed()).toBeGreaterThan(0);
+describe('DashboardComponent — quarterly tabs', () => {
+
+  it('produces exactly 5 tabs (q1 q2 q3 q4 ytd) with correct values', async () => {
+    const fixture = await setupWithData();
+    const tabs = fixture.componentInstance.quarterlyTabs();
+
+    expect(tabs.map(t => t.period)).toEqual(['q1', 'q2', 'q3', 'q4', 'ytd']);
+    expect(tabs.find(t => t.period === 'q1')!.value).toBe(Q1_HOURS);
+    expect(tabs.find(t => t.period === 'q2')!.value).toBe(8);
+    expect(tabs.find(t => t.period === 'ytd')!.value).toBe(YTD_HOURS);
   });
 });

@@ -1,0 +1,10 @@
+@if (total() === 0) {
+  <p class="text-sm text-gray-400 py-8 text-center">No employee data for this project/period.</p>
+} @else {
+  <div
+    echarts
+    [options]="chartOption()"
+    class="block w-full"
+    style="height: 300px">
+  </div>
+}

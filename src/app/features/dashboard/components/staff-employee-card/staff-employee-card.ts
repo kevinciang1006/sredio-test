@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { SredMode, StaffBarEntry, StaffDisplayMode } from '../../models/chart-data.model';
+import { SredMode, StaffBarEntry } from '../../models/chart-data.model';
 import { AvatarComponent } from '../../../../shared/components/avatar/avatar';
 
 const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
@@ -16,60 +16,47 @@ const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
 export class StaffEmployeeCardComponent {
   readonly entry = input.required<StaffBarEntry>();
   readonly mode = input<SredMode>('hours');
-  readonly displayMode = input<StaffDisplayMode>('both');
   readonly viewDetails = output<void>();
 
   readonly total = computed(() => this.entry().sredValue + this.entry().unclaimedValue);
-  readonly sredFraction = computed(() => {
-    const t = this.total();
-    return t > 0 ? (113 * this.entry().sredValue) / t : 0;
-  });
-  readonly sreddash = computed(() => this.sredFraction().toFixed(1));
-  readonly unclaimedFraction = computed(() => {
-    const t = this.total();
-    return t > 0 ? (113 * this.entry().unclaimedValue) / t : 0;
-  });
-  readonly unclaimedDash = computed(() => this.unclaimedFraction().toFixed(1));
-  readonly activeArcColor = computed(() =>
-    this.displayMode() === 'unclaimed' ? '#9ca3af' : this.entry().color
-  );
-  readonly activeArcDash = computed(() =>
-    this.displayMode() === 'unclaimed' ? this.unclaimedDash() : this.sreddash()
-  );
-  readonly showUnclaimedFillLayer = computed(() => this.displayMode() === 'both');
-  readonly lightColor = '#9ca3af';
-  readonly buttonBg = computed(() => this.entry().color + '1a');
 
-  readonly sredDisplay = computed(() =>
-    this.mode() === 'hours'
-      ? `${Math.round(this.entry().sredValue).toLocaleString('en-CA')}`
-      : CAD_FORMATTER.format(this.entry().sredValue)
-  );
+  readonly sreddash = computed(() => {
+    const t = this.total();
+    return t > 0 ? ((113 * this.entry().sredValue) / t).toFixed(1) : '0';
+  });
+
+  readonly unclaimedDash = computed(() => {
+    const t = this.total();
+    return t > 0 ? ((113 * this.entry().unclaimedValue) / t).toFixed(1) : '0';
+  });
+
+  readonly creditsDash = computed(() => {
+    const t = this.total();
+    return t > 0 ? ((113 * this.entry().creditsValue) / t).toFixed(1) : '0';
+  });
+
+  readonly showCreditsArc = computed(() => this.mode() === 'credits');
+
+  readonly centerValue = computed(() => {
+    const m = this.mode();
+    if (m === 'credits') return CAD_FORMATTER.format(this.entry().creditsValue);
+    if (m === 'hours') return Math.round(this.entry().sredValue).toLocaleString('en-CA');
+    return CAD_FORMATTER.format(this.entry().sredValue);
+  });
+
+  readonly centerLabel = computed(() => {
+    const m = this.mode();
+    if (m === 'credits') return 'Credits';
+    return m === 'hours' ? 'SR&ED hrs' : 'SR&ED $';
+  });
+
+  readonly showUnclaimedSubLabel = computed(() => this.mode() !== 'credits');
+
   readonly unclaimedDisplay = computed(() =>
     this.mode() === 'hours'
       ? `${Math.round(this.entry().unclaimedValue)} hrs unclaimed`
       : `${CAD_FORMATTER.format(this.entry().unclaimedValue)} unclaimed`
   );
-  readonly gaugeLabel = computed(() => this.mode() === 'hours' ? 'SR&ED hrs' : 'SR&ED $');
 
-  readonly centerValue = computed(() => {
-    if (this.displayMode() === 'unclaimed') {
-      return this.mode() === 'hours'
-        ? Math.round(this.entry().unclaimedValue).toLocaleString('en-CA')
-        : CAD_FORMATTER.format(this.entry().unclaimedValue);
-    }
-    // 'sred' and 'both' both show SR&ED in center
-    return this.sredDisplay();
-  });
-
-  readonly centerLabel = computed(() => {
-    if (this.displayMode() === 'unclaimed') {
-      return this.mode() === 'hours' ? 'unclaimed hrs' : 'unclaimed $';
-    }
-    return this.gaugeLabel();
-  });
-
-  readonly showUnclaimedSubLabel = computed(() =>
-    this.displayMode() === 'both' && this.mode() !== 'credits'
-  );
+  readonly buttonBg = computed(() => this.entry().color + '1a');
 }

@@ -141,17 +141,11 @@
       } @else {
         <div class="flex gap-6 w-full overflow-hidden">
           <div class="flex-1 min-w-0">
-            @if (mode() === 'credits') {
-              <app-sred-credits-polar
-                [bars]="projectBars()"
-                [creditRate]="creditRate()"
-                (projectClick)="onProjectClick($event)" />
-            } @else {
-              <app-sred-projects-echarts
-                [bars]="projectBars()"
-                [mode]="mode()"
-                (projectClick)="onProjectClick($event)" />
-            }
+            <app-sred-projects-echarts
+              [bars]="projectBars()"
+              [mode]="mode()"
+              [creditRate]="creditRate()"
+              (projectClick)="onProjectClick($event)" />
           </div>
           @if (drilledProject()) {
             <div class="flex-1 min-w-0 chart-panel-enter">
@@ -159,6 +153,7 @@
               <app-employee-breakdown-echarts
                 [bars]="employeeBreakdownBars()"
                 [mode]="mode()"
+                [creditRate]="creditRate()"
                 [projectColor]="drilledProject()!.color" />
             </div>
           }

@@ -17,21 +17,23 @@ export function staffBarData(
   return employees.map(emp => {
     const rate = hourlyRate(emp);
     let sredValue = 0;
+    let creditsValue = 0;
     let unclaimedValue = 0;
     for (const e of periodEntries) {
       if (e.employeeId !== emp.id) continue;
-      if (mode === 'hours') {
-        if (eligibleIds.has(e.projectId)) sredValue += e.hours;
-        else unclaimedValue += e.hours;
-      } else {
-        const cost = e.hours * rate;
-        if (eligibleIds.has(e.projectId)) {
-          sredValue += mode === 'credits' ? sredCredits(cost, creditRate) : cost;
-        } else if (mode !== 'credits') {
-          unclaimedValue += cost;
+      if (eligibleIds.has(e.projectId)) {
+        if (mode === 'hours') {
+          sredValue += e.hours;
+        } else {
+          const cost = e.hours * rate;
+          sredValue += cost;
+          if (mode === 'credits') creditsValue += sredCredits(cost, creditRate);
         }
+      } else {
+        if (mode === 'hours') unclaimedValue += e.hours;
+        else unclaimedValue += e.hours * rate;
       }
     }
-    return { employeeId: emp.id, name: emp.name, sredValue, unclaimedValue, color: emp.color };
+    return { employeeId: emp.id, name: emp.name, sredValue, creditsValue, unclaimedValue, color: emp.color };
   });
 }

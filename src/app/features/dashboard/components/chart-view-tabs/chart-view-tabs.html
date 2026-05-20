@@ -1,0 +1,22 @@
+<div role="group" aria-label="Chart view" class="flex bg-gray-100 rounded-lg p-0.5 gap-0.5">
+  <button
+    type="button"
+    (click)="select('bar')"
+    [attr.aria-pressed]="chartView() === 'bar'"
+    [class.bg-blue-600]="chartView() === 'bar'"
+    [class.text-white]="chartView() === 'bar'"
+    [class.text-gray-700]="chartView() !== 'bar'"
+    class="px-3 py-1 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+    Bar
+  </button>
+  <button
+    type="button"
+    (click)="select('donut')"
+    [attr.aria-pressed]="chartView() === 'donut'"
+    [class.bg-blue-600]="chartView() === 'donut'"
+    [class.text-white]="chartView() === 'donut'"
+    [class.text-gray-700]="chartView() !== 'donut'"
+    class="px-3 py-1 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+    Donut
+  </button>
+</div>
