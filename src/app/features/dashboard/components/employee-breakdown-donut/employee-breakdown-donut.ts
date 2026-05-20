@@ -18,6 +18,16 @@ const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
   imports: [NgApexchartsModule],
   templateUrl: './employee-breakdown-donut.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`:host ::ng-deep .apexcharts-pie-series path {
+    transition: transform 200ms ease, stroke 200ms ease, stroke-width 200ms ease;
+    transform-box: view-box;
+    transform-origin: 50% 50%;
+  }
+  :host ::ng-deep .apexcharts-pie-series path:hover {
+    transform: scale(1.10);
+    stroke: white;
+    stroke-width: 2px;
+  }`],
 })
 export class EmployeeBreakdownDonutComponent {
   readonly bars = input.required<readonly EmployeeBreakdownBar[]>();
@@ -29,11 +39,6 @@ export class EmployeeBreakdownDonutComponent {
   readonly chartOptions = computed(() => {
     const bars = this.bars();
     const m = this.mode();
-    const total = this.total();
-
-    const centerLabel = m === 'hours'
-      ? `${Math.round(total).toLocaleString('en-CA')} hrs`
-      : CAD_FORMATTER.format(total);
 
     const tooltipFormatter = m === 'hours'
       ? (v: number) => `${Math.round(v).toLocaleString('en-CA')} hrs`
@@ -41,34 +46,35 @@ export class EmployeeBreakdownDonutComponent {
 
     return {
       chart: {
-        type: 'donut' as const,
+        type: 'pie' as const,
         height: 300,
         width: '100%',
         redrawOnParentResize: true,
         toolbar: { show: false },
       } as ApexChart,
-      plotOptions: {
-        pie: {
-          donut: {
-            size: '60%',
-            labels: {
-              show: true,
-              total: {
-                show: true,
-                showAlways: true,
-                label: 'Total',
-                formatter: () => centerLabel,
-              },
-            },
-          },
-        },
-      } as ApexPlotOptions,
+      plotOptions: {} as ApexPlotOptions,
       dataLabels: {
-        enabled: false,
+        enabled: true,
+        formatter: (_val: number, opts: { seriesIndex: number }) => {
+          const raw = bars[opts.seriesIndex]?.value ?? 0;
+          return m === 'hours'
+            ? `${Math.round(raw).toLocaleString('en-CA')} hrs`
+            : CAD_FORMATTER.format(raw);
+        },
+        style: {
+          fontSize: '12px',
+          fontWeight: '700',
+          colors: ['#ffffff'],
+        },
+        dropShadow: { enabled: false },
       } as ApexDataLabels,
       labels: bars.map(b => b.name),
       colors: bars.map(b => b.color),
-      legend: { show: true, position: 'right' as const } as ApexLegend,
+      legend: {
+        show: true,
+        position: 'bottom' as const,
+        horizontalAlign: 'center' as const,
+      } as ApexLegend,
       tooltip: {
         y: { formatter: tooltipFormatter },
       } as ApexTooltip,
