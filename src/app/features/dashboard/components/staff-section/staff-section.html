@@ -23,6 +23,7 @@
         @for (entry of group.entries; track entry.employeeId) {
           <app-staff-employee-card
             [entry]="entry"
+            [mode]="mode()"
             (viewDetails)="employeeClick.emit(entry.employeeId)" />
         }
       </div>

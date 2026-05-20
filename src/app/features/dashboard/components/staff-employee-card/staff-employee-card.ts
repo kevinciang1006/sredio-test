@@ -1,6 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { StaffBarEntry } from '../../models/chart-data.model';
+import { SredMode, StaffBarEntry } from '../../models/chart-data.model';
 import { AvatarComponent } from '../../../../shared/components/avatar/avatar';
+
+const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
+  style: 'currency', currency: 'CAD', currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0,
+});
 
 @Component({
   selector: 'app-staff-employee-card',
@@ -10,16 +14,28 @@ import { AvatarComponent } from '../../../../shared/components/avatar/avatar';
 })
 export class StaffEmployeeCardComponent {
   readonly entry = input.required<StaffBarEntry>();
+  readonly mode = input<SredMode>('hours');
   readonly viewDetails = output<void>();
 
-  readonly sredHrs = computed(() => Math.round(this.entry().sredValue));
-  readonly unclaimedHrs = computed(() => Math.round(this.entry().unclaimedValue));
   readonly total = computed(() => this.entry().sredValue + this.entry().unclaimedValue);
-  readonly sreddash = computed(() => {
+  readonly sredFraction = computed(() => {
     const t = this.total();
-    return t > 0 ? ((113 * this.entry().sredValue) / t).toFixed(1) : '0';
+    return t > 0 ? (113 * this.entry().sredValue) / t : 0;
   });
-  readonly remaining = computed(() => (113 - parseFloat(this.sreddash())).toFixed(1));
+  readonly sreddash = computed(() => this.sredFraction().toFixed(1));
+  readonly remaining = computed(() => (113 - this.sredFraction()).toFixed(1));
   readonly lightColor = computed(() => this.entry().color + '33');
   readonly buttonBg = computed(() => this.entry().color + '1a');
+
+  readonly sredDisplay = computed(() =>
+    this.mode() === 'hours'
+      ? `${Math.round(this.entry().sredValue).toLocaleString('en-CA')}`
+      : CAD_FORMATTER.format(this.entry().sredValue)
+  );
+  readonly unclaimedDisplay = computed(() =>
+    this.mode() === 'hours'
+      ? `${Math.round(this.entry().unclaimedValue)} hrs unclaimed`
+      : `${CAD_FORMATTER.format(this.entry().unclaimedValue)} unclaimed`
+  );
+  readonly gaugeLabel = computed(() => this.mode() === 'hours' ? 'SR&ED hrs' : 'SR&ED $');
 }
