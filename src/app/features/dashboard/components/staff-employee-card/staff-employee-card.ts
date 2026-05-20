@@ -10,6 +10,7 @@ const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
   selector: 'app-staff-employee-card',
   imports: [AvatarComponent],
   templateUrl: './staff-employee-card.html',
+  styleUrl: './staff-employee-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StaffEmployeeCardComponent {
@@ -24,7 +25,7 @@ export class StaffEmployeeCardComponent {
   });
   readonly sreddash = computed(() => this.sredFraction().toFixed(1));
   readonly remaining = computed(() => (113 - this.sredFraction()).toFixed(1));
-  readonly lightColor = computed(() => this.entry().color + '33');
+  readonly lightColor = () => '#9ca3af';
   readonly buttonBg = computed(() => this.entry().color + '1a');
 
   readonly sredDisplay = computed(() =>

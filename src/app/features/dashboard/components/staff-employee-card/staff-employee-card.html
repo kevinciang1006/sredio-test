@@ -7,7 +7,7 @@
   (keydown.enter)="viewDetails.emit()"
   (keydown.space)="$event.preventDefault(); viewDetails.emit()">
   <!-- SVG half-circle gauge -->
-  <svg viewBox="0 0 80 52" class="w-full" aria-hidden="true">
+  <svg viewBox="0 0 80 52" class="w-full px-12" aria-hidden="true">
     <!-- Track layer -->
     <path
       d="M4,44 A36,36 0 0,1 76,44"
@@ -26,15 +26,16 @@
       stroke-dasharray="113 0" />
     <!-- SR&ED arc layer -->
     <path
+      class="gauge-arc-animated"
+      [style.--target-dash]="sreddash()"
       d="M4,44 A36,36 0 0,1 76,44"
       [attr.stroke]="entry().color"
       stroke-width="8"
       fill="none"
-      stroke-linecap="round"
-      [attr.stroke-dasharray]="sreddash() + ' ' + remaining()" />
+      stroke-linecap="round" />
     <!-- Center text: SR&ED value -->
-    <text x="40" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#111827">{{ sredDisplay() }}</text>
-    <text x="40" y="50" text-anchor="middle" font-size="6.5" fill="#9ca3af">{{ gaugeLabel() }}</text>
+    <text x="40" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#111827">{{ sredDisplay() }}</text>
+    <text x="40" y="45" text-anchor="middle" font-size="6" fill="#9ca3af">{{ gaugeLabel() }}</text>
   </svg>
 
   <!-- Avatar + Name row -->

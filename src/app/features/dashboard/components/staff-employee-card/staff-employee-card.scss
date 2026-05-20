@@ -1,0 +1,9 @@
+@keyframes gauge-fill {
+  from { stroke-dasharray: 0 113; }
+  to   { stroke-dasharray: var(--target-dash, 85) 113; }
+}
+
+.gauge-arc-animated {
+  stroke-dasharray: 0 113;
+  animation: gauge-fill 900ms cubic-bezier(0.4, 0, 0.2, 1) 200ms forwards;
+}
