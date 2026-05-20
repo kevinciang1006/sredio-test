@@ -1,0 +1,51 @@
+<div class="border border-gray-200 rounded-[10px] p-3 cursor-pointer flex flex-col items-center gap-1.5 bg-gray-50 hover:bg-white hover:border-blue-500 hover:shadow-md transition-all">
+  <!-- SVG half-circle gauge -->
+  <svg viewBox="0 0 80 48" width="80" height="48" aria-hidden="true">
+    <!-- Track layer -->
+    <path
+      d="M8,44 A36,36 0 0,1 72,44"
+      stroke="#e5e7eb"
+      stroke-width="8"
+      fill="none"
+      stroke-linecap="round"
+      stroke-dasharray="113 0" />
+    <!-- Unclaimed fill layer (20% opacity) -->
+    <path
+      d="M8,44 A36,36 0 0,1 72,44"
+      [attr.stroke]="lightColor()"
+      stroke-width="8"
+      fill="none"
+      stroke-linecap="round"
+      stroke-dasharray="113 0" />
+    <!-- SR&ED arc layer -->
+    <path
+      d="M8,44 A36,36 0 0,1 72,44"
+      [attr.stroke]="entry().color"
+      stroke-width="8"
+      fill="none"
+      stroke-linecap="round"
+      [attr.stroke-dasharray]="sreddash() + ' ' + remaining()" />
+    <!-- Center text: SR&ED hours -->
+    <text x="40" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#111827">{{ sredHrs() }}</text>
+    <text x="40" y="48" text-anchor="middle" font-size="6.5" fill="#9ca3af">SR&amp;ED hrs</text>
+  </svg>
+
+  <!-- Avatar + Name row -->
+  <div class="flex items-center gap-1.5 w-full">
+    <app-avatar [name]="entry().name" [color]="entry().color" size="xs" />
+    <span class="text-xs font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap min-w-0 flex-1">{{ entry().name }}</span>
+  </div>
+
+  <!-- Unclaimed sub-label -->
+  <p class="text-xs text-gray-400 self-start">{{ unclaimedHrs() }} hrs unclaimed</p>
+
+  <!-- View Details button -->
+  <button
+    type="button"
+    class="w-full text-xs font-medium rounded-md px-2 py-1 mt-auto"
+    [style.color]="entry().color"
+    [style.backgroundColor]="buttonBg()"
+    (click)="viewDetails.emit()">
+    View Details →
+  </button>
+</div>

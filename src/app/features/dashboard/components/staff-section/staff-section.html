@@ -19,10 +19,13 @@
         </svg>
         <span class="text-sm font-medium text-gray-700">{{ group.label }}</span>
       </div>
-      <app-team-staff-chart
-        [entries]="group.entries"
-        [mode]="mode()"
-        (employeeClick)="employeeClick.emit($event)" />
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        @for (entry of group.entries; track entry.employeeId) {
+          <app-staff-employee-card
+            [entry]="entry"
+            (viewDetails)="employeeClick.emit(entry.employeeId)" />
+        }
+      </div>
     </div>
   }
 </section>

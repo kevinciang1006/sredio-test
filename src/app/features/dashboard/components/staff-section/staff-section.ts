@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import { Team } from '../../../../core/models/team.model';
 import { Employee } from '../../../../core/models/employee.model';
 import { SredMode, StaffBarEntry } from '../../models/chart-data.model';
-import { TeamStaffChartComponent } from '../team-staff-chart/team-staff-chart';
+import { StaffEmployeeCardComponent } from '../staff-employee-card/staff-employee-card';
 import { InfoTooltipComponent } from '../../../../shared/components/info-tooltip/info-tooltip';
 
 interface TeamGroup {
@@ -13,7 +13,7 @@ interface TeamGroup {
 
 @Component({
   selector: 'app-staff-section',
-  imports: [TeamStaffChartComponent, InfoTooltipComponent],
+  imports: [StaffEmployeeCardComponent, InfoTooltipComponent],
   templateUrl: './staff-section.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
