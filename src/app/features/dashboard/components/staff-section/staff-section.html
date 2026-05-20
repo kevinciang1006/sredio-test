@@ -17,6 +17,7 @@
           [class.shadow-sm]="displayMode() === opt.value"
           [class.text-gray-900]="displayMode() === opt.value"
           [class.text-gray-500]="displayMode() !== opt.value"
+          [attr.aria-pressed]="displayMode() === opt.value"
           (click)="setDisplayMode(opt.value)">
           {{ opt.label }}
         </button>

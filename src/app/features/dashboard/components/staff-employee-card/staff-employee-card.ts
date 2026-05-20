@@ -16,7 +16,7 @@ const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
 export class StaffEmployeeCardComponent {
   readonly entry = input.required<StaffBarEntry>();
   readonly mode = input<SredMode>('hours');
-  readonly displayMode = input<StaffDisplayMode>('both');
+  readonly displayMode = input<StaffDisplayMode>('sred');
   readonly viewDetails = output<void>();
 
   readonly total = computed(() => this.entry().sredValue + this.entry().unclaimedValue);
@@ -47,6 +47,7 @@ export class StaffEmployeeCardComponent {
         ? Math.round(this.entry().unclaimedValue).toLocaleString('en-CA')
         : CAD_FORMATTER.format(this.entry().unclaimedValue);
     }
+    // 'sred' and 'both' both show SR&ED in the center; 'both' also shows the unclaimed sub-label
     return this.sredDisplay();
   });
 
