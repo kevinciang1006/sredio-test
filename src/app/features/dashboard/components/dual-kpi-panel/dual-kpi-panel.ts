@@ -35,5 +35,5 @@ export class DualKpiPanelComponent {
   });
 
   readonly projectedTooltip =
-    'Forecasted full-year SR&ED total. Linear extrapolation from YTD: (YTD value ÷ days elapsed) × days in claim period.';
+    'Full year forecast based on your current YTD pace.\n\nFormula: (YTD total ÷ days elapsed) × 365\n\nExample: 432 hrs in 139 days = 3.1 hrs/day → projected 1,132 hrs for the full year. Assumes Q3 and Q4 continue at the same rate as Q1–Q2.\n\nFor completed claim years (2024, 2025), the projection equals the actual YTD total — no extrapolation needed.';
 }

@@ -70,6 +70,11 @@
         [mode]="mode()"
         (periodSelect)="onPeriodSelect($event)" />
 
+      <p class="text-xs text-gray-400 mt-2 mb-1 inline-flex items-center gap-1.5">
+        SR&amp;ED by quarter — select a period to update the chart below
+        <app-info-tooltip text="Q1–Q4 tabs show the actual SR&ED total for each completed calendar quarter. YTD (Year to Date) shows all real data from Jan 1 to today — this is the number the full-year projection is based on. Selecting a quarter tab updates both the KPI panel and the projects chart below." />
+      </p>
+
       <div class="mt-4">
         <app-dual-kpi-panel
           [currentValue]="currentKpiValue()"
@@ -94,7 +99,7 @@
       }
       <h2 class="text-base font-semibold text-gray-900 inline-flex items-center gap-1.5">
         SR&amp;ED Projects
-        <app-info-tooltip text="Each project's contribution to the SR&ED total for the selected period. Click a segment to drill into employee contributions." />
+        <app-info-tooltip text="Each project's contribution to the SR&ED total for the selected period. Click a segment to drill into employee contributions. The gray 'Unclaimed Work' bar represents hours on non-SR&ED eligible projects — admin tasks, meetings, maintenance, and other work that doesn't qualify for the claim." />
       </h2>
       @if (drilledProject()) {
         <span class="text-sm text-gray-500">/ {{ drilledProject()!.name }}</span>
@@ -108,19 +113,56 @@
           </span>
         }
       }
+      @if (!drilledProject()) {
+        <div role="group" aria-label="Chart view" class="ml-auto flex bg-gray-100 rounded-lg p-0.5 gap-0.5">
+          <button
+            type="button"
+            (click)="onChartViewChange('bar')"
+            [attr.aria-pressed]="chartView() === 'bar'"
+            [class.bg-blue-600]="chartView() === 'bar'"
+            [class.text-white]="chartView() === 'bar'"
+            [class.text-gray-700]="chartView() !== 'bar'"
+            class="px-3 py-1 text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+            Bar
+          </button>
+          <button
+            type="button"
+            (click)="onChartViewChange('donut')"
+            [attr.aria-pressed]="chartView() === 'donut'"
+            [class.bg-blue-600]="chartView() === 'donut'"
+            [class.text-white]="chartView() === 'donut'"
+            [class.text-gray-700]="chartView() !== 'donut'"
+            class="px-3 py-1 text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
+            Donut
+          </button>
+        </div>
+      }
     </div>
 
     @if (isLoading()) {
       <div class="h-16 animate-pulse bg-gray-100 rounded"></div>
     } @else if (drilledProject()) {
-      <app-employee-breakdown-bar
-        [bars]="employeeBreakdownBars()"
-        [mode]="mode()" />
+      @if (chartView() === 'bar') {
+        <app-employee-breakdown-bar
+          [bars]="employeeBreakdownBars()"
+          [mode]="mode()" />
+      } @else {
+        <app-employee-breakdown-donut
+          [bars]="employeeBreakdownBars()"
+          [mode]="mode()" />
+      }
     } @else {
-      <app-sred-projects-bar
-        [bars]="projectBars()"
-        [mode]="mode()"
-        (projectClick)="onProjectClick($event)" />
+      @if (chartView() === 'bar') {
+        <app-sred-projects-bar
+          [bars]="projectBars()"
+          [mode]="mode()"
+          (projectClick)="onProjectClick($event)" />
+      } @else {
+        <app-sred-projects-donut
+          [bars]="projectBars()"
+          [mode]="mode()"
+          (projectClick)="onProjectClick($event)" />
+      }
     }
   </section>
 

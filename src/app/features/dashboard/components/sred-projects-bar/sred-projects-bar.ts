@@ -29,6 +29,9 @@ export class SredProjectsBarComponent {
     const valueStr = this.mode() === 'hours'
       ? `${Math.round(bar.value).toLocaleString('en-CA')} hrs`
       : CAD_FORMATTER.format(bar.value);
-    return `${bar.projectName} — ${valueStr}`;
+    const base = `${bar.projectName} — ${valueStr}`;
+    return bar.isSredEligible
+      ? base
+      : `${base}\nNon-SR&ED eligible: hours on admin, operations, and other work that does not qualify for the SR&ED claim.`;
   }
 }

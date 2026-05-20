@@ -1,0 +1,17 @@
+@if (total() === 0) {
+  <p class="text-sm text-gray-400 py-8 text-center">No data for this period.</p>
+} @else {
+  <apx-chart
+    class="block w-full"
+    [series]="series()"
+    [chart]="chartOptions().chart"
+    [plotOptions]="chartOptions().plotOptions"
+    [dataLabels]="chartOptions().dataLabels"
+    [labels]="chartOptions().labels"
+    [colors]="chartOptions().colors"
+    [legend]="chartOptions().legend"
+    [tooltip]="chartOptions().tooltip" />
+  <p class="text-xs text-gray-400 mt-2 px-1">
+    Gray = Unclaimed Work: hours on non-SR&amp;ED eligible projects (admin, operations, meetings, and other non-qualifying work).
+  </p>
+}
