@@ -384,8 +384,15 @@ export class DashboardComponent {
   }
   // chartView persists across drill depth: donut top-level → donut employee breakdown
   onChartViewChange(v: ChartView): void { this.chartView.set(v); }
-  onProjectClick(projectId: string): void { this.drilledProjectId.set(projectId); }
-  onDrillBack(): void { this.drilledProjectId.set(null); }
+  onProjectClick(projectId: string): void {
+    if (!document.startViewTransition) { this.drilledProjectId.set(projectId); return; }
+    document.startViewTransition(() => { this.drilledProjectId.set(projectId); });
+  }
+
+  onDrillBack(): void {
+    if (!document.startViewTransition) { this.drilledProjectId.set(null); return; }
+    document.startViewTransition(() => { this.drilledProjectId.set(null); });
+  }
   onEmployeeClick(employeeId: string): void {
     this.selectedEmployeeId.set(employeeId);
     this.modalMode.set(this.mode());
