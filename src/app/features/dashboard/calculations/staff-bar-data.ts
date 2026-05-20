@@ -27,7 +27,7 @@ export function staffBarData(
         const cost = e.hours * rate;
         if (eligibleIds.has(e.projectId)) {
           sredValue += mode === 'credits' ? sredCredits(cost, creditRate) : cost;
-        } else {
+        } else if (mode !== 'credits') {
           unclaimedValue += cost;
         }
       }

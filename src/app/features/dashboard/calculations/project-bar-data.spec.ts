@@ -4,11 +4,11 @@ import { Employee } from '../../../core/models/employee.model';
 import { Project } from '../models/project.model';
 import { TimeEntry } from '../models/time-entry.model';
 
-const emp = (id: string, salary: number): Employee => ({
-  id, name: `Name-${id}`, email: `${id}@x`, hireDate: '2024-01-01', annualSalary: salary, role: 'r',
+const emp = (id: string, salary: number, color = '#3b82f6'): Employee => ({
+  id, name: `Name-${id}`, email: `${id}@x`, hireDate: '2024-01-01', annualSalary: salary, role: 'r', color,
 });
-const proj = (id: string, eligible: boolean): Project => ({
-  id, name: `Proj-${id}`, description: '', isSredEligible: eligible,
+const proj = (id: string, eligible: boolean, color = '#9ca3af'): Project => ({
+  id, name: `Proj-${id}`, description: '', isSredEligible: eligible, color,
 });
 const e = (empId: string, projId: string, hours: number): TimeEntry => ({
   id: `${empId}-${projId}`, employeeId: empId, projectId: projId, date: '2025-05-01', hours,

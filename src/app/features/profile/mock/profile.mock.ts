@@ -7,4 +7,5 @@ export const MOCK_PROFILE: Profile = {
   hireDate: '2022-04-11',
   annualSalary: 92000,
   role: 'Senior Engineer',
+  color: '#3b82f6',
 };
