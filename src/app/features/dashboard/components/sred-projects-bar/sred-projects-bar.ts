@@ -12,6 +12,10 @@ const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
   imports: [CurrencyPipe, DecimalPipe, TooltipDirective],
   templateUrl: './sred-projects-bar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`.bar-btn:hover {
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,0.85);
+    filter: brightness(1.12);
+  }`],
 })
 export class SredProjectsBarComponent {
   readonly bars = input.required<readonly SredProjectBar[]>();
