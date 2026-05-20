@@ -480,6 +480,141 @@
     </div>
   </div>
 
+  <!-- ===================== SECTION 6: SREDio Job Interview Prep ===================== -->
+  <div class="section-header" style="background:#7c3aed;"><span class="num" style="background:rgba(255,255,255,0.25);">6</span> SREDio Job Interview Prep — Angular Material → Flowbite Migration</div>
+
+  <div class="card" style="border-left:4px solid #7c3aed;">
+    <div class="card-title" style="color:#7c3aed;">Interview Details</div>
+    <table class="req-table" style="font-size:13px;">
+      <tbody>
+        <tr><td style="font-weight:700;width:140px;">Date / Time</td><td>May 21, 2026 at 23:00 PM</td></tr>
+        <tr><td style="font-weight:700;">Interviewer</td><td>Xavier Ali — Senior Software Engineer at SREDio</td></tr>
+        <tr><td style="font-weight:700;">Duration</td><td>30 minutes</td></tr>
+        <tr><td style="font-weight:700;">Focus</td><td>Angular + Tailwind/Flowbite experience, and migration from Angular Material</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">30-Minute Interview Structure</div>
+    <table class="req-table" style="font-size:13px;">
+      <tbody>
+        <tr><td style="width:100px;font-weight:700;">0–5 min</td><td>Introductions. Keep your intro to <strong>60 seconds max</strong> — then ask about Xavier's role and the team. Shows you're not self-absorbed.</td></tr>
+        <tr><td style="font-weight:700;">5–15 min</td><td>Background questions. Lead with <strong>this SR&ED dashboard project</strong> as proof of modern Angular: signals, OnPush, zoneless, Tailwind, Flowbite. It's directly relevant to what they want.</td></tr>
+        <tr><td style="font-weight:700;">15–25 min</td><td>Migration deep-dive. Use the Strangler Fig explanation below. Be ready to walk through the component mapping table.</td></tr>
+        <tr><td style="font-weight:700;">25–30 min</td><td>Your questions for them (see below). Asking good questions = showing seniority.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-header" style="background:#1e3a5f;font-size:14px;margin-top:20px;"><span class="num" style="font-size:12px;">↓</span> The Migration Approach — Memorise This</div>
+
+  <div class="card" style="border-left:4px solid #1e40af;">
+    <div class="card-title">The Key Insight: Two Very Different Types of Migration</div>
+    <p style="line-height:1.8;">
+      <strong>Angular version upgrade</strong> (what went wrong before) → <em>forced big bang.</em> You can't run Angular 12 and Angular 16 in the same app simultaneously. The whole codebase has to move together. The lesson there wasn't "big bang was wrong" — it was "we didn't audit deeply enough first."
+      <br><br>
+      <strong>Angular Material → Flowbite/Tailwind</strong> (this job) → <em>Strangler Fig is possible.</em> Both UI libraries can coexist in the same Angular app at the same time. You can migrate one page, one component at a time. This is the right approach here and you can explain it confidently.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">The Strangler Fig Pattern — How to Explain It</div>
+    <div class="step" style="margin-bottom:10px;">
+      <div class="step-num" style="background:#7c3aed;">1</div>
+      <div class="step-body">
+        <div class="step-title">Audit first (1–2 weeks, no code written)</div>
+        <div class="step-say">"Before touching anything, I'd do a full audit: which Angular Material components are used, how many instances of each, which pages are highest-risk. This is the step I skipped in my previous migration and it hurt us. You can't plan what you don't understand."</div>
+      </div>
+    </div>
+    <div class="step" style="margin-bottom:10px;">
+      <div class="step-num" style="background:#7c3aed;">2</div>
+      <div class="step-body">
+        <div class="step-title">Set up Tailwind + Flowbite alongside Angular Material</div>
+        <div class="step-say">"Tailwind and Angular Material are not mutually exclusive — they can both be active in the same project. I'd add Tailwind to angular.json styles, configure PostCSS, and install Flowbite. Nothing breaks. We now have both available."</div>
+      </div>
+    </div>
+    <div class="step" style="margin-bottom:10px;">
+      <div class="step-num" style="background:#7c3aed;">3</div>
+      <div class="step-body">
+        <div class="step-title">Build Flowbite replacement components in parallel</div>
+        <div class="step-say">"For each Material component we use, I'd build a standalone Flowbite equivalent — same @Input()/@Output() API where possible so swapping it in a template is a one-line change. These live alongside the Material components until we're ready to swap."</div>
+      </div>
+    </div>
+    <div class="step" style="margin-bottom:10px;">
+      <div class="step-num" style="background:#7c3aed;">4</div>
+      <div class="step-body">
+        <div class="step-title">Migrate page by page — lowest risk first</div>
+        <div class="step-say">"We start with the simplest, least-used pages. Ship, test, move on. We never touch a form-heavy page or mission-critical flow until we have a clear pattern established on simpler pages."</div>
+      </div>
+    </div>
+    <div class="step" style="margin-bottom:10px;">
+      <div class="step-num" style="background:#7c3aed;">5</div>
+      <div class="step-body">
+        <div class="step-title">Complex components last: forms, dialogs, date pickers</div>
+        <div class="step-say">"MatFormField and MatInput are the trickiest — forms touch almost every page. I'd handle these last, once we have momentum and confidence. MatDatepicker needs a third-party replacement since Flowbite doesn't ship one."</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background:#7c3aed;">6</div>
+      <div class="step-body">
+        <div class="step-title">Remove Angular Material only at the very end</div>
+        <div class="step-say">"Angular Material is only removed from package.json once every component has been replaced. By that point the risk is zero — we've already tested everything. The old library just stops being loaded."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Angular Material → Flowbite / Tailwind Component Mapping</div>
+    <table class="req-table" style="font-size:12px;">
+      <thead><tr><th>Angular Material</th><th>Flowbite / Tailwind Replacement</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>mat-button</code></td><td>Flowbite Button</td><td>Direct swap</td></tr>
+        <tr><td><code>mat-card</code></td><td>Flowbite Card</td><td>Direct swap</td></tr>
+        <tr><td><code>mat-dialog</code></td><td>Flowbite Modal</td><td>Need to port dialog service logic</td></tr>
+        <tr><td><code>mat-snack-bar</code></td><td>Flowbite Toast</td><td>Replace with Angular service wrapping Flowbite</td></tr>
+        <tr><td><code>mat-table</code></td><td>Flowbite Table + Tailwind</td><td>Custom Angular component, Tailwind rows</td></tr>
+        <tr><td><code>mat-form-field / mat-input</code></td><td>Tailwind input + label</td><td>Trickiest — touches forms everywhere</td></tr>
+        <tr><td><code>mat-select</code></td><td>Flowbite Dropdown / Select</td><td>Wire up with Angular FormsModule</td></tr>
+        <tr><td><code>mat-datepicker</code></td><td>Third-party (e.g. Flatpickr or custom)</td><td>Flowbite has no datepicker — discuss with team</td></tr>
+        <tr><td><code>mat-tabs</code></td><td>Flowbite Tabs</td><td>Easy swap</td></tr>
+        <tr><td><code>mat-sidenav</code></td><td>Flowbite Sidebar</td><td>Already done in the SR&ED project</td></tr>
+        <tr><td><code>mat-toolbar</code></td><td>Flowbite Navbar</td><td>Already done in the SR&ED project</td></tr>
+        <tr><td><code>mat-spinner</code></td><td>Flowbite Spinner</td><td>Direct swap</td></tr>
+        <tr><td><code>mat-tooltip</code></td><td>Flowbite Tooltip / custom directive</td><td>Already built a custom <code>appTooltip</code> directive</td></tr>
+        <tr><td><code>mat-expansion-panel</code></td><td>Flowbite Accordion</td><td>Easy swap</td></tr>
+        <tr><td><code>mat-icon</code></td><td>Heroicons (inline SVG)</td><td>Replace icon font with SVG — already doing this</td></tr>
+        <tr><td><code>mat-chip</code></td><td>Flowbite Badge / Tailwind pill</td><td>Usually just styling</td></tr>
+      </tbody>
+    </table>
+    <div class="tip" style="margin-top:8px;">💡 Mention: "I've already built with Flowbite + Tailwind from scratch in the SR&ED project — sidebar, navbar, modals, tooltips, dropdowns, tables. So I know what these components look like when done properly."</div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">How do you frame your previous migration experience?</div>
+    <div class="qa-a">
+      <p>Don't hide it — Xavier will respect honesty far more than a perfect story. Say this:</p>
+      <p style="background:#fffbeb;border-left:3px solid #f59e0b;padding:10px 12px;border-radius:0 4px 4px 0;font-style:italic;color:#78350f;margin-top:8px;line-height:1.7;">
+        "I did an Angular major version upgrade at a previous company — that's a forced big bang, you can't do it incrementally. It was painful because we had a large, spaghetti codebase, no test suite, and custom CSS classes that weren't caught until they broke in production. The lesson I took from it wasn't about the migration pattern — it was about the audit. We didn't understand our own codebase well enough before we started. I'd never start a migration without first mapping every component, every custom class, every page that might be affected. For Angular Material → Flowbite specifically, the Strangler Fig pattern also means we don't have to big bang at all — which eliminates most of the risk we had before."
+      </p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">What questions should you ask Xavier?</div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>"Which Angular version are you on, and is the codebase using modules or standalone components?"</strong> — Shows you know modern Angular direction.</li>
+        <li><strong>"How much Angular Material coverage does the app have — is it used on every page or just certain sections?"</strong> — Scopes the migration, shows you think before acting.</li>
+        <li><strong>"Is there an existing test suite I'd be working within?"</strong> — Directly relevant to migration safety.</li>
+        <li><strong>"Is the migration a background track alongside feature work, or a dedicated sprint?"</strong> — Shows you know this affects pacing.</li>
+        <li><strong>"What's the team size on the frontend?"</strong> — Normal question, helps you calibrate.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="warn">⚠️ The job says "DO NOT APPLY UNLESS YOU ARE DOING 100% OF THE WORK YOURSELF." If they ask about AI tools — be honest: you use them as a productivity tool the same way you'd use Stack Overflow or documentation, but all architectural decisions, code review, and debugging are yours. The work is yours.</div>
+
   <div style="text-align:center;margin-top:40px;padding-top:24px;border-top:1px solid var(--border);color:#9ca3af;font-size:12px;">
     SR&amp;ED Dashboard — Interview Cheat Sheet · Private · May 2026
   </div>

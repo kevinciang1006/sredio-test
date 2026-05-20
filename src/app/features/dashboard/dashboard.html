@@ -78,6 +78,8 @@
       <div class="mt-4">
         <app-dual-kpi-panel
           [currentValue]="currentKpiValue()"
+          [ytdValue]="ytdValue()"
+          [daysElapsed]="daysElapsedValue()"
           [projectedValue]="projectedFullYearValue()"
           [mode]="mode()"
           [selectedPeriod]="selectedPeriod()" />

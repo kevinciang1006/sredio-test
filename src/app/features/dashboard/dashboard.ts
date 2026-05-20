@@ -26,6 +26,7 @@ import {
   projectFullYear,
   hourlyRate,
 } from './calculations';
+import { daysElapsed } from './calculations/date-utils';
 import {
   quarterBoundaries,
   filterEntriesByPeriod,
@@ -213,6 +214,12 @@ export class DashboardComponent {
   readonly ytdValue = computed(() => {
     const tab = this.quarterlyTabs().find(t => t.period === 'ytd');
     return tab?.value ?? 0;
+  });
+
+  readonly daysElapsedValue = computed(() => {
+    const p = this.activeClaimPeriod();
+    if (!p) return 0;
+    return daysElapsed(p.startDate, this.asOf());
   });
 
   readonly projectedFullYearValue = computed<number | null>(() => {
