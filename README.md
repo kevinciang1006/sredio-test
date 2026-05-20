@@ -23,7 +23,7 @@ The take-home brief asked for six things. Everything is implemented and exceeded
 - TypeScript strict, no `any`
 - Tailwind CSS v4
 - Flowbite (Tailwind component patterns + `flowbite` npm package)
-- ApexCharts via `ng-apexcharts`
+- Apache ECharts via `ngx-echarts` (pie/donut charts); ApexCharts (`ng-apexcharts`) retained for reference during migration
 - Reactive forms
 - Vitest
 - GitHub Actions → GitHub Pages
@@ -47,7 +47,7 @@ See `CLAUDE.md` for the binding architectural rules.
 
 ## Design decisions
 
-- **Why ApexCharts over ngx-charts and Chart.js?** ngx-charts maintenance health is poor (729 open issues / 159 stale PRs as of May 2026). ApexCharts is actively maintained, SVG-based (suits PDF export to CRA), and visually polished. The minor tradeoff of imperative options-object configuration is acceptable; signal-driven re-renders work natively because `[series]` and `[xaxis]` bind to signal-derived computed values.
+- **Why ECharts (not ApexCharts or ngx-charts) for pie charts?** ngx-charts maintenance health is poor (729 open issues / 159 stale PRs as of May 2026). ApexCharts was the initial choice and remains installed, but a side-by-side comparison in May 2026 showed ECharts has cleaner inside-label rendering, native `emphasis.scale` for hover (no `::ng-deep` needed), smoother animations, and a single `[options]` binding that pairs better with Angular signals. ECharts is also fully treeshakable — only the chart types and components actually used are bundled. See `docs/decisions/002-echarts-over-apexcharts.md`.
 - **Why signals + computed over RxJS for derived state?** Synchronous derivation is what `computed()` is designed for. RxJS is reserved for async streams. The codebase has zero `BehaviorSubject` and zero `subscribe()` for data — `toSignal()` bridges any Observable into the signal world.
 - **Why pure functions for calculations instead of a CalculationsService class?** Services imply DI and (often) state. The SR&ED calculations have neither. Pure functions in `features/dashboard/calculations/` are the simplest possible unit-test targets: feed inputs, assert outputs.
 - **Why `CURRENT_DATE = '2026-05-19'`?** This is the mock "today" snapshot date — it gives ~5 months of YTD data for the active 2026 period and a meaningful 7-month remainder for the projection to extrapolate over. The dashboard's `asOf` is a `computed()` signal that returns `min(CURRENT_DATE, activeClaimPeriod.endDate)`, so viewing a past period (e.g. 2025) uses Dec 31 as the cutoff rather than bleeding 2026 entries in.

@@ -1,7 +1,7 @@
 <div class="space-y-5">
   <app-page-header title="SR&ED Projections" />
 
-  <div class="sticky top-14 z-40 bg-white border border-gray-200 rounded-lg px-4 py-2.5 flex items-center gap-3 flex-wrap">
+  <div class="sticky top-14 z-10 bg-white border border-gray-200 rounded-lg px-4 py-2.5 flex items-center gap-3 flex-wrap justify-between">
     <div class="flex items-center gap-2">
       <span class="text-xs text-gray-500 font-medium whitespace-nowrap">Claim Period</span>
       <div class="relative">
@@ -88,7 +88,7 @@
     }
   </div>
 
-  <section class="bg-white rounded-lg border border-gray-200 p-5" style="view-transition-name: chart-section">
+  <section class="bg-white rounded-lg border border-gray-200 p-5">
     <div class="flex items-center gap-2 mb-4">
       @if (drilledProject()) {
         <button
@@ -117,56 +117,49 @@
         }
       }
       @if (!drilledProject()) {
-        <div role="group" aria-label="Chart view" class="ml-auto flex bg-gray-100 rounded-lg p-0.5 gap-0.5">
-          <button
-            type="button"
-            (click)="onChartViewChange('bar')"
-            [attr.aria-pressed]="chartView() === 'bar'"
-            [class.bg-blue-600]="chartView() === 'bar'"
-            [class.text-white]="chartView() === 'bar'"
-            [class.text-gray-700]="chartView() !== 'bar'"
-            class="px-3 py-1 text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
-            Bar
-          </button>
-          <button
-            type="button"
-            (click)="onChartViewChange('donut')"
-            [attr.aria-pressed]="chartView() === 'donut'"
-            [class.bg-blue-600]="chartView() === 'donut'"
-            [class.text-white]="chartView() === 'donut'"
-            [class.text-gray-700]="chartView() !== 'donut'"
-            class="px-3 py-1 text-xs font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
-            Donut
-          </button>
-        </div>
+        <app-chart-view-tabs
+          class="ml-auto"
+          [chartView]="chartView()"
+          (chartViewChange)="onChartViewChange($event)" />
       }
     </div>
 
-    @if (isLoading()) {
-      <div class="h-16 animate-pulse bg-gray-100 rounded"></div>
-    } @else if (drilledProject()) {
-      @if (chartView() === 'bar') {
-        <app-employee-breakdown-bar
-          [bars]="employeeBreakdownBars()"
-          [mode]="mode()" />
+    <div style="view-transition-name: chart-section">
+      @if (isLoading()) {
+        <div class="h-16 animate-pulse bg-gray-100 rounded"></div>
+      } @else if (chartView() === 'bar') {
+        @if (drilledProject()) {
+          <app-employee-breakdown-bar
+            [bars]="employeeBreakdownBars()"
+            [mode]="mode()" />
+        } @else {
+          <app-sred-projects-bar
+            [bars]="projectBars()"
+            [mode]="mode()"
+            (projectClick)="onProjectClick($event)" />
+        }
       } @else {
-        <app-employee-breakdown-donut
-          [bars]="employeeBreakdownBars()"
-          [mode]="mode()" />
+        <div class="flex gap-6 w-full overflow-hidden">
+          <div class="flex-1 min-w-0">
+            <app-sred-projects-echarts
+              [bars]="projectBars()"
+              [mode]="mode()"
+              [creditRate]="creditRate()"
+              (projectClick)="onProjectClick($event)" />
+          </div>
+          @if (drilledProject()) {
+            <div class="flex-1 min-w-0 chart-panel-enter">
+              <!-- <p class="text-xs font-medium text-gray-500 mb-1">{{ drilledProject()!.name }}</p> -->
+              <app-employee-breakdown-echarts
+                [bars]="employeeBreakdownBars()"
+                [mode]="mode()"
+                [creditRate]="creditRate()"
+                [projectColor]="drilledProject()!.color" />
+            </div>
+          }
+        </div>
       }
-    } @else {
-      @if (chartView() === 'bar') {
-        <app-sred-projects-bar
-          [bars]="projectBars()"
-          [mode]="mode()"
-          (projectClick)="onProjectClick($event)" />
-      } @else {
-        <app-sred-projects-donut
-          [bars]="projectBars()"
-          [mode]="mode()"
-          (projectClick)="onProjectClick($event)" />
-      }
-    }
+    </div>
   </section>
 
   <app-staff-section

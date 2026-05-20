@@ -8,6 +8,24 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import * as echarts from 'echarts/core';
+import { PieChart, BarChart } from 'echarts/charts';
+import {
+  TooltipComponent,
+  LegendComponent,
+  PolarComponent,
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+import { provideEchartsCore } from 'ngx-echarts';
+
+echarts.use([
+  PieChart,
+  BarChart,
+  TooltipComponent,
+  LegendComponent,
+  PolarComponent,
+  CanvasRenderer,
+]);
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,5 +34,6 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideEchartsCore({ echarts }),
   ],
 };

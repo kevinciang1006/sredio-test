@@ -8,7 +8,7 @@
   (keydown.space)="$event.preventDefault(); viewDetails.emit()">
   <!-- SVG half-circle gauge -->
   <svg viewBox="0 0 80 52" class="w-full px-12" aria-hidden="true">
-    <!-- Track layer -->
+    <!-- Track layer: light gray background for the full arc -->
     <path
       d="M4,44 A36,36 0 0,1 76,44"
       stroke="#e5e7eb"
@@ -16,15 +16,16 @@
       fill="none"
       stroke-linecap="round"
       stroke-dasharray="113 0" />
-    <!-- Unclaimed fill layer (20% opacity) -->
+    <!-- Unclaimed arc: gray, offset to start after the SR&ED portion -->
     <path
       d="M4,44 A36,36 0 0,1 76,44"
-      [attr.stroke]="lightColor"
+      stroke="#9ca3af"
       stroke-width="8"
       fill="none"
       stroke-linecap="round"
-      stroke-dasharray="113 0" />
-    <!-- SR&ED arc layer -->
+      [attr.stroke-dasharray]="unclaimedDash() + ' 200'"
+      [attr.stroke-dashoffset]="'-' + sreddash()" />
+    <!-- SR&ED arc — dimmed to 50% opacity in credits mode, blends against light gray track only -->
     <path
       class="gauge-arc-animated"
       [style.--target-dash]="sreddash()"
@@ -32,8 +33,20 @@
       [attr.stroke]="entry().color"
       stroke-width="8"
       fill="none"
-      stroke-linecap="round" />
-    <!-- Center text: value driven by displayMode -->
+      stroke-linecap="round"
+      [style.opacity]="showCreditsArc() ? '0.5' : '1'" />
+    <!-- Credits arc — only in credits mode, full opacity -->
+    @if (showCreditsArc()) {
+      <path
+        class="gauge-arc-animated"
+        [style.--target-dash]="creditsDash()"
+        d="M4,44 A36,36 0 0,1 76,44"
+        [attr.stroke]="entry().color"
+        stroke-width="8"
+        fill="none"
+        stroke-linecap="round" />
+    }
+    <!-- Center text -->
     <text x="40" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#111827">{{ centerValue() }}</text>
     <text x="40" y="45" text-anchor="middle" font-size="6" fill="#9ca3af">{{ centerLabel() }}</text>
   </svg>
@@ -43,13 +56,11 @@
     <app-avatar [name]="entry().name" [color]="entry().color" size="sm" />
     <div>
       <span class="text-sm font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap min-w-0 flex-1">{{ entry().name }}</span>
-      <!-- Unclaimed sub-label -->
       @if (showUnclaimedSubLabel()) {
         <p class="text-xs text-gray-400 self-start">{{ unclaimedDisplay() }}</p>
       }
     </div>
   </div>
-
 
   <!-- View Details button -->
   <button

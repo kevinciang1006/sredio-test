@@ -1,7 +1,32 @@
 :host { display: block; }
 
-@keyframes drill-in  { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
-@keyframes drill-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(1.04); } }
+@keyframes chart-panel-slide-in {
+  from { opacity: 0; transform: translateX(1.5rem); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.chart-panel-enter {
+  animation: chart-panel-slide-in 320ms ease-out forwards;
+}
 
-::view-transition-old(chart-section) { animation: drill-out 200ms ease-in; }
-::view-transition-new(chart-section) { animation: drill-in  200ms ease-out; }
+@keyframes zoom-into {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(1.5); }
+}
+@keyframes bars-expand {
+  from { opacity: 0; transform: scaleY(0.05); transform-origin: top; }
+  to   { opacity: 1; transform: scaleY(1); transform-origin: top; }
+}
+@keyframes bars-collapse {
+  from { opacity: 1; transform: scaleY(1); transform-origin: top; }
+  to   { opacity: 0; transform: scaleY(0.05); transform-origin: top; }
+}
+@keyframes zoom-outof {
+  from { opacity: 0; transform: scale(1.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+html.drilling-in::view-transition-old(chart-section)  { animation: zoom-into    300ms ease-in  forwards; }
+html.drilling-in::view-transition-new(chart-section)  { animation: bars-expand  300ms ease-out forwards; }
+
+html.drilling-out::view-transition-old(chart-section) { animation: bars-collapse 250ms ease-in  forwards; }
+html.drilling-out::view-transition-new(chart-section) { animation: zoom-outof    250ms ease-out forwards; }
