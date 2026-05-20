@@ -12,9 +12,16 @@ const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
   imports: [CurrencyPipe, DecimalPipe, TooltipDirective],
   templateUrl: './sred-projects-bar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [`.bar-btn:hover {
-    box-shadow: inset 0 0 0 3px rgba(255,255,255,0.85);
-    filter: brightness(1.12);
+  styles: [`.bar-btn {
+    transition: transform 200ms ease, filter 200ms ease;
+  }
+  .bar-btn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.10);
+    outline: 3px solid rgba(255,255,255,0.85);
+    outline-offset: -2px;
+    position: relative;
+    z-index: 1;
   }`],
 })
 export class SredProjectsBarComponent {
@@ -23,6 +30,7 @@ export class SredProjectsBarComponent {
   readonly projectClick = output<string>();
 
   readonly total = computed(() => this.bars().reduce((sum, b) => sum + b.value, 0));
+  readonly visibleBars = computed(() => this.bars().filter(b => b.value > 0));
 
   widthPct(value: number): string {
     const t = this.total();
