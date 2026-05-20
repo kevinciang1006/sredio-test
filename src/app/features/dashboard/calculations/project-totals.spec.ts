@@ -9,7 +9,7 @@ import { Employee } from '../../../core/models/employee.model';
 import { TimeEntry } from '../models/time-entry.model';
 
 const emp = (id: string, salary: number): Employee => ({
-  id, name: id, email: `${id}@x`, hireDate: '2024-01-01', annualSalary: salary, role: 'r',
+  id, name: id, email: `${id}@x`, hireDate: '2024-01-01', annualSalary: salary, role: 'r', color: '#3b82f6',
 });
 
 const entry = (id: string, employeeId: string, projectId: string, date: string, hours: number): TimeEntry => ({

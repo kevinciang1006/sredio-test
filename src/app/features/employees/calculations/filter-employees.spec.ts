@@ -16,6 +16,7 @@ function row(overrides: Partial<EmployeesPageRow> = {}): EmployeesPageRow {
     hourlyRate: 50,
     ytdHours: 1000,
     ytdCost: 50000,
+    color: '#3b82f6',
     isSpecialEmployee: false,
     ...overrides,
   };

@@ -3,7 +3,7 @@ import { hourlyRate, HOURS_PER_YEAR } from './hourly-rate';
 import { Employee } from '../../../core/models/employee.model';
 
 const make = (annualSalary: number): Employee => ({
-  id: 'e1', name: 'X', email: 'x@x', hireDate: '2024-01-01', annualSalary, role: 'r',
+  id: 'e1', name: 'X', email: 'x@x', hireDate: '2024-01-01', annualSalary, role: 'r', color: '#3b82f6',
 });
 
 describe('hourlyRate', () => {

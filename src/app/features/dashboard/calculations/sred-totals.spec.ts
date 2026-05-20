@@ -5,10 +5,10 @@ import { Project } from '../models/project.model';
 import { TimeEntry } from '../models/time-entry.model';
 
 const emp = (id: string, salary: number): Employee => ({
-  id, name: id, email: `${id}@x`, hireDate: '2024-01-01', annualSalary: salary, role: 'r',
+  id, name: id, email: `${id}@x`, hireDate: '2024-01-01', annualSalary: salary, role: 'r', color: '#3b82f6',
 });
 const proj = (id: string, eligible: boolean): Project => ({
-  id, name: id, description: '', isSredEligible: eligible,
+  id, name: id, description: '', isSredEligible: eligible, color: '#9ca3af',
 });
 const e = (projectId: string, hours: number): TimeEntry => ({
   id: projectId, employeeId: 'a', projectId, date: '2025-05-01', hours,

@@ -5,7 +5,7 @@
   class="border border-gray-200 rounded-[10px] p-3 cursor-pointer flex flex-col items-center gap-1.5 bg-gray-50 hover:bg-white hover:border-blue-500 hover:shadow-md transition-all"
   (click)="viewDetails.emit()"
   (keydown.enter)="viewDetails.emit()"
-  (keydown.space)="viewDetails.emit()">
+  (keydown.space)="$event.preventDefault(); viewDetails.emit()">
   <!-- SVG half-circle gauge -->
   <svg viewBox="0 0 80 52" width="80" height="52" aria-hidden="true">
     <!-- Track layer -->
@@ -44,7 +44,9 @@
   </div>
 
   <!-- Unclaimed sub-label -->
-  <p class="text-xs text-gray-400 self-start">{{ unclaimedDisplay() }}</p>
+  @if (mode() !== 'credits') {
+    <p class="text-xs text-gray-400 self-start">{{ unclaimedDisplay() }}</p>
+  }
 
   <!-- View Details button -->
   <button
