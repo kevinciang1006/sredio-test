@@ -16,7 +16,7 @@ const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
 export class StaffEmployeeCardComponent {
   readonly entry = input.required<StaffBarEntry>();
   readonly mode = input<SredMode>('hours');
-  readonly displayMode = input<StaffDisplayMode>('sred');
+  readonly displayMode = input<StaffDisplayMode>('both');
   readonly viewDetails = output<void>();
 
   readonly total = computed(() => this.entry().sredValue + this.entry().unclaimedValue);
@@ -25,6 +25,18 @@ export class StaffEmployeeCardComponent {
     return t > 0 ? (113 * this.entry().sredValue) / t : 0;
   });
   readonly sreddash = computed(() => this.sredFraction().toFixed(1));
+  readonly unclaimedFraction = computed(() => {
+    const t = this.total();
+    return t > 0 ? (113 * this.entry().unclaimedValue) / t : 0;
+  });
+  readonly unclaimedDash = computed(() => this.unclaimedFraction().toFixed(1));
+  readonly activeArcColor = computed(() =>
+    this.displayMode() === 'unclaimed' ? '#9ca3af' : this.entry().color
+  );
+  readonly activeArcDash = computed(() =>
+    this.displayMode() === 'unclaimed' ? this.unclaimedDash() : this.sreddash()
+  );
+  readonly showUnclaimedFillLayer = computed(() => this.displayMode() === 'both');
   readonly lightColor = '#9ca3af';
   readonly buttonBg = computed(() => this.entry().color + '1a');
 
@@ -58,6 +70,6 @@ export class StaffEmployeeCardComponent {
   });
 
   readonly showUnclaimedSubLabel = computed(() =>
-    this.displayMode() !== 'unclaimed' && this.mode() !== 'credits'
+    this.displayMode() === 'both' && this.mode() !== 'credits'
   );
 }

@@ -16,20 +16,22 @@
       fill="none"
       stroke-linecap="round"
       stroke-dasharray="113 0" />
-    <!-- Unclaimed fill layer (20% opacity) -->
-    <path
-      d="M4,44 A36,36 0 0,1 76,44"
-      [attr.stroke]="lightColor"
-      stroke-width="8"
-      fill="none"
-      stroke-linecap="round"
-      stroke-dasharray="113 0" />
-    <!-- SR&ED arc layer -->
+    <!-- Unclaimed fill layer — only visible in Both mode -->
+    @if (showUnclaimedFillLayer()) {
+      <path
+        d="M4,44 A36,36 0 0,1 76,44"
+        [attr.stroke]="lightColor"
+        stroke-width="8"
+        fill="none"
+        stroke-linecap="round"
+        stroke-dasharray="113 0" />
+    }
+    <!-- Active arc: SR&ED (colored) in sred/both mode, unclaimed (gray) in unclaimed mode -->
     <path
       class="gauge-arc-animated"
-      [style.--target-dash]="sreddash()"
+      [style.--target-dash]="activeArcDash()"
       d="M4,44 A36,36 0 0,1 76,44"
-      [attr.stroke]="entry().color"
+      [attr.stroke]="activeArcColor()"
       stroke-width="8"
       fill="none"
       stroke-linecap="round" />

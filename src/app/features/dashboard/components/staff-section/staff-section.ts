@@ -32,7 +32,7 @@ export class StaffSectionComponent {
 
   readonly totalCount = computed(() => this.employees().length);
 
-  readonly displayMode = signal<StaffDisplayMode>('sred');
+  readonly displayMode = signal<StaffDisplayMode>('both');
 
   readonly displayModeOptions = DISPLAY_MODE_OPTIONS;
 
