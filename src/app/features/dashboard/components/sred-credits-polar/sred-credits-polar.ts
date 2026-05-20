@@ -6,10 +6,6 @@ const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
   style: 'currency', currency: 'CAD', currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0,
 });
 
-interface EChartsInstance {
-  dispatchAction(action: unknown): void;
-}
-
 @Component({
   selector: 'app-sred-credits-polar',
   imports: [NgxEchartsDirective],
@@ -24,11 +20,9 @@ export class SredCreditsPolarComponent {
   readonly visibleBars = computed(() => this.bars().filter(b => b.value > 0));
   readonly total = computed(() => this.visibleBars().reduce((s, b) => s + b.value, 0));
 
-  private echartsInstance: EChartsInstance | null = null;
-
   readonly chartOption = computed(() => {
     const bars = this.visibleBars();
-    const rate = this.creditRate();
+    const rate = Math.max(this.creditRate(), 0.01);
     const totalExpenditure = bars.reduce((s, b) => s + b.value / rate, 0);
 
     return {
@@ -48,11 +42,13 @@ export class SredCreditsPolarComponent {
       },
       tooltip: {
         trigger: 'item' as const,
-        formatter: (params: { dataIndex: number }) => {
+        formatter: (params: { dataIndex: number; seriesName: string }) => {
           const bar = bars[params.dataIndex];
           if (!bar) return '';
           const exp = bar.value / rate;
-          return `${bar.projectName}<br/>Credits: ${CAD_FORMATTER.format(bar.value)}<br/>Expenditure: ${CAD_FORMATTER.format(exp)}`;
+          return params.seriesName === 'Remainder'
+            ? `${bar.projectName}<br/>Expenditure: ${CAD_FORMATTER.format(exp)}`
+            : `${bar.projectName}<br/>Credits: ${CAD_FORMATTER.format(bar.value)}<br/>Expenditure: ${CAD_FORMATTER.format(exp)}`;
         },
       },
       series: [
@@ -89,8 +85,7 @@ export class SredCreditsPolarComponent {
     };
   });
 
-  onChartInit(instance: unknown): void {
-    this.echartsInstance = instance as EChartsInstance;
+  onChartInit(_instance: unknown): void {
     const bars = this.visibleBars();
     if (bars.length > 0) {
       setTimeout(() => this.projectClick.emit(bars[0].projectId), 0);
