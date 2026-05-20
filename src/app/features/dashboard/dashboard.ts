@@ -12,11 +12,9 @@ import { ModeTabsComponent } from './components/mode-tabs/mode-tabs';
 import { QuarterlyTimelineComponent, QuarterTab } from './components/quarterly-timeline/quarterly-timeline';
 import { DualKpiPanelComponent } from './components/dual-kpi-panel/dual-kpi-panel';
 import { SredProjectsBarComponent } from './components/sred-projects-bar/sred-projects-bar';
-import { SredProjectsDonutComponent } from './components/sred-projects-donut/sred-projects-donut';
 import { SredProjectsEchartsComponent } from './components/sred-projects-echarts/sred-projects-echarts';
 import { ChartViewTabsComponent } from './components/chart-view-tabs/chart-view-tabs';
 import { EmployeeBreakdownBarComponent } from './components/employee-breakdown-bar/employee-breakdown-bar';
-import { EmployeeBreakdownDonutComponent } from './components/employee-breakdown-donut/employee-breakdown-donut';
 import { EmployeeBreakdownEchartsComponent } from './components/employee-breakdown-echarts/employee-breakdown-echarts';
 import { StaffSectionComponent } from './components/staff-section/staff-section';
 import { EmployeeModalComponent } from '../../shared/components/employee-modal/employee-modal';
@@ -71,10 +69,8 @@ function formatShortDate(iso: string): string {
     QuarterlyTimelineComponent,
     DualKpiPanelComponent,
     SredProjectsBarComponent,
-    SredProjectsDonutComponent,
     SredProjectsEchartsComponent,
     EmployeeBreakdownBarComponent,
-    EmployeeBreakdownDonutComponent,
     EmployeeBreakdownEchartsComponent,
     ChartViewTabsComponent,
     StaffSectionComponent,
