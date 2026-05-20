@@ -17,7 +17,8 @@ function entryValue(
     return entries.reduce((sum, e) => sum + e.hours, 0);
   }
   const cost = entries.reduce((sum, e) => sum + e.hours * rate, 0);
-  return mode === 'credits' && isSredEligible ? sredCredits(cost, creditRate) : cost;
+  if (mode === 'credits') return isSredEligible ? sredCredits(cost, creditRate) : 0;
+  return cost;
 }
 
 export function projectBarData(
@@ -39,7 +40,7 @@ export function projectBarData(
       const cost = projEntries.reduce((sum, e) => {
         return sum + e.hours * (rateById.get(e.employeeId) ?? 0);
       }, 0);
-      value = mode === 'credits' && project.isSredEligible ? sredCredits(cost, creditRate) : cost;
+      value = mode === 'credits' ? (project.isSredEligible ? sredCredits(cost, creditRate) : 0) : cost;
     }
 
     return {
