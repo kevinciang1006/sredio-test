@@ -9,11 +9,6 @@ import type {
 } from 'ng-apexcharts';
 import { EmployeeBreakdownBar, SredMode } from '../../models/chart-data.model';
 
-const EMPLOYEE_COLORS = [
-  '#1d4ed8', '#0891b2', '#059669', '#d97706', '#dc2626',
-  '#7c3aed', '#be185d', '#0369a1',
-];
-
 const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
   style: 'currency', currency: 'CAD', currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0,
 });
@@ -72,7 +67,7 @@ export class EmployeeBreakdownDonutComponent {
         enabled: false,
       } as ApexDataLabels,
       labels: bars.map(b => b.name),
-      colors: bars.map((_, i) => EMPLOYEE_COLORS[i % EMPLOYEE_COLORS.length]),
+      colors: bars.map(b => b.color),
       legend: { show: true, position: 'right' as const } as ApexLegend,
       tooltip: {
         y: { formatter: tooltipFormatter },

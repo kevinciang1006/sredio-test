@@ -37,9 +37,11 @@ function colorIndex(name: string): number {
 export class AvatarComponent {
   readonly name = input.required<string>();
   readonly size = input<AvatarSize>('md');
+  readonly color = input<string>('');
 
   readonly initials = computed(() => initials(this.name()));
-  readonly hostClass = computed(
-    () => `inline-flex items-center justify-center rounded-full font-semibold text-white select-none ${SIZE_CLASSES[this.size()]} ${BG_COLORS[colorIndex(this.name())]}`
-  );
+  readonly hostClass = computed(() => {
+    const bgClass = this.color() ? '' : BG_COLORS[colorIndex(this.name())];
+    return `inline-flex items-center justify-center rounded-full font-semibold text-white select-none ${SIZE_CLASSES[this.size()]} ${bgClass}`.trimEnd();
+  });
 }

@@ -32,6 +32,6 @@ export function staffBarData(
         }
       }
     }
-    return { employeeId: emp.id, name: emp.name, sredValue, unclaimedValue };
+    return { employeeId: emp.id, name: emp.name, sredValue, unclaimedValue, color: emp.color };
   });
 }

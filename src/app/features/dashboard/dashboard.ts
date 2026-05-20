@@ -293,6 +293,7 @@ export class DashboardComponent {
         hourlyRate: rate,
         ytdHours,
         ytdCost: ytdHours * rate,
+        color: emp.color,
       };
     });
   });

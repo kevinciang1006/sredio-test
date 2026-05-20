@@ -79,7 +79,7 @@ export function employeeBreakdownData(
       );
       const rate = hourlyRate(emp);
       const value = entryValue(empEntries, rate, isSredEligible, mode, creditRate);
-      return { employeeId: emp.id, name: emp.name, value };
+      return { employeeId: emp.id, name: emp.name, value, color: emp.color };
     })
     .filter(b => b.value > 0);
 }

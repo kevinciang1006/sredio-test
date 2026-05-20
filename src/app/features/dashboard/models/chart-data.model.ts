@@ -34,6 +34,7 @@ export interface EmployeeRow {
   readonly hourlyRate: number;
   readonly ytdHours: number;
   readonly ytdCost: number;
+  readonly color: string;
   readonly isSpecialEmployee?: boolean;
 }
 
@@ -49,6 +50,7 @@ export interface EmployeeBreakdownBar {
   readonly employeeId: string;
   readonly name: string;
   readonly value: number;
+  readonly color: string;
 }
 
 export interface StaffBarEntry {
@@ -56,4 +58,5 @@ export interface StaffBarEntry {
   readonly name: string;
   readonly sredValue: number;
   readonly unclaimedValue: number;
+  readonly color: string;
 }

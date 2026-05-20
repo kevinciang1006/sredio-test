@@ -5,6 +5,7 @@ export interface Employee {
   readonly hireDate: string;
   readonly annualSalary: number;
   readonly role: string;
+  readonly color: string;
   readonly endDate?: string;
   readonly confirmedSalary?: number;
   readonly isSpecialEmployee?: boolean;
