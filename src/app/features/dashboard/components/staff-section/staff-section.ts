@@ -11,6 +11,12 @@ interface TeamGroup {
   readonly entries: readonly StaffBarEntry[];
 }
 
+const DISPLAY_MODE_OPTIONS: readonly { value: StaffDisplayMode; label: string }[] = [
+  { value: 'sred', label: 'SR&ED' },
+  { value: 'unclaimed', label: 'Unclaimed' },
+  { value: 'both', label: 'Both' },
+];
+
 @Component({
   selector: 'app-staff-section',
   imports: [StaffEmployeeCardComponent, InfoTooltipComponent],
@@ -28,11 +34,7 @@ export class StaffSectionComponent {
 
   readonly displayMode = signal<StaffDisplayMode>('sred');
 
-  readonly displayModeOptions: readonly { value: StaffDisplayMode; label: string }[] = [
-    { value: 'sred', label: 'SR&ED' },
-    { value: 'unclaimed', label: 'Unclaimed' },
-    { value: 'both', label: 'Both' },
-  ];
+  readonly displayModeOptions = DISPLAY_MODE_OPTIONS;
 
   setDisplayMode(m: StaffDisplayMode): void {
     this.displayMode.set(m);

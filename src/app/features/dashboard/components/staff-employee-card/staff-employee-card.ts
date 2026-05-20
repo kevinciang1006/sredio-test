@@ -25,8 +25,7 @@ export class StaffEmployeeCardComponent {
     return t > 0 ? (113 * this.entry().sredValue) / t : 0;
   });
   readonly sreddash = computed(() => this.sredFraction().toFixed(1));
-  readonly remaining = computed(() => (113 - this.sredFraction()).toFixed(1));
-  readonly lightColor = () => '#9ca3af';
+  readonly lightColor = '#9ca3af';
   readonly buttonBg = computed(() => this.entry().color + '1a');
 
   readonly sredDisplay = computed(() =>
@@ -47,7 +46,7 @@ export class StaffEmployeeCardComponent {
         ? Math.round(this.entry().unclaimedValue).toLocaleString('en-CA')
         : CAD_FORMATTER.format(this.entry().unclaimedValue);
     }
-    // 'sred' and 'both' both show SR&ED in the center; 'both' also shows the unclaimed sub-label
+    // 'sred' and 'both' both show SR&ED in center
     return this.sredDisplay();
   });
 
