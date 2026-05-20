@@ -3,13 +3,14 @@ import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { EmployeeRow } from '../../models/chart-data.model';
 import { ShortDatePipe } from '../../../../shared/pipes/short-date.pipe';
 import { InfoTooltipComponent } from '../../../../shared/components/info-tooltip/info-tooltip';
+import { AvatarComponent } from '../../../../shared/components/avatar/avatar';
 
 type SortKey = 'name' | 'hireDate' | 'endDate' | 'annualSalary' | 'confirmedSalary' | 'hourlyRate' | 'ytdHours';
 type SortDir = 'asc' | 'desc';
 
 @Component({
   selector: 'app-staff-salary-table',
-  imports: [CurrencyPipe, DecimalPipe, ShortDatePipe, InfoTooltipComponent],
+  imports: [CurrencyPipe, DecimalPipe, ShortDatePipe, InfoTooltipComponent, AvatarComponent],
   templateUrl: './staff-salary-table.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

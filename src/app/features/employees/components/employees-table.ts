@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { EmployeesPageRow, SortKey, SortDir } from '../models/employee-row';
 import { ShortDatePipe } from '../../../shared/pipes/short-date.pipe';
+import { AvatarComponent } from '../../../shared/components/avatar/avatar';
 
 @Component({
   selector: 'app-employees-table',
-  imports: [CurrencyPipe, DecimalPipe, ShortDatePipe],
+  imports: [CurrencyPipe, DecimalPipe, ShortDatePipe, AvatarComponent],
   templateUrl: './employees-table.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

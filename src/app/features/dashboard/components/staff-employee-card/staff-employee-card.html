@@ -7,7 +7,7 @@
   (keydown.enter)="viewDetails.emit()"
   (keydown.space)="$event.preventDefault(); viewDetails.emit()">
   <!-- SVG half-circle gauge -->
-  <svg viewBox="0 0 80 52" width="80" height="52" aria-hidden="true">
+  <svg viewBox="0 0 80 52" class="w-full" aria-hidden="true">
     <!-- Track layer -->
     <path
       d="M4,44 A36,36 0 0,1 76,44"
@@ -39,14 +39,16 @@
 
   <!-- Avatar + Name row -->
   <div class="flex items-center gap-1.5 w-full">
-    <app-avatar [name]="entry().name" [color]="entry().color" size="xs" />
-    <span class="text-xs font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap min-w-0 flex-1">{{ entry().name }}</span>
+    <app-avatar [name]="entry().name" [color]="entry().color" size="sm" />
+    <div>
+      <span class="text-sm font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap min-w-0 flex-1">{{ entry().name }}</span>
+      <!-- Unclaimed sub-label -->
+      @if (mode() !== 'credits') {
+        <p class="text-xs text-gray-400 self-start">{{ unclaimedDisplay() }}</p>
+      }
+    </div>
   </div>
 
-  <!-- Unclaimed sub-label -->
-  @if (mode() !== 'credits') {
-    <p class="text-xs text-gray-400 self-start">{{ unclaimedDisplay() }}</p>
-  }
 
   <!-- View Details button -->
   <button

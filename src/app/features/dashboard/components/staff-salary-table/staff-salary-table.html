@@ -71,7 +71,12 @@
           <tbody class="divide-y divide-gray-100">
             @for (row of sortedRows(); track row.id) {
               <tr class="bg-white hover:bg-gray-50">
-                <td class="px-5 py-3 font-medium text-gray-900">{{ row.name }}</td>
+                <td class="px-5 py-3 font-medium text-gray-900">
+                  <div class="flex items-center gap-2">
+                    <app-avatar [name]="row.name" [color]="row.color" size="xs" />
+                    {{ row.name }}
+                  </div>
+                </td>
                 <td class="px-5 py-3">{{ row.hireDate | shortDate }}</td>
                 <td class="px-5 py-3">{{ row.endDate ? (row.endDate | shortDate) : '—' }}</td>
                 <td class="px-5 py-3 text-right">
