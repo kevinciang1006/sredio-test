@@ -33,9 +33,9 @@
       stroke-width="8"
       fill="none"
       stroke-linecap="round" />
-    <!-- Center text: SR&ED value -->
-    <text x="40" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#111827">{{ sredDisplay() }}</text>
-    <text x="40" y="45" text-anchor="middle" font-size="6" fill="#9ca3af">{{ gaugeLabel() }}</text>
+    <!-- Center text: value driven by displayMode -->
+    <text x="40" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#111827">{{ centerValue() }}</text>
+    <text x="40" y="45" text-anchor="middle" font-size="6" fill="#9ca3af">{{ centerLabel() }}</text>
   </svg>
 
   <!-- Avatar + Name row -->
@@ -44,7 +44,7 @@
     <div>
       <span class="text-sm font-medium text-gray-800 overflow-hidden text-ellipsis whitespace-nowrap min-w-0 flex-1">{{ entry().name }}</span>
       <!-- Unclaimed sub-label -->
-      @if (mode() !== 'credits') {
+      @if (showUnclaimedSubLabel()) {
         <p class="text-xs text-gray-400 self-start">{{ unclaimedDisplay() }}</p>
       }
     </div>

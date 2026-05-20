@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { SredMode, StaffBarEntry } from '../../models/chart-data.model';
+import { SredMode, StaffBarEntry, StaffDisplayMode } from '../../models/chart-data.model';
 import { AvatarComponent } from '../../../../shared/components/avatar/avatar';
 
 const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
@@ -16,6 +16,7 @@ const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
 export class StaffEmployeeCardComponent {
   readonly entry = input.required<StaffBarEntry>();
   readonly mode = input<SredMode>('hours');
+  readonly displayMode = input<StaffDisplayMode>('both');
   readonly viewDetails = output<void>();
 
   readonly total = computed(() => this.entry().sredValue + this.entry().unclaimedValue);
@@ -39,4 +40,24 @@ export class StaffEmployeeCardComponent {
       : `${CAD_FORMATTER.format(this.entry().unclaimedValue)} unclaimed`
   );
   readonly gaugeLabel = computed(() => this.mode() === 'hours' ? 'SR&ED hrs' : 'SR&ED $');
+
+  readonly centerValue = computed(() => {
+    if (this.displayMode() === 'unclaimed') {
+      return this.mode() === 'hours'
+        ? Math.round(this.entry().unclaimedValue).toLocaleString('en-CA')
+        : CAD_FORMATTER.format(this.entry().unclaimedValue);
+    }
+    return this.sredDisplay();
+  });
+
+  readonly centerLabel = computed(() => {
+    if (this.displayMode() === 'unclaimed') {
+      return this.mode() === 'hours' ? 'unclaimed hrs' : 'unclaimed $';
+    }
+    return this.gaugeLabel();
+  });
+
+  readonly showUnclaimedSubLabel = computed(() =>
+    this.displayMode() !== 'unclaimed' && this.mode() !== 'credits'
+  );
 }
