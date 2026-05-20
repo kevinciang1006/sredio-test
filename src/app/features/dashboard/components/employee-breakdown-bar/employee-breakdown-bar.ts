@@ -3,11 +3,6 @@ import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { EmployeeBreakdownBar, SredMode } from '../../models/chart-data.model';
 import { TooltipDirective } from '../../../../shared/directives/tooltip.directive';
 
-const EMPLOYEE_COLORS = [
-  '#1d4ed8', '#0891b2', '#059669', '#d97706', '#dc2626',
-  '#7c3aed', '#be185d', '#0369a1',
-];
-
 const CAD_FORMATTER = new Intl.NumberFormat('en-CA', {
   style: 'currency', currency: 'CAD', currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0,
 });
@@ -27,10 +22,6 @@ export class EmployeeBreakdownBarComponent {
   widthPct(value: number): string {
     const t = this.total();
     return t === 0 ? '0%' : `${((value / t) * 100).toFixed(2)}%`;
-  }
-
-  colorFor(index: number): string {
-    return EMPLOYEE_COLORS[index % EMPLOYEE_COLORS.length];
   }
 
   tooltipFor(bar: EmployeeBreakdownBar): string {

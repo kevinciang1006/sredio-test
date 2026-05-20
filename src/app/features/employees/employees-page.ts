@@ -82,6 +82,7 @@ export class EmployeesPageComponent {
         annualSalary: emp.annualSalary,
         confirmedSalary: emp.confirmedSalary,
         isSpecialEmployee: emp.isSpecialEmployee ?? false,
+        color: emp.color,
         hourlyRate: rate,
         ytdHours,
         ytdCost: ytdHours * rate,
