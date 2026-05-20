@@ -43,12 +43,14 @@ describe('staffBarData', () => {
     expect(a?.unclaimedValue).toBeCloseTo(4 * HOURLY_RATE);
   });
 
-  it('credits mode: applies creditRate to SR&ED cost, unclaimedValue is 0', () => {
+  it('credits mode: sredValue=cost for bar width, creditsValue=credits for display, unclaimedValue=cost', () => {
+    // The card uses sredValue+unclaimedValue for bar proportions and creditsValue for the display number.
     const creditRate = 0.45;
     const result = staffBarData(ENTRIES, EMPLOYEES, PROJECTS, 'credits', creditRate);
     const a = result.find(r => r.employeeId === 'a');
-    expect(a?.sredValue).toBeCloseTo(8 * HOURLY_RATE * creditRate);
-    expect(a?.unclaimedValue).toBe(0);
+    expect(a?.sredValue).toBeCloseTo(8 * HOURLY_RATE);            // SR&ED cost → bar width
+    expect(a?.creditsValue).toBeCloseTo(8 * HOURLY_RATE * creditRate); // credits → display value
+    expect(a?.unclaimedValue).toBeCloseTo(4 * HOURLY_RATE);       // unclaimed cost → still visible
   });
 
   it('returns an entry for every employee even with zero hours', () => {

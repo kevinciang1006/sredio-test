@@ -43,11 +43,11 @@ describe('projectBarData', () => {
     expect(bars.find(b => b.projectId === 'unclaimed')?.value).toBeCloseTo(250);
   });
 
-  it('computes credits mode (eligible only; non-eligible returns 0)', () => {
-    // sred=1100×0.45=495; unclaimed has no credits value → 0
+  it('computes credits mode (SR&ED credits for eligible; cost for unclaimed)', () => {
+    // sred: 1100×0.45=495 credits; unclaimed: shows cost (250) not 0 — bar still visible
     const bars = projectBarData(ENTRIES, EMPLOYEES, PROJECTS, 'credits', 0.45);
     expect(bars.find(b => b.projectId === 'sred')?.value).toBeCloseTo(495);
-    expect(bars.find(b => b.projectId === 'unclaimed')?.value).toBe(0);
+    expect(bars.find(b => b.projectId === 'unclaimed')?.value).toBeCloseTo(250);
   });
 });
 

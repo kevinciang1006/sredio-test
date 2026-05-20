@@ -1,3 +1,5 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { convertToParamMap } from '@angular/router';
@@ -5,6 +7,9 @@ import { Subject, of } from 'rxjs';
 import { describe, it, expect } from 'vitest';
 import { DashboardComponent } from './dashboard';
 import { DualKpiPanelComponent } from './components/dual-kpi-panel/dual-kpi-panel';
+import { SredProjectsEchartsComponent } from './components/sred-projects-echarts/sred-projects-echarts';
+import { EmployeeBreakdownEchartsComponent } from './components/employee-breakdown-echarts/employee-breakdown-echarts';
+import { EmployeeModalComponent } from '../../shared/components/employee-modal/employee-modal';
 import { ClientsService } from './services/clients.service';
 import { EmployeesService } from './services/employees.service';
 import { ProjectsService } from './services/projects.service';
@@ -13,13 +18,25 @@ import { TeamsService } from './services/teams.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { ActivatedRoute } from '@angular/router';
 
-// ── Fixtures ─────────────────────────────────────────────────────────────────
+// ── Echarts stubs ─────────────────────────────────────────────────────────────
+// Replace the real echarts chart components so jsdom doesn't need a canvas.
+// These tests are about data flow, not chart rendering.
+@Component({ selector: 'app-sred-projects-echarts', template: '' })
+class SredProjectsEchartsStub {}
+
+@Component({ selector: 'app-employee-breakdown-echarts', template: '' })
+class EmployeeBreakdownEchartsStub {}
+
+@Component({ selector: 'app-employee-modal', template: '' })
+class EmployeeModalStub {}
+
+// ── Fixtures ──────────────────────────────────────────────────────────────────
 // APP_CONSTANTS.CURRENT_DATE = '2026-05-19'
 // Claim period: 2026-01-01 → 2026-12-31
 //
 // Q1 entries (Jan): 3 × 8 = 24 hrs  (inside Q1 and YTD)
 // Q2 entry  (Apr): 1 × 8 = 8 hrs   (inside Q2 and YTD, outside Q1)
-// ─────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────
 // Expected: Q1 = 24 hrs, Q2 = 8 hrs, YTD = 32 hrs
 // This makes currentValue and ytdValue distinguishable when on Q1.
 
@@ -54,6 +71,8 @@ const MOCK_TIME_ENTRIES = [
 const Q1_HOURS = 24;
 const YTD_HOURS = 32;
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
 function makeRouteMock() {
   const parent = {
     paramMap: of(convertToParamMap({ tenantId: 'tenant-1' })),
@@ -62,21 +81,30 @@ function makeRouteMock() {
   return { parent };
 }
 
-// ── Setup helpers ─────────────────────────────────────────────────────────────
+function configureTestBed(timeEntriesValue: unknown = of(MOCK_TIME_ENTRIES)) {
+  TestBed
+    .configureTestingModule({
+      imports: [DashboardComponent],
+      providers: [
+        { provide: ActivatedRoute,    useValue: makeRouteMock() },
+        { provide: ClientsService,    useValue: { getCurrent: () => of(MOCK_CLIENT) } },
+        { provide: EmployeesService,  useValue: { getAll: () => of(MOCK_EMPLOYEES) } },
+        { provide: ProjectsService,   useValue: { getAll: () => of(MOCK_PROJECTS) } },
+        { provide: TimeEntriesService, useValue: { getAll: () => timeEntriesValue } },
+        { provide: TeamsService,      useValue: { getAll: () => of([]) } },
+        { provide: ToastService,      useValue: { show: () => {} } },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    })
+    .overrideComponent(DashboardComponent, {
+      remove: { imports: [SredProjectsEchartsComponent, EmployeeBreakdownEchartsComponent, EmployeeModalComponent] },
+      add:    { imports: [SredProjectsEchartsStub, EmployeeBreakdownEchartsStub, EmployeeModalStub] },
+    });
+}
 
 async function setupWithData() {
-  await TestBed.configureTestingModule({
-    imports: [DashboardComponent],
-    providers: [
-      { provide: ActivatedRoute, useValue: makeRouteMock() },
-      { provide: ClientsService,     useValue: { getCurrent: () => of(MOCK_CLIENT) } },
-      { provide: EmployeesService,   useValue: { getAll: () => of(MOCK_EMPLOYEES) } },
-      { provide: ProjectsService,    useValue: { getAll: () => of(MOCK_PROJECTS) } },
-      { provide: TimeEntriesService, useValue: { getAll: () => of(MOCK_TIME_ENTRIES) } },
-      { provide: TeamsService,       useValue: { getAll: () => of([]) } },
-      { provide: ToastService,       useValue: { show: () => {} } },
-    ],
-  }).compileComponents();
+  configureTestBed();
+  await TestBed.compileComponents();
 
   const fixture = TestBed.createComponent(DashboardComponent);
   fixture.detectChanges();
@@ -155,19 +183,8 @@ describe('DashboardComponent — loading state', () => {
 
   it('hides dual-kpi-panel while data is still loading', async () => {
     const entries$ = new Subject<typeof MOCK_TIME_ENTRIES>();
-
-    await TestBed.configureTestingModule({
-      imports: [DashboardComponent],
-      providers: [
-        { provide: ActivatedRoute,    useValue: makeRouteMock() },
-        { provide: ClientsService,    useValue: { getCurrent: () => of(MOCK_CLIENT) } },
-        { provide: EmployeesService,  useValue: { getAll: () => of(MOCK_EMPLOYEES) } },
-        { provide: ProjectsService,   useValue: { getAll: () => of(MOCK_PROJECTS) } },
-        { provide: TimeEntriesService, useValue: { getAll: () => entries$ } },
-        { provide: TeamsService,      useValue: { getAll: () => of([]) } },
-        { provide: ToastService,      useValue: { show: () => {} } },
-      ],
-    }).compileComponents();
+    configureTestBed(entries$);
+    await TestBed.compileComponents();
 
     const fixture = TestBed.createComponent(DashboardComponent);
     fixture.detectChanges();
@@ -180,19 +197,8 @@ describe('DashboardComponent — loading state', () => {
 
   it('shows dual-kpi-panel after all data arrives', async () => {
     const entries$ = new Subject<typeof MOCK_TIME_ENTRIES>();
-
-    await TestBed.configureTestingModule({
-      imports: [DashboardComponent],
-      providers: [
-        { provide: ActivatedRoute,    useValue: makeRouteMock() },
-        { provide: ClientsService,    useValue: { getCurrent: () => of(MOCK_CLIENT) } },
-        { provide: EmployeesService,  useValue: { getAll: () => of(MOCK_EMPLOYEES) } },
-        { provide: ProjectsService,   useValue: { getAll: () => of(MOCK_PROJECTS) } },
-        { provide: TimeEntriesService, useValue: { getAll: () => entries$ } },
-        { provide: TeamsService,      useValue: { getAll: () => of([]) } },
-        { provide: ToastService,      useValue: { show: () => {} } },
-      ],
-    }).compileComponents();
+    configureTestBed(entries$);
+    await TestBed.compileComponents();
 
     const fixture = TestBed.createComponent(DashboardComponent);
     fixture.detectChanges();
