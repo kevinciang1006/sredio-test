@@ -1,7 +1,7 @@
 @if (total() === 0) {
   <p class="text-sm text-gray-400 py-8 text-center">No data for this period.</p>
 } @else {
-  <div class="flex w-full h-16 rounded overflow-hidden gap-0.5">
+  <div class="flex w-full h-24 rounded overflow-hidden gap-0.5">
     @for (bar of bars(); track bar.projectId) {
       @if (bar.value > 0) {
         <button
@@ -10,9 +10,13 @@
           [style.background-color]="bar.color"
           [appTooltip]="tooltipFor(bar)"
           (click)="projectClick.emit(bar.projectId)"
-          class="relative flex flex-col items-center justify-center text-white text-xs font-medium overflow-hidden hover:opacity-90 transition-opacity cursor-pointer min-w-[80px] shrink">
-          <span class="block w-full max-w-full truncate px-1 text-center leading-tight">{{ bar.projectName }}</span>
-          <span class="block w-full max-w-full truncate px-1 text-center leading-tight opacity-90">
+          class="relative flex flex-col items-center justify-center overflow-hidden hover:opacity-90 transition-opacity cursor-pointer min-w-[80px] shrink">
+          <span class="block w-full max-w-full truncate px-1 text-center leading-tight"
+                style="font-size:9px; font-weight:400; letter-spacing:0.04em; text-transform:uppercase; color:rgba(255,255,255,0.8);">
+            {{ bar.projectName }}
+          </span>
+          <span class="block w-full max-w-full truncate px-1 text-center"
+                style="font-size:16px; font-weight:700; color:white; line-height:1.2;">
             @if (mode() === 'hours') {
               {{ bar.value | number:'1.0-0' }} hrs
             } @else {
