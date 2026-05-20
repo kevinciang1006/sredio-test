@@ -20,7 +20,10 @@
     </button>
   </div>
 
-  @if (!isCollapsed()) {
+  <div
+    class="overflow-hidden transition-all duration-500 ease-in-out"
+    [style.max-height]="isCollapsed() ? '0px' : '2000px'"
+    [style.opacity]="isCollapsed() ? '0' : '1'">
     @if (isLoading()) {
       <div class="h-32 mx-5 mb-5 animate-pulse bg-gray-100 rounded"></div>
     } @else {
@@ -89,5 +92,5 @@
         </table>
       </div>
     }
-  }
+  </div>
 </section>

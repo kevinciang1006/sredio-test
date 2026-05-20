@@ -69,12 +69,11 @@ export class EmployeeBreakdownDonutComponent {
         },
       } as ApexPlotOptions,
       dataLabels: {
-        enabled: true,
-        formatter: (val: string | number | number[]) => `${Number(val).toFixed(1)}%`,
+        enabled: false,
       } as ApexDataLabels,
       labels: bars.map(b => b.name),
       colors: bars.map((_, i) => EMPLOYEE_COLORS[i % EMPLOYEE_COLORS.length]),
-      legend: { show: true, position: 'bottom' as const } as ApexLegend,
+      legend: { show: true, position: 'right' as const } as ApexLegend,
       tooltip: {
         y: { formatter: tooltipFormatter },
       } as ApexTooltip,

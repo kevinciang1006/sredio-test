@@ -17,7 +17,7 @@ export class StaffSalaryTableComponent {
   readonly rows = input.required<readonly EmployeeRow[]>();
   readonly isLoading = input(false);
 
-  readonly isCollapsed = signal(false);
+  readonly isCollapsed = signal(true);
   readonly sortKey = signal<SortKey | null>(null);
   readonly sortDir = signal<SortDir>('asc');
 

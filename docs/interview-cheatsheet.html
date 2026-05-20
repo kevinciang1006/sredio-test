@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SR&ED Dashboard — Interview Cheat Sheet</title>
+<style>
+  :root {
+    --blue: #1e40af;
+    --blue-light: #dbeafe;
+    --green: #166534;
+    --green-light: #dcfce7;
+    --yellow: #854d0e;
+    --yellow-light: #fef9c3;
+    --red: #991b1b;
+    --red-light: #fee2e2;
+    --gray: #374151;
+    --gray-light: #f9fafb;
+    --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; color: #111827; background: #fff; }
+  .page { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+
+  /* Section headers */
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--blue); color: white;
+    padding: 10px 16px; border-radius: 8px;
+    margin: 32px 0 16px; font-size: 16px; font-weight: 700;
+  }
+  .section-header .num {
+    background: rgba(255,255,255,0.25); border-radius: 50%;
+    width: 26px; height: 26px; display: flex; align-items: center;
+    justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0;
+  }
+
+  /* Cards */
+  .card { background: var(--gray-light); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+  .card-title { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--blue); margin-bottom: 8px; }
+
+  /* Requirement mapping table */
+  .req-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .req-table th { background: var(--blue); color: white; padding: 8px 12px; text-align: left; font-weight: 600; }
+  .req-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .req-table tr:last-child td { border-bottom: none; }
+  .req-table tr:nth-child(even) td { background: var(--gray-light); }
+  .req-num { font-weight: 800; color: var(--blue); white-space: nowrap; }
+  .where { font-weight: 600; color: #111; }
+  .how { color: #4b5563; margin-top: 3px; font-size: 12px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-blue { background: var(--blue-light); color: var(--blue); }
+
+  /* Demo script */
+  .step { display: flex; gap: 12px; margin-bottom: 14px; }
+  .step-num { background: var(--blue); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; margin-top: 1px; }
+  .step-body { flex: 1; }
+  .step-title { font-weight: 700; color: #111; margin-bottom: 3px; }
+  .step-say { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 6px 10px; border-radius: 0 4px 4px 0; font-style: italic; color: #78350f; font-size: 13px; margin-top: 5px; }
+  .step-click { color: #4b5563; font-size: 12px; margin-top: 3px; }
+  .step-click code { background: #f3f4f6; padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 11px; }
+  .tip { background: var(--green-light); border: 1px solid #86efac; border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-size: 12px; color: var(--green); }
+  .warn { background: var(--yellow-light); border: 1px solid #fde047; border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-size: 12px; color: var(--yellow); }
+
+  /* Numbers grid */
+  .numbers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .num-card { background: var(--gray-light); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+  .num-val { font-size: 22px; font-weight: 800; color: var(--blue); }
+  .num-label { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+  /* Q&A */
+  .qa { margin-bottom: 16px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .qa-q { background: #1e3a5f; color: white; padding: 10px 14px; font-weight: 600; font-size: 13px; }
+  .qa-a { padding: 12px 14px; font-size: 13px; line-height: 1.6; color: #1f2937; }
+  .qa-a code { background: #f3f4f6; padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 12px; }
+  .qa-a ul { padding-left: 18px; margin-top: 6px; }
+  .qa-a li { margin-bottom: 4px; }
+
+  /* SR&ED facts */
+  .fact-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .fact { background: var(--gray-light); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+  .fact-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280; margin-bottom: 4px; }
+  .fact-val { font-size: 14px; font-weight: 600; color: #111; }
+  .fact-sub { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+  /* Title */
+  .doc-title { text-align: center; margin-bottom: 8px; }
+  .doc-title h1 { font-size: 26px; font-weight: 800; color: var(--blue); }
+  .doc-title p { color: #6b7280; font-size: 13px; margin-top: 4px; }
+  .doc-title .private { display: inline-block; background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; margin-top: 6px; }
+
+  @media print {
+    .section-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .step-num, .qa-q { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { font-size: 12px; }
+    .page { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-title">
+    <h1>SR&amp;ED Dashboard — Interview Cheat Sheet</h1>
+    <p>30-minute demo prep · App runs at <strong>localhost:4200</strong></p>
+    <span class="private">🔒 PRIVATE — do not share</span>
+  </div>
+
+  <!-- ===================== SECTION 1: SR&ED Background ===================== -->
+  <div class="section-header"><span class="num">1</span> SR&amp;ED in 2 Minutes — Business Context</div>
+
+  <div class="card">
+    <div class="card-title">What is SR&amp;ED?</div>
+    <p><strong>Scientific Research and Experimental Development</strong> — Canada's largest government R&amp;D support program. Companies that do qualifying technical work can claim a portion of their labour costs back as a tax credit from the CRA (Canada Revenue Agency).</p>
+    <p style="margin-top:8px;">Think of it as: <em>"The government pays you back a percentage of what you paid your engineers to solve hard technical problems."</em></p>
+  </div>
+
+  <div class="fact-row">
+    <div class="fact">
+      <div class="fact-label">Who qualifies?</div>
+      <div class="fact-val">Canadian corporations doing R&amp;D</div>
+      <div class="fact-sub">Must be "systematic investigation" advancing technology or science — not just using existing tech</div>
+    </div>
+    <div class="fact">
+      <div class="fact-label">How big is the program?</div>
+      <div class="fact-val">$4.5B in credits per year</div>
+      <div class="fact-sub">Over 21,000 companies claim annually. Canada's #1 R&amp;D incentive.</div>
+    </div>
+    <div class="fact">
+      <div class="fact-label">Federal credit rate</div>
+      <div class="fact-val">35% refundable (CCPCs)</div>
+      <div class="fact-sub">On first $6M of eligible expenditures. 15% above that. Refundable = cash back even if no profit.</div>
+    </div>
+    <div class="fact">
+      <div class="fact-label">Provincial top-up (ON)</div>
+      <div class="fact-val">~8–11.5% additional</div>
+      <div class="fact-sub">ON: 8% OITC + 3.5%. BC: 10%. AB: ~10–20%. QC: up to 30%. Our app uses a combined rate.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">How the money flows — the formula this app implements</div>
+    <p style="line-height:1.8;">
+      1. Track <strong>hours per employee per project</strong><br>
+      2. Multiply by <strong>hourly rate</strong> (annual salary ÷ 2,000 hrs) → <strong>SR&amp;ED expenditure</strong><br>
+      3. Multiply expenditure by <strong>SR&amp;ED credit rate</strong> (e.g. 45% for Northwind Labs) → <strong>SR&amp;ED credit</strong><br>
+      4. <strong>Unclaimed hours</strong> = hours on non-eligible projects (admin, ops, etc.) — not in the claim<br>
+      5. <strong>Projection</strong>: extrapolate YTD rate over the full year → estimated annual credit
+    </p>
+    <div class="tip">💡 Talking point: "The SR&amp;ED credit rate in our mock data (0.45 for Northwind Labs) represents the combined federal + provincial effective rate for an Ontario CCPC."</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">What qualifies as SR&amp;ED eligible work?</div>
+    <ul style="padding-left:18px;line-height:2;">
+      <li><strong>Basic/Applied Research</strong> — advancing scientific knowledge</li>
+      <li><strong>Experimental Development</strong> — creating/improving products or processes using tech advancement</li>
+      <li><strong>Support work</strong> — engineering, computer programming, testing, data collection <em>directly supporting</em> eligible work</li>
+      <li><strong>NOT eligible:</strong> market research, quality control, routine testing, admin, styling/UX without tech uncertainty</li>
+    </ul>
+    <div class="tip">💡 In the app: projects flagged <code>isSredEligible: true</code> (e.g. "Rendering System", "ML Inference Pipeline") count toward the claim. "Unclaimed Work" is <code>false</code>.</div>
+  </div>
+
+  <!-- ===================== SECTION 2: Requirements Mapping ===================== -->
+  <div class="section-header"><span class="num">2</span> The 6 Requirements — Where to Find Them in the Dashboard</div>
+
+  <table class="req-table">
+    <thead>
+      <tr>
+        <th style="width:5%">#</th>
+        <th style="width:25%">Requirement</th>
+        <th style="width:30%">Where in the App</th>
+        <th style="width:40%">What to Click / Show</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="req-num">1</span></td>
+        <td><strong>Header with client information</strong></td>
+        <td>
+          <div class="where">Top Bar + Page Header</div>
+          <span class="badge badge-green">✓ Done</span>
+        </td>
+        <td>
+          <div class="how">Top bar: tenant name dropdown (Northwind Labs), timezone (EST), claim period (2026-01-01 – 2026-12-31), user avatar. Page header: "SR&amp;ED Projections", claim status badge ("Completed"), last updated tooltip, Recalculate button.</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="req-num">2</span></td>
+        <td><strong>Navigation bar</strong></td>
+        <td>
+          <div class="where">Sidebar + Top Bar</div>
+          <span class="badge badge-green">✓ Done</span>
+        </td>
+        <td>
+          <div class="how">Collapsible left sidebar: Dashboard and Profile links. Top bar: user dropdown (My Profile, Sign out). Show the sidebar expand/collapse toggle.</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="req-num">3</span></td>
+        <td><strong>Employee grid — annual salary + hourly rate</strong></td>
+        <td>
+          <div class="where">Staff Salary Table (bottom of dashboard)</div>
+          <span class="badge badge-green">✓ Done</span>
+        </td>
+        <td>
+          <div class="how">Scroll to the bottom of the dashboard. Shows: Name, Start Date, End Date, Expected Salary, Confirmed Salary, <strong>Hourly Rate</strong> (= salary ÷ 2,000), YTD Hours, YTD Cost. 7 rows for Northwind Labs. Also available as a full page: Employees page in sidebar.</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="req-num">4</span></td>
+        <td><strong>Per-project chart: hours worked + monetary amount</strong></td>
+        <td>
+          <div class="where">SR&amp;ED Projects Bar</div>
+          <span class="badge badge-green">✓ Done</span>
+        </td>
+        <td>
+          <div class="how">Middle of dashboard. Shows each project as a horizontal bar — width = proportion of total. Toggle modes: <strong>Hours</strong> (raw hrs), <strong>Expenditures</strong> ($), <strong>Credits</strong> ($). Click any bar to drill into per-employee breakdown (requirement 4a). Back arrow to return.</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="req-num">5</span></td>
+        <td><strong>All-projects sum: total hours + monetary + grand total</strong></td>
+        <td>
+          <div class="where">Quarterly Timeline + KPI Panel</div>
+          <span class="badge badge-green">✓ Done</span>
+        </td>
+        <td>
+          <div class="how">Quarterly tabs (Q1/Q2/Q3/Q4/YTD) show the <em>total across all projects</em> per period. KPI Panel shows the big number (YTD total) and the projected full year. All mode-aware — switching to Expenditures shows $ total, Credits shows credit $.</div>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="req-num">6</span></td>
+        <td><strong>Full-year projection: expected hours + monetary amount</strong></td>
+        <td>
+          <div class="where">KPI Panel — right side</div>
+          <span class="badge badge-green">✓ Done</span>
+        </td>
+        <td>
+          <div class="how">"Full Year SR&amp;ED (Projected)" — right-hand KPI. Formula: <code>(YTD ÷ days elapsed) × 365</code>. If claim period is complete (past year), shows actual YTD. Click "Recalculate Projections" button to demo the async update flow.</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="warn" style="margin-top:12px;">⚠️ The brief says "one-page dashboard" — you exceeded this intentionally: added an Employees page and Profile page as extras. If asked, explain: "The core requirements are all on the dashboard. The Employees page and Profile page are enhancements I added to better reflect a real production product."</div>
+
+  <!-- ===================== SECTION 3: Demo Script ===================== -->
+  <div class="section-header"><span class="num">3</span> Demo Script — 30-Minute Flow</div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">Suggested time split</div>
+    <p>2 min intro → 5 min SR&amp;ED context → 15 min dashboard walkthrough → 5 min Employees page → 3 min wrap-up / "what I'd do next"</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <div class="step-title">Login screen</div>
+      <div class="step-click">URL: <code>localhost:4200</code> → auto-redirects to login. Use any email + any password ≥ 4 chars.</div>
+      <div class="step-say">"I implemented mock authentication that mirrors the real production shape — JWT token in localStorage, an auth guard protecting all routes, and an interceptor that attaches the token to every API call. The real swap would be a one-line change in the login service."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <div class="step-title">Tenant selection — landing on Northwind Labs</div>
+      <div class="step-click">After login, auto-routes to <code>/tenant/northwind-labs/dashboard</code> (last-used tenant or first tenant). Show the tenant dropdown in the top bar.</div>
+      <div class="step-say">"The app supports multiple client tenants — each admin manages several companies. The tenant ID is in the URL, so you can deep-link directly to any client. Data is fetched per tenant and the UI updates reactively when you switch."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <div class="step-title">Page header — client info (Req #1)</div>
+      <div class="step-click">Point to: client name, claim period dropdown, status badge, last updated timestamp, Recalculate button.</div>
+      <div class="step-say">"This is the client header — Northwind Labs, Ontario, currently viewing the 2026 claim year. The status badge shows the claim is 'Completed'. The claim period selector lets you switch between 2024, 2025, and 2026."</div>
+      <div class="tip">💡 Click the claim period dropdown, switch to 2025 — show that all numbers change and the YTD tab becomes the full year. Then switch back to 2026.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <div class="step-title">Mode toggle — Hours / Expenditures / Credits</div>
+      <div class="step-click">Click "Show Hours" → "Show Expenditures" → "Show Credits". Watch all sections update.</div>
+      <div class="step-say">"Every section on the dashboard responds to this toggle. Hours is the raw time tracked. Expenditures multiplies hours by each employee's hourly rate. Credits applies the SR&amp;ED credit rate — for Northwind Labs that's 45% — to give the actual dollar amount the company will recover from CRA."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <div class="step-title">Quarterly Timeline tabs — all-projects sum (Req #5)</div>
+      <div class="step-click">Click through Q1 → Q2 → Q3 → Q4 → YTD. Show the value change in each tab and the KPI panel.</div>
+      <div class="step-say">"These tabs show the SR&amp;ED total across all eligible projects for each quarter. Q1 is often zero for newer projects that ramp up mid-year. The YTD tab is capped to today's date for the current year — so for 2026, it ends at May 19th."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-body">
+      <div class="step-title">KPI Panel — YTD + Full Year Projection (Req #6)</div>
+      <div class="step-click">Point to left KPI (YTD) and right KPI (Projected). Click "Recalculate Projections".</div>
+      <div class="step-say">"The left number is the current year-to-date SR&amp;ED total. The right is the projected full year — calculated by dividing the YTD value by the number of days elapsed, then multiplying by 365. It's a linear extrapolation: simple, transparent, and defensible. A production system would weight recent quarters and account for seasonality."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">7</div>
+    <div class="step-body">
+      <div class="step-title">SR&amp;ED Projects bar — per-project chart (Req #4)</div>
+      <div class="step-click">Point to each project bar. Click one bar (e.g. "Rendering System") to drill in.</div>
+      <div class="step-say">"Each bar represents one project — width is proportional to the total value. The gray bar is 'Unclaimed Work' — hours on admin and operational tasks that don't qualify for SR&amp;ED. Clicking a bar drills into the employee breakdown for that project."</div>
+      <div class="step-say">"Now I can see which engineers contributed to this project and how much. The breadcrumb lets me navigate back."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">8</div>
+    <div class="step-body">
+      <div class="step-title">Staff Section — team-grouped employee bars</div>
+      <div class="step-click">Scroll down to staff section. Point to team groups. Click an employee bar.</div>
+      <div class="step-say">"The staff section shows every employee grouped by team, with their SR&amp;ED hours versus unclaimed hours side by side. This is mode-aware too — in Expenditures mode it shows cost, in Credits mode it shows just the SR&amp;ED credits bar."</div>
+      <div class="step-say">"Clicking an employee opens their modal — date range, hire date, per-project breakdown, SR&amp;ED hours, total hours, and their SR&amp;ED allocation percentage."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">9</div>
+    <div class="step-body">
+      <div class="step-title">Staff Salary Table — employee grid (Req #3)</div>
+      <div class="step-click">Scroll to the bottom of the dashboard.</div>
+      <div class="step-say">"This is the employee grid — name, start date, end date, expected annual salary, confirmed salary from payroll, hourly rate (salary divided by 2,000 working hours), and year-to-date hours and cost. It gives a complete financial picture of the team."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">10</div>
+    <div class="step-body">
+      <div class="step-title">Switch tenant — show multi-tenant</div>
+      <div class="step-click">Click tenant dropdown in top bar → switch to "Maple Robotics" or "Cedar AI Labs".</div>
+      <div class="step-say">"I can switch between clients instantly. Each tenant has its own employees, projects, and SR&amp;ED credit rate — Maple Robotics is a BC company with a 40% rate, Cedar AI Labs is Quebec at 30%. The URL updates, all data reloads."</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">11</div>
+    <div class="step-body">
+      <div class="step-title">Employees page (bonus)</div>
+      <div class="step-click">Click "Employees" in the sidebar.</div>
+      <div class="step-say">"I added an Employees page as an enhancement — searchable, filterable by team and role, sortable by any column. This would be the admin's day-to-day view for managing the roster before running the SR&amp;ED analysis."</div>
+    </div>
+  </div>
+
+  <!-- ===================== SECTION 4: Key Numbers ===================== -->
+  <div class="section-header"><span class="num">4</span> Key Numbers to Know</div>
+
+  <div class="numbers-grid">
+    <div class="num-card"><div class="num-val">4</div><div class="num-label">Tenants (clients)</div></div>
+    <div class="num-card"><div class="num-val">7</div><div class="num-label">Employees per tenant</div></div>
+    <div class="num-card"><div class="num-val">5</div><div class="num-label">Projects per tenant (4 SR&amp;ED + 1 unclaimed)</div></div>
+    <div class="num-card"><div class="num-val">3</div><div class="num-label">Claim years (2024 / 2025 / 2026)</div></div>
+    <div class="num-card"><div class="num-val">2,000</div><div class="num-label">Working hours/year (salary ÷ 2,000 = hourly rate)</div></div>
+    <div class="num-card"><div class="num-val">2026-05-19</div><div class="num-label">Mock "today" snapshot date</div></div>
+  </div>
+
+  <div style="margin-top:16px;">
+    <table class="req-table">
+      <thead><tr><th>Tenant</th><th>Province</th><th>SR&amp;ED Credit Rate</th><th>Projects (SR&amp;ED)</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Northwind Labs</strong> (default)</td><td>ON</td><td>45%</td><td>Rendering System, API Performance, Mobile App Platform, ML Inference Pipeline</td></tr>
+        <tr><td>Maple Robotics</td><td>BC</td><td>40%</td><td>Arm Motion Controller, Computer Vision Core, Edge Firmware Platform, Sim-to-Real Transfer</td></tr>
+        <tr><td>Quantum Dynamics</td><td>AB</td><td>35%</td><td>Qubit Error Correction, Quantum Compiler, Cryogenic Control Bus, Noise Characterisation</td></tr>
+        <tr><td>Cedar AI Labs</td><td>QC</td><td>30%</td><td>LLM Fine-Tuning Engine, Vector Search Layer, RAG Pipeline, Inference Acceleration</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <div class="card-title">Northwind Labs — Employees &amp; Hourly Rates</div>
+    <table class="req-table">
+      <thead><tr><th>Name</th><th>Role</th><th>Annual Salary</th><th>Hourly Rate</th><th>Team</th></tr></thead>
+      <tbody>
+        <tr><td>Aria Chen</td><td>Senior Engineer</td><td>$92,000</td><td>$46.00/hr</td><td>Team 1</td></tr>
+        <tr><td>Benjamin Patel</td><td>Engineer</td><td>$72,000</td><td>$36.00/hr</td><td>Team 2</td></tr>
+        <tr><td>Camille Dubois</td><td>Staff Engineer</td><td>$118,000 / confirmed $120,000</td><td>$59.00/hr</td><td>Team 1</td></tr>
+        <tr><td>Devon Singh</td><td>Junior Engineer</td><td>$56,000</td><td>$28.00/hr</td><td>Team 2</td></tr>
+        <tr><td>Emiko Tanaka</td><td>Senior Engineer</td><td>$105,000</td><td>$52.50/hr</td><td>Team 1</td></tr>
+        <tr><td>Felix Okafor</td><td>Engineer</td><td>$68,000</td><td>$34.00/hr</td><td>Team 2</td></tr>
+        <tr><td>Gianna Romano ⭐</td><td>Senior Engineer</td><td>$85,000</td><td>$42.50/hr</td><td>Team 1</td></tr>
+      </tbody>
+    </table>
+    <div class="tip" style="margin-top:8px;">⭐ = Special employee flag. "Confirmed Salary" = what HR confirmed from payroll vs. the expected salary on record. Difference triggers the two salary columns in the table.</div>
+  </div>
+
+  <!-- ===================== SECTION 5: Technical Q&A ===================== -->
+  <div class="section-header"><span class="num">5</span> Technical Q&amp;A Prep</div>
+
+  <div class="qa">
+    <div class="qa-q">Why Angular 21 with signals instead of RxJS?</div>
+    <div class="qa-a">
+      <p>Signals are Angular's new reactive primitive — synchronous, fine-grained, and predictable. All derived state in this app uses <code>computed()</code>: if you change the mode signal, every computed that depends on it (project bars, KPI, staff section, quarterly tabs) automatically re-evaluates. RxJS is reserved for async streams (HTTP calls) and bridged into the signal world with <code>toSignal()</code>. Zero <code>BehaviorSubject</code>, zero <code>subscribe()</code> for data flow in components.</p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">What is zoneless change detection and why use it?</div>
+    <div class="qa-a">
+      <p>Angular traditionally uses Zone.js to monkey-patch browser APIs and trigger change detection on every async event. With <code>provideZonelessChangeDetection()</code>, Zone.js is removed entirely. Change detection only runs when a signal changes — much more efficient. Combined with <code>OnPush</code> on every component, Angular only re-renders the components whose signal inputs actually changed.</p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">Why pure functions for SR&ED calculations instead of a service?</div>
+    <div class="qa-a">
+      <p>Services imply DI, lifecycle, and often hidden state. These calculations have none of that — they're just math: inputs in, output out. Pure functions in <code>features/dashboard/calculations/</code> are trivially unit-tested (no mocking, no TestBed), easily composed, and impossible to misuse. <code>staffBarData(entries, employees, projects, mode, creditRate)</code> is self-documenting.</p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">How would you swap the mock data for a real API?</div>
+    <div class="qa-a">
+      <p>Every service has two code paths behind an <code>environment.useMocks</code> flag: the mock branch returns <code>of(mockData).pipe(delay(300))</code>, the real branch does <code>http.get&lt;T&gt;(url)</code>. The Observable shape is identical — components never know the difference. The swap is one-line per service. Guards and interceptors are already real implementations.</p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">Why ApexCharts instead of ngx-charts or Chart.js?</div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>ngx-charts:</strong> 729 open issues, 159 stale PRs as of May 2026 — maintenance health is poor</li>
+        <li><strong>Chart.js:</strong> canvas-based, which doesn't export well to PDF (CRA submissions are often PDFs). ApexCharts is SVG-based.</li>
+        <li><strong>ApexCharts:</strong> actively maintained, SVG, visually polished, and signal-driven re-renders work natively via <code>[series]</code> and <code>[chart]</code> bindings to computed values.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">Why Tailwind + Flowbite over Angular Material?</div>
+    <div class="qa-a">
+      <p>The task brief said Flowbite/Tailwind is the company's direction. Beyond that: Material's opinionated theming makes it hard to match a custom brand; Tailwind gives full design control with utility classes. Flowbite provides the component patterns (dropdowns, modals, badges) as unstyled structures you apply Tailwind to.</p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">Explain the <code>asOf</code> signal and why it's a computed, not a constant.</div>
+    <div class="qa-a">
+      <p><code>asOf</code> represents "today relative to the selected claim period." For the live 2026 period, it's today (2026-05-19) — so YTD stops at today. But for a past period like 2025, using today as the cutoff would pull in 2026 entries. The fix: <code>asOf = computed(() =&gt; min(CURRENT_DATE, activeClaimPeriod.endDate))</code>. Past periods use their own end date (Dec 31); the current period uses today. <code>CURRENT_DATE</code> is still a constant — it's the raw "today" the computed reads from.</p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">How does multi-tenant routing work?</div>
+    <div class="qa-a">
+      <p>Every authenticated route is under <code>/tenant/:tenantId/</code>. The tenant ID flows from the route into every service call via a <code>toSignal(route.parent.paramMap)</code> in the dashboard component — reactive to navigation. A tenant guard validates the ID exists and redirects to the last-used tenant or first tenant on login. Switching tenants is just a <code>router.navigate(['/tenant', id, 'dashboard'])</code> — no page reload, just reactive data refresh.</p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">What would you build next if given more time?</div>
+    <div class="qa-a">
+      <ul>
+        <li><strong>Export to PDF</strong> — CRA submissions need paper trails; ApexCharts SVG makes this tractable</li>
+        <li><strong>Per-employee eligibility %</strong> — currently a project is 100% or 0% eligible; real CRA claims have fractional allocations</li>
+        <li><strong>Backend integration</strong> — replace the one-line mock swap with real HTTP + auth token refresh</li>
+        <li><strong>Vendor invoices / Other Expenses section</strong> — the reference UI showed this; it's the next claim section</li>
+        <li><strong>Weighted projection model</strong> — linear extrapolation is naive; weight recent quarters, account for seasonality</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">What is the SR&ED credit rate in the app and where does it come from?</div>
+    <div class="qa-a">
+      <p>Each <code>Client</code> object has a <code>sredCreditRate</code> property (e.g. 0.45 for Northwind Labs / ON). It represents the combined effective federal + provincial rate for that client's province. The formula: <code>SR&amp;ED credit = SR&amp;ED cost × creditRate</code>. In the Credits mode, this is what all the numbers show. If the rate is missing, the app defaults to 0.45.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:40px;padding-top:24px;border-top:1px solid var(--border);color:#9ca3af;font-size:12px;">
+    SR&amp;ED Dashboard — Interview Cheat Sheet · Private · May 2026
+  </div>
+
+</div>
+</body>
+</html>

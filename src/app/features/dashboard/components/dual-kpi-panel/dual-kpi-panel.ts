@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { QuarterPeriod, SredMode } from '../../models/chart-data.model';
 import { InfoTooltipComponent } from '../../../../shared/components/info-tooltip/info-tooltip';
@@ -12,11 +12,19 @@ import { InfoTooltipComponent } from '../../../../shared/components/info-tooltip
 export class DualKpiPanelComponent {
   readonly currentValue = input.required<number>();
   readonly projectedValue = input<number | null>(null);
+  readonly ytdValue = input<number>(0);
+  readonly daysElapsed = input<number>(0);
   readonly mode = input<SredMode>('hours');
   readonly selectedPeriod = input<QuarterPeriod>('ytd');
   readonly isLoading = input(false);
 
-  readonly showProjection = computed(() => this.projectedValue() !== null);
+  readonly showProjection = computed(() => this.selectedPeriod() === 'ytd' && this.projectedValue() !== null);
+  readonly showEquation = signal(false);
+
+  readonly dailyPace = computed(() => {
+    const d = this.daysElapsed();
+    return d > 0 ? this.ytdValue() / d : 0;
+  });
 
   readonly periodLabel = computed(() => {
     switch (this.selectedPeriod()) {
