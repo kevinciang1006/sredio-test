@@ -408,6 +408,52 @@
   </div>
 
   <div class="qa">
+    <div class="qa-q">Walk me through the RxJS in this project — what operators are you actually using?</div>
+    <div class="qa-a">
+      <p>Even though this is a signal-first app, RxJS lives at the HTTP boundary and the route layer. Concrete uses:</p>
+      <ul>
+        <li><strong><code>switchMap</code></strong> in the dashboard's <code>tenantId → service.getAll(id)</code> pipeline. If the user switches tenant mid-fetch, the in-flight request is cancelled and a fresh one starts. I chose <code>switchMap</code> over <code>mergeMap</code> because I don't care about the abandoned tenant's result — keeping it would risk a stale render.</li>
+        <li><strong><code>toObservable</code> / <code>toSignal</code></strong> — the bridge between the two reactive worlds. <code>toObservable(this.tenantId)</code> turns my route-derived signal into a stream so I can pipe it through <code>switchMap</code>; <code>toSignal(...)</code> brings the result back into the signal world for the template.</li>
+        <li><strong><code>startWith([])</code></strong> — seeds the stream with an empty array so the signal has a defined value before the first emission. No <code>undefined</code> checks in the template.</li>
+        <li><strong><code>map</code></strong> on the route's <code>paramMap</code> — pure projection from the <code>ParamMap</code> object to the tenant ID string.</li>
+        <li><strong><code>of(...).pipe(delay(...))</code></strong> in the mock services — shapes the mock response identically to a real <code>http.get()</code> Observable, so swapping mocks for HTTP is a one-line change per service.</li>
+      </ul>
+      <p style="margin-top:8px;">All these services emit <strong>cold observables</strong> — each subscription triggers a fresh fetch. That's why <code>switchMap</code> can cancel cleanly without leaking subscriptions: the source isn't shared.</p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">You use signals heavily, but SREDio is still on RxJS. Can you work with that?</div>
+    <div class="qa-a">
+      <p>Yes — and they're not mutually exclusive. This project actually uses both: RxJS at the HTTP and route layers, signals at the component layer, with <code>toSignal</code> / <code>toObservable</code> as the bridge. That's the modern Angular pattern, not a rejection of RxJS.</p>
+      <p style="margin-top:8px;">For a legacy RxJS codebase I wouldn't rip out <code>BehaviorSubject</code> and <code>combineLatest</code> on day one — they work fine and the team knows them. I'd introduce signals gradually as I write new components, using <code>toSignal()</code> to consume the existing observables. No big-bang rewrite.</p>
+      <p style="margin-top:8px;">There are places where RxJS still genuinely shines even in a signal-first app: anything async with operators that signals can't replace — debounced search input, retry-with-backoff, WebSocket streams, polling, animations sequenced with <code>concatMap</code>. Signals are synchronous; they don't replace those use cases.</p>
+      <p style="margin-top:8px;">One concrete example from this app: the login form's submit handler is the only <code>subscribe()</code> in the codebase. That's deliberate — it's an imperative side-effect (call login, then navigate), not a data subscription. RxJS is the right tool there.</p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">How would you migrate an RxJS-heavy codebase to signals incrementally?</div>
+    <div class="qa-a">
+      <p>Same Strangler Fig discipline as the Material → Flowbite migration: incremental, leaf-first, never big-bang.</p>
+      <ol style="padding-left:18px;line-height:1.8;">
+        <li><strong>Audit first.</strong> Inventory every <code>BehaviorSubject</code>, <code>combineLatest</code>, <code>withLatestFrom</code>, bare <code>subscribe()</code>, and <code>| async</code> in the codebase. You can't plan what you haven't measured.</li>
+        <li><strong>Leaf components first.</strong> Pick a component that <em>consumes</em> an observable but doesn't produce one. Wrap with <code>toSignal()</code>, drop the <code>| async</code> in the template, ship. Lowest risk, highest pattern-establishing value.</li>
+        <li><strong>Replace <code>BehaviorSubject</code> + <code>.getValue()</code> with <code>signal()</code>.</strong> Same shape — a holder of a value you can read synchronously. If anything upstream still needs an observable, <code>toObservable(mySignal)</code> covers the gap.</li>
+        <li><strong>Replace <code>combineLatest(...).pipe(map(...))</code> with <code>computed()</code>.</strong> Cleaner, synchronous, no subscription management, no race conditions on initial value.</li>
+        <li><strong>Keep RxJS at the boundaries.</strong> HTTP layer, WebSocket layer, anywhere with retry/debounce/polling. Bridge to signals at the component edge with <code>toSignal()</code>.</li>
+        <li><strong>Treat <code>subscribe()</code> as a code smell.</strong> Rare exceptions: imperative side-effects (login → navigate), fire-and-forget analytics. Always pair with <code>takeUntilDestroyed()</code> — never bare.</li>
+      </ol>
+      <div class="tip" style="margin-top:8px;">💡 <strong>Common pitfalls to flag:</strong></div>
+      <ul>
+        <li><code>toSignal()</code> without <code>initialValue</code> produces <code>T | undefined</code> — always provide one for component-bound signals so the template doesn't need null checks.</li>
+        <li>Hot subjects (<code>Subject</code>, not <code>BehaviorSubject</code>) can drop emissions before <code>toSignal</code> subscribes — late subscribers get nothing. Use <code>shareReplay(1)</code> or convert to <code>BehaviorSubject</code> first.</li>
+        <li><code>effect()</code> and <code>subscribe()</code> aren't interchangeable — <code>effect</code> runs synchronously on signal changes during the reactive phase; <code>subscribe</code> runs async on stream emissions. Pick deliberately.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qa">
     <div class="qa-q">What is zoneless change detection and why use it?</div>
     <div class="qa-a">
       <p>Angular traditionally uses Zone.js to monkey-patch browser APIs and trigger change detection on every async event. With <code>provideZonelessChangeDetection()</code>, Zone.js is removed entirely. Change detection only runs when a signal changes — much more efficient. Combined with <code>OnPush</code> on every component, Angular only re-renders the components whose signal inputs actually changed.</p>
