@@ -61,7 +61,7 @@
   </div>
 
   <div class="bg-white rounded-lg border border-gray-200 p-5">
-    @if (isLoading()) {
+    @if (!kpiReady()) {
       <div class="h-14 animate-pulse bg-gray-100 rounded mb-5"></div>
       <div class="h-20 animate-pulse bg-gray-100 rounded"></div>
     } @else {
@@ -125,7 +125,7 @@
     </div>
 
     <div style="view-transition-name: chart-section">
-      @if (isLoading()) {
+      @if (!kpiReady()) {
         <div class="h-16 animate-pulse bg-gray-100 rounded"></div>
       } @else if (chartView() === 'bar') {
         @if (drilledProject()) {
@@ -162,16 +162,23 @@
     </div>
   </section>
 
-  <app-staff-section
-    [teams]="teams()"
-    [employees]="employees()"
-    [staffData]="staffBars()"
-    [mode]="mode()"
-    (employeeClick)="onEmployeeClick($event)" />
+  @if (staffReady()) {
+    <app-staff-section
+      [teams]="teams()"
+      [employees]="employees()"
+      [staffData]="staffBars()"
+      [mode]="mode()"
+      (employeeClick)="onEmployeeClick($event)" />
+  } @else {
+    <div class="bg-white rounded-lg border border-gray-200 p-5">
+      <div class="h-5 w-48 animate-pulse bg-gray-100 rounded mb-4"></div>
+      <div class="h-32 animate-pulse bg-gray-100 rounded"></div>
+    </div>
+  }
 
   <app-staff-salary-table
     [rows]="employeeRows()"
-    [isLoading]="isLoading()" />
+    [isLoading]="!employeesReady()" />
 </div>
 
 @if (selectedEmployee()) {

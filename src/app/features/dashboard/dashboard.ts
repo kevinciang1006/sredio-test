@@ -155,11 +155,13 @@ export class DashboardComponent {
   readonly lastUpdatedAt = signal('15 May 2026');
   readonly isRecalculating = signal(false);
 
-  readonly isLoading = computed(() =>
-    !this.client() ||
-    this.employees().length === 0 ||
-    this.projects().length === 0 ||
-    this.timeEntries().length === 0,
+  readonly employeesReady = computed(() => this.employees().length > 0);
+  readonly projectsReady = computed(() => this.projects().length > 0);
+  readonly timeEntriesReady = computed(() => this.timeEntries().length > 0);
+  readonly teamsReady = computed(() => this.teams().length > 0);
+  readonly kpiReady = computed(() => this.projectsReady() && this.timeEntriesReady());
+  readonly staffReady = computed(
+    () => this.employeesReady() && this.timeEntriesReady() && this.teamsReady(),
   );
 
   readonly asOf = computed(() => {

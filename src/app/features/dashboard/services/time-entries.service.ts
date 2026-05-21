@@ -14,7 +14,7 @@ export class TimeEntriesService {
   getAll(tenantId: string): Observable<readonly TimeEntry[]> {
     if (environment.useMocks) {
       const data = MOCK_TIME_ENTRIES_BY_TENANT[tenantId] ?? MOCK_TIME_ENTRIES_BY_TENANT[TENANTS[0].id];
-      return of(data).pipe(delay(400));
+      return of(data).pipe(delay(900));
     }
     return this.http.get<readonly TimeEntry[]>(`${environment.apiBaseUrl}/tenants/${tenantId}/time-entries`);
   }
