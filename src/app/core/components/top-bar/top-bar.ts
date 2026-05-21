@@ -43,9 +43,14 @@ export class TopBarComponent {
     return this.tenants.find(t => t.id === id);
   });
 
+  private readonly currentSubRoute = computed(() => {
+    const m = this.routerUrl().match(/\/tenant\/[^/]+\/([^/?#]+)/);
+    return m ? m[1] : 'dashboard';
+  });
+
   switchTenant(id: string): void {
     localStorage.setItem(APP_CONSTANTS.LOCAL_STORAGE_KEYS.LAST_TENANT_ID, id);
-    void this.router.navigate(['/tenant', id, 'dashboard']);
+    void this.router.navigate(['/tenant', id, this.currentSubRoute()]);
   }
 
   logout(): void {
