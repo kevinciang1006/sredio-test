@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs/operators';
@@ -22,8 +22,6 @@ export class TopBarComponent {
 
   readonly currentUser = this.auth.currentUser;
   readonly tenants = TENANTS;
-  readonly isOpen = signal(false);
-  readonly isTenantOpen = signal(false);
 
   private readonly routerUrl = toSignal(
     this.router.events.pipe(
@@ -44,19 +42,28 @@ export class TopBarComponent {
     return this.tenants.find(t => t.id === id);
   });
 
-  toggleDropdown(): void { this.isOpen.update(v => !v); }
-  toggleTenantDropdown(): void { this.isTenantOpen.update(v => !v); }
-
   switchTenant(id: string): void {
-    this.isTenantOpen.set(false);
+    this.closeDropdown('tenant-dropdown');
     localStorage.setItem(APP_CONSTANTS.LOCAL_STORAGE_KEYS.LAST_TENANT_ID, id);
     void this.router.navigate(['/tenant', id, 'dashboard']);
   }
 
   logout(): void {
-    this.isOpen.set(false);
+    this.closeDropdown('user-dropdown');
     this.auth.logout();
     void this.router.navigate(['/login']);
+  }
+
+  // Hide the menu before navigation so Popper doesn't re-position it against
+  // the re-rendered trigger (causing a visual jump). Flowbite's internal
+  // `_visible` flag goes stale here, but `initFlowbite()` re-runs on the next
+  // NavigationEnd and constructs a fresh Dropdown with `_visible = false`,
+  // so the state re-syncs on its own.
+  // Note: only ONE element per menu may carry `data-dropdown-toggle` —
+  // `DefaultInstanceOptions.override = true` means later instances destroy
+  // earlier ones' listeners.
+  closeDropdown(menuId: string): void {
+    document.getElementById(menuId)?.classList.add('hidden');
   }
 
   onComingSoon(feature: string): void {
