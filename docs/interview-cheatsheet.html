@@ -507,6 +507,89 @@ export class DashboardComponent {
   </div>
 
   <div class="qa">
+    <div class="qa-q">Where exactly does RxJS still earn its keep, even in a signal-first app?</div>
+    <div class="qa-a">
+      <p>The clean rule: <strong>signals own state, RxJS owns async + events + time.</strong> Signals replaced <em>state</em> and <em>derived state</em>; they did NOT replace HTTP, events, or time-based operations.</p>
+      <p style="margin-top:8px;"><strong>RxJS is still the right tool for:</strong></p>
+      <ul>
+        <li><strong>The HTTP layer.</strong> <code>HttpClient</code> returns <code>Observable&lt;T&gt;</code> — that's the producer. Every service in this project returns Observable. Signals only enter at the consumer side via <code>toSignal</code>.</li>
+        <li><strong>Imperative side-effects with success/error</strong> — login, save, delete, submit. The <code>subscribe({ next, error })</code> callback shape models a one-shot outcome with two branches. Signals model continuous state — wrong shape for "do this once, then react to the result."</li>
+        <li><strong>Time-based operators that signals don't have:</strong> <code>debounceTime</code> (debounced search), <code>retry({ count, delay })</code> (retry-with-backoff), <code>throttleTime</code>, <code>interval</code> + <code>switchMap</code> (polling), <code>concatMap</code> / <code>mergeMap</code> (sequential vs concurrent chains), animation sequencing.</li>
+        <li><strong>Streams from external sources:</strong> WebSocket via <code>webSocket()</code>, Server-Sent Events, <code>Router.events</code>, <code>route.paramMap</code>, <code>formControl.valueChanges</code>, <code>form.statusChanges</code>. Consume them via <code>toSignal</code> if you want the latest value as a signal — but the source is RxJS.</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>The decision matrix:</strong></p>
+      <table class="req-table" style="font-size:12px;margin-top:8px;">
+        <thead><tr><th style="width:50%">Domain</th><th>Tool</th></tr></thead>
+        <tbody>
+          <tr><td>State the template renders</td><td>Signal</td></tr>
+          <tr><td>Derived state (calculated from other state)</td><td><code>computed()</code></td></tr>
+          <tr><td>Component inputs/outputs</td><td><code>input()</code>, <code>output()</code></td></tr>
+          <tr><td>HTTP responses</td><td>Observable → <code>toSignal()</code> at the consumer</td></tr>
+          <tr><td>One-shot side-effects (login, save, delete)</td><td><code>subscribe({ next, error })</code></td></tr>
+          <tr><td>Time-based async (debounce, retry, poll)</td><td>RxJS operators → <code>toSignal()</code> if you need the latest</td></tr>
+          <tr><td>External streams (WebSocket, SSE)</td><td>RxJS, bridged at the boundary</td></tr>
+        </tbody>
+      </table>
+      <div class="tip" style="margin-top:8px;">💡 <strong>If pushed: "But signals have <code>effect()</code> — can't you do side-effects with that?"</strong> Answer: <code>effect()</code> runs when a <em>signal</em> changes — for reactive side-effects (e.g., persist a setting to localStorage when it changes). <code>subscribe()</code> runs when a <em>stream</em> emits — for one-shot or stream-driven side-effects. For a login POST: the click is the trigger, the HTTP response is the stream. <code>subscribe()</code> is right. <code>effect()</code> would require materializing the response into a signal first, then watching it — pointless ceremony.</div>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">If we were still on RxJS, what would the dashboard's reactive code look like? Show me the equivalent.</div>
+    <div class="qa-a">
+      <p>Best concrete example: <code>projectBars</code> on the dashboard. It depends on 5 sources (filtered entries, employees, projects, mode toggle, client's credit rate) and re-derives whenever any of them changes. Side-by-side:</p>
+      <p style="margin-top:10px;"><strong>Signal version (current code):</strong></p>
+      <pre style="background:#f3f4f6;border-radius:6px;padding:10px 12px;font-size:11px;line-height:1.5;overflow-x:auto;"><code>readonly mode = signal&lt;SredMode&gt;('hours');
+onModeChange(m: SredMode): void { this.mode.set(m); }
+
+readonly projectBars = computed(() =&gt;
+  projectBarData(
+    this.periodEntries(),
+    this.employees(),
+    this.projects(),
+    this.mode(),
+    this.client()?.sredCreditRate ?? 0.45,
+  ),
+);</code></pre>
+      <pre style="background:#f3f4f6;border-radius:6px;padding:10px 12px;font-size:11px;line-height:1.5;overflow-x:auto;margin-top:6px;"><code>&lt;!-- template --&gt;
+&lt;app-sred-projects-bar [bars]="projectBars()" /&gt;</code></pre>
+      <p style="margin-top:10px;"><strong>Pure-RxJS equivalent (no signals):</strong></p>
+      <pre style="background:#f3f4f6;border-radius:6px;padding:10px 12px;font-size:11px;line-height:1.5;overflow-x:auto;"><code>private modeSubject = new BehaviorSubject&lt;SredMode&gt;('hours');
+mode$ = this.modeSubject.asObservable();
+onModeChange(m: SredMode): void { this.modeSubject.next(m); }
+
+// assumes periodEntries$, employees$, projects$, client$ are all
+// BehaviorSubjects or replayed observables already
+projectBars$ = combineLatest([
+  this.periodEntries$,
+  this.employees$,
+  this.projects$,
+  this.mode$,
+  this.client$,
+]).pipe(
+  map(([entries, employees, projects, mode, client]) =&gt;
+    projectBarData(entries, employees, projects, mode, client?.sredCreditRate ?? 0.45)
+  ),
+  shareReplay({ bufferSize: 1, refCount: true }),  // multicast for multiple template subscribers
+);</code></pre>
+      <pre style="background:#f3f4f6;border-radius:6px;padding:10px 12px;font-size:11px;line-height:1.5;overflow-x:auto;margin-top:6px;"><code>&lt;!-- template --&gt;
+&lt;app-sred-projects-bar [bars]="projectBars$ | async" /&gt;</code></pre>
+      <p style="margin-top:10px;"><strong>What's different and why signals are nicer:</strong></p>
+      <ul>
+        <li><strong>No <code>combineLatest</code> boilerplate.</strong> Signals track their dependencies automatically — you just read <code>this.mode()</code> inside <code>computed()</code> and it gets wired up. With RxJS you have to list every source explicitly and remember to add new ones when the formula changes.</li>
+        <li><strong>No <code>shareReplay</code> required.</strong> Signals are inherently multicast — every consumer reads from the same memoized value. With <code>combineLatest</code>, every <code>| async</code> in the template subscribes independently and re-runs the whole pipeline unless you <code>shareReplay</code>.</li>
+        <li><strong>Synchronous read.</strong> <code>this.projectBars()</code> returns the value right now — no <code>.subscribe</code>, no race against initial emission. RxJS users handle "no value yet" with <code>startWith</code> + <code>BehaviorSubject</code> + initial defaults at every consumer.</li>
+        <li><strong>No <code>.next()</code> for state changes.</strong> <code>this.mode.set('credits')</code> vs <code>this.modeSubject.next('credits')</code>. Cosmetic, but signals don't expose the Subject — there's no way for external code to push values, only the component-defined setters/methods.</li>
+      </ul>
+      <div class="tip" style="margin-top:8px;">💡 <strong>What stays the same:</strong> the underlying logic — <code>projectBarData(entries, employees, projects, mode, creditRate)</code> is a pure function called identically in both versions. That's the part you want to lift into <code>features/&lt;X&gt;/calculations/</code> regardless of reactive style. Pure functions outlive any framework decision.</div>
+      <p style="margin-top:8px;"><strong>Verbal version:</strong></p>
+      <p style="background:#fffbeb;border-left:3px solid #f59e0b;padding:10px 12px;border-radius:0 4px 4px 0;font-style:italic;color:#78350f;line-height:1.7;">
+        "In a pure-RxJS world this <code>projectBars</code> would be a <code>combineLatest</code> of five source observables, mapped through the same <code>projectBarData()</code> pure function, with <code>shareReplay</code> so the template's <code>| async</code> consumers don't each trigger a fresh pipeline. The signal version is a <code>computed()</code> that reads the same five sources synchronously — automatic dependency tracking, automatic multicasting, no <code>shareReplay</code>, no <code>startWith</code>, no <code>BehaviorSubject</code> ceremony. The underlying calculation function is identical in both. That's the whole point of keeping the math as pure functions in <code>features/&lt;X&gt;/calculations/</code> — the reactive layer is swappable, the math isn't."
+      </p>
+    </div>
+  </div>
+
+  <div class="qa">
     <div class="qa-q">How would you migrate an RxJS-heavy codebase to signals incrementally?</div>
     <div class="qa-a">
       <p>Same Strangler Fig discipline as the Material → Flowbite migration: incremental, leaf-first, never big-bang.</p>
