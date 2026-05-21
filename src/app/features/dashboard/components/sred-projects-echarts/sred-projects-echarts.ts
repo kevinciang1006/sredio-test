@@ -75,6 +75,7 @@ export class SredProjectsEchartsComponent {
       : CAD_FORMATTER.format(v);
 
     return {
+      textStyle: { fontFamily: 'Inter, system-ui, sans-serif' },
       tooltip: {
         trigger: 'item' as const,
         formatter: (params: { dataIndex: number; name: string; value: number }) => {

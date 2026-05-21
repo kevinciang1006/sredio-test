@@ -79,6 +79,7 @@ export class EmployeeBreakdownEchartsComponent {
     }
 
     return {
+      textStyle: { fontFamily: 'Inter, system-ui, sans-serif' },
       tooltip: {
         trigger: 'item' as const,
         formatter: (params: { dataIndex: number; name: string; value: number }) => {
