@@ -423,6 +423,80 @@
   </div>
 
   <div class="qa">
+    <div class="qa-q">Decode this snippet — what's each operator doing, and where did <code>ngOnInit</code> / <code>ngOnDestroy</code> go?</div>
+    <div class="qa-a">
+      <pre style="background:#f3f4f6;border-radius:6px;padding:10px 12px;font-size:11px;line-height:1.5;overflow-x:auto;margin-bottom:10px;"><code>readonly employees = toSignal(
+  toObservable(this.tenantId).pipe(
+    switchMap(id =&gt; this.employeesSvc.getAll(id)
+      .pipe(startWith([] as readonly Employee[]))),
+  ),
+  { initialValue: [] as readonly Employee[] },
+);</code></pre>
+      <p><strong>Shape:</strong> <em>signal → <code>toObservable</code> → <code>switchMap</code> → <code>startWith</code> → <code>toSignal</code>.</em> The two bridges sandwich an RxJS operator chain.</p>
+      <ul style="margin-top:8px;">
+        <li><strong><code>toObservable(this.tenantId)</code></strong> — signal-to-stream bridge. <code>tenantId</code> changes when the route changes; <code>toObservable</code> re-emits each new value so RxJS operators can react.</li>
+        <li><strong><code>switchMap(id =&gt; ...)</code></strong> — on every new tenantId, cancel the in-flight request and start fresh. Fast tenant clicks A→B→C keep only C's response.</li>
+        <li><strong><code>startWith([])</code></strong> — emit <code>[]</code> immediately when the inner observable subscribes. On tenant switch, the signal drops to <code>[]</code> right away, which is what makes <code>employeesReady</code> flip back to <code>false</code> and the skeleton re-appear during the fetch.</li>
+        <li><strong><code>toSignal(obs, { initialValue: [] })</code></strong> — stream-to-signal bridge. <code>initialValue</code> is what the signal returns synchronously before any emission — without it, the type would be <code>readonly Employee[] | undefined</code> and the template would need null checks.</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>Where the lifecycle hooks went:</strong></p>
+      <ul>
+        <li><strong>No constructor</strong> — <code>inject()</code> works in field initializers because Angular runs them during construction, when the injector is available.</li>
+        <li><strong>No <code>ngOnInit</code></strong> — the reactive graph is wired up at field-initialization time. By the time the constructor finishes, every signal is already listening to its source.</li>
+        <li><strong>No <code>ngOnDestroy</code></strong> — <code>toSignal</code> and <code>toObservable</code> auto-register cleanup with the component's <code>DestroyRef</code>. Subscriptions tear down when the component is destroyed.</li>
+        <li>For "code that must run after the view is in the DOM" (rare), use <code>afterNextRender()</code> — that's the modern <code>ngAfterViewInit</code>.</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>Old way vs new way</strong> — same semantics, ~half the code:</p>
+      <pre style="background:#f3f4f6;border-radius:6px;padding:10px 12px;font-size:11px;line-height:1.5;overflow-x:auto;"><code>// OLD (RxJS + lifecycle hooks)
+export class DashboardComponent implements OnInit, OnDestroy {
+  employees: Employee[] = [];
+  private destroy$ = new Subject&lt;void&gt;();
+  private tenantId$ = new BehaviorSubject&lt;string&gt;('');
+
+  constructor(private route: ActivatedRoute,
+              private employeesSvc: EmployeesService) {}
+
+  ngOnInit() {
+    this.route.parent!.paramMap.pipe(
+      map(p =&gt; p.get('tenantId') ?? ''),
+      takeUntil(this.destroy$),
+    ).subscribe(id =&gt; this.tenantId$.next(id));
+
+    this.tenantId$.pipe(
+      switchMap(id =&gt; this.employeesSvc.getAll(id).pipe(startWith([]))),
+      takeUntil(this.destroy$),
+    ).subscribe(emps =&gt; this.employees = emps);
+  }
+
+  ngOnDestroy() { this.destroy$.next(); this.destroy$.complete(); }
+}
+
+// NEW (signals + DestroyRef)
+export class DashboardComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly employeesSvc = inject(EmployeesService);
+
+  private readonly tenantId = toSignal(
+    this.route.parent!.paramMap.pipe(map(p =&gt; p.get('tenantId') ?? '')),
+    { initialValue: '' },
+  );
+
+  readonly employees = toSignal(
+    toObservable(this.tenantId).pipe(
+      switchMap(id =&gt; this.employeesSvc.getAll(id).pipe(startWith([]))),
+    ),
+    { initialValue: [] },
+  );
+}</code></pre>
+      <div class="tip" style="margin-top:8px;">💡 <strong>One deliberate inconsistency to defend:</strong> <code>client</code> omits <code>startWith(null)</code>, so the OLD client briefly persists during tenant switch — avoids flashing an empty header for ~200ms. The data signals use <code>startWith([])</code> because the empty state <em>is</em> what we want (it triggers the skeletons). Different trade-offs per signal: stale-vs-flicker for the header, empty-vs-stale for the chart areas.</div>
+      <p style="margin-top:8px;"><strong>Verbal version for Xavier (~30 sec):</strong></p>
+      <p style="background:#fffbeb;border-left:3px solid #f59e0b;padding:10px 12px;border-radius:0 4px 4px 0;font-style:italic;color:#78350f;line-height:1.7;">
+        "It's a route-derived signal bridged into an RxJS pipeline. <code>switchMap</code> cancels in-flight on tenant change, <code>startWith</code> resets the data immediately so the skeleton shows, then <code>toSignal</code> brings the result back. The whole reactive graph is set up at field-initialization time — no <code>ngOnInit</code>. Subscriptions clean up via <code>DestroyRef</code> — no <code>ngOnDestroy</code>. Same logic I used to write with <code>BehaviorSubject</code> + <code>takeUntil</code>, declarative and half the code."
+      </p>
+    </div>
+  </div>
+
+  <div class="qa">
     <div class="qa-q">You use signals heavily, but SREDio is still on RxJS. Can you work with that?</div>
     <div class="qa-a">
       <p>Yes — and they're not mutually exclusive. This project actually uses both: RxJS at the HTTP and route layers, signals at the component layer, with <code>toSignal</code> / <code>toObservable</code> as the bridge. That's the modern Angular pattern, not a rejection of RxJS.</p>
