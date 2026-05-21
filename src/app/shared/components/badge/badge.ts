@@ -13,9 +13,11 @@ const VARIANT_CLASSES: Record<BadgeVariant, string> = {
 
 @Component({
   selector: 'app-badge',
-  templateUrl: './badge.html',
-  styleUrl: './badge.scss',
+  template: `{{ label() }}`,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class]': 'hostClass()',
+  },
 })
 export class BadgeComponent {
   readonly label = input.required<string>();

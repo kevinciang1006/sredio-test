@@ -30,9 +30,12 @@ function colorIndex(name: string): number {
 
 @Component({
   selector: 'app-avatar',
-  templateUrl: './avatar.html',
-  styleUrl: './avatar.scss',
+  template: `{{ initials() }}`,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class]': 'hostClass()',
+    '[style.background-color]': "color() || null",
+  },
 })
 export class AvatarComponent {
   readonly name = input.required<string>();
