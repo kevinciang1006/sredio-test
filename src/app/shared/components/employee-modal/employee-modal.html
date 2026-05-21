@@ -1,77 +1,76 @@
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center p-4"
-  role="dialog"
-  aria-modal="true">
-  <div
-    class="absolute inset-0 bg-black/40"
-    (click)="close.emit()"></div>
+  #modalEl
+  tabindex="-1"
+  aria-hidden="true"
+  class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative p-4 w-full max-w-4xl max-h-full">
+    <div class="relative bg-white rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between px-8 pt-6 pb-4 border-b border-gray-100">
+        <h2 class="text-lg font-semibold text-gray-900">{{ employee().name }}</h2>
+        <app-mode-tabs [mode]="mode()" (modeChange)="modeChange.emit($event)" />
+      </div>
 
-  <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between px-8 pt-6 pb-4 border-b border-gray-100">
-      <h2 class="text-lg font-semibold text-gray-900">{{ employee().name }}</h2>
-      <app-mode-tabs [mode]="mode()" (modeChange)="modeChange.emit($event)" />
-    </div>
+      <div class="px-8 py-5 grid grid-cols-2 gap-x-8 gap-y-2 text-sm border-b border-gray-100">
+        <div>
+          <span class="font-medium text-gray-700">Date Range: </span>
+          <span class="text-gray-600">{{ periodLabel() }}</span>
+        </div>
+        <div>
+          <span class="font-medium text-gray-700">Hire Date: </span>
+          <span class="text-gray-600">{{ employee().hireDate | shortDate }}</span>
+        </div>
+        <div>
+          <span class="font-medium text-gray-700">Role: </span>
+          <span class="text-gray-600">{{ employee().role }}</span>
+        </div>
+        <div>
+          <span class="font-medium text-gray-700">End Date: </span>
+          <span class="text-gray-600">{{ employee().endDate ? (employee().endDate! | shortDate) : '—' }}</span>
+        </div>
+      </div>
 
-    <div class="px-8 py-5 grid grid-cols-2 gap-x-8 gap-y-2 text-sm border-b border-gray-100">
-      <div>
-        <span class="font-medium text-gray-700">Date Range: </span>
-        <span class="text-gray-600">{{ periodLabel() }}</span>
+      <div class="px-8 py-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-gray-700">SR&amp;ED Projects</h3>
+          <app-chart-view-tabs [chartView]="chartView()" (chartViewChange)="chartView.set($event)" />
+        </div>
+        @if (chartView() === 'bar') {
+          <app-sred-projects-bar [bars]="projectBars()" [mode]="mode()" />
+        } @else {
+          <app-sred-projects-echarts [bars]="projectBars()" [mode]="mode()" />
+        }
       </div>
-      <div>
-        <span class="font-medium text-gray-700">Hire Date: </span>
-        <span class="text-gray-600">{{ employee().hireDate | shortDate }}</span>
-      </div>
-      <div>
-        <span class="font-medium text-gray-700">Role: </span>
-        <span class="text-gray-600">{{ employee().role }}</span>
-      </div>
-      <div>
-        <span class="font-medium text-gray-700">End Date: </span>
-        <span class="text-gray-600">{{ employee().endDate ? (employee().endDate! | shortDate) : '—' }}</span>
-      </div>
-    </div>
 
-    <div class="px-8 py-5">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-semibold text-gray-700">SR&amp;ED Projects</h3>
-        <app-chart-view-tabs [chartView]="chartView()" (chartViewChange)="chartView.set($event)" />
+      <div class="px-8 py-5 border-t border-gray-100 grid grid-cols-3 gap-4 text-sm">
+        <div>
+          <p class="font-semibold text-gray-900 text-base">
+            @if (mode() === 'hours') {
+              {{ sredHours() | number:'1.0-0' }}
+            } @else if (mode() === 'expenditures') {
+              {{ sredCost() | currency:'CAD':'symbol-narrow':'1.0-0' }}
+            } @else {
+              {{ sredCredits() | currency:'CAD':'symbol-narrow':'1.0-0' }}
+            }
+          </p>
+          <p class="text-gray-500 text-xs">SR&amp;ED Value</p>
+        </div>
+        <div>
+          <p class="font-semibold text-gray-900 text-base">{{ totalHours() | number:'1.0-0' }}</p>
+          <p class="text-gray-500 text-xs">Total Hours</p>
+        </div>
+        <div>
+          <p class="text-xl font-bold text-gray-900">SR&amp;ED Allocation: {{ sredAllocation() | percent:'1.3-3' }}</p>
+        </div>
       </div>
-      @if (chartView() === 'bar') {
-        <app-sred-projects-bar [bars]="projectBars()" [mode]="mode()" />
-      } @else {
-        <app-sred-projects-echarts [bars]="projectBars()" [mode]="mode()" />
-      }
-    </div>
 
-    <div class="px-8 py-5 border-t border-gray-100 grid grid-cols-3 gap-4 text-sm">
-      <div>
-        <p class="font-semibold text-gray-900 text-base">
-          @if (mode() === 'hours') {
-            {{ sredHours() | number:'1.0-0' }}
-          } @else if (mode() === 'expenditures') {
-            {{ sredCost() | currency:'CAD':'symbol-narrow':'1.0-0' }}
-          } @else {
-            {{ sredCredits() | currency:'CAD':'symbol-narrow':'1.0-0' }}
-          }
-        </p>
-        <p class="text-gray-500 text-xs">SR&amp;ED Value</p>
+      <div class="px-8 pb-6 flex justify-end">
+        <button
+          type="button"
+          (click)="onOk()"
+          class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          Ok
+        </button>
       </div>
-      <div>
-        <p class="font-semibold text-gray-900 text-base">{{ totalHours() | number:'1.0-0' }}</p>
-        <p class="text-gray-500 text-xs">Total Hours</p>
-      </div>
-      <div>
-        <p class="text-xl font-bold text-gray-900">SR&amp;ED Allocation: {{ sredAllocation() | percent:'1.3-3' }}</p>
-      </div>
-    </div>
-
-    <div class="px-8 pb-6 flex justify-end">
-      <button
-        type="button"
-        (click)="close.emit()"
-        class="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-        Ok
-      </button>
     </div>
   </div>
 </div>

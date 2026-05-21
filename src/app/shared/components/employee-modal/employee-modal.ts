@@ -1,5 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { CurrencyPipe, DecimalPipe, PercentPipe } from '@angular/common';
+import { Modal, type ModalOptions } from 'flowbite';
 import { Employee } from '../../../core/models/employee.model';
 import { ChartView, SredMode, SredProjectBar } from '../../../features/dashboard/models/chart-data.model';
 import { ModeTabsComponent } from '../../../features/dashboard/components/mode-tabs/mode-tabs';
@@ -30,8 +43,36 @@ export class EmployeeModalComponent {
 
   readonly chartView = signal<ChartView>('donut');
 
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly modalEl = viewChild.required<ElementRef<HTMLElement>>('modalEl');
+  private flowbiteModal: Modal | null = null;
+
   readonly sredAllocation = computed(() => {
     const total = this.totalHours();
     return total === 0 ? 0 : this.sredHours() / total;
   });
+
+  constructor() {
+    afterNextRender(() => {
+      const options: ModalOptions = {
+        placement: 'center',
+        backdrop: 'dynamic',
+        backdropClasses: 'bg-black/40 fixed inset-0 z-40',
+        closable: true,
+        onHide: () => this.close.emit(),
+      };
+      this.flowbiteModal = new Modal(this.modalEl().nativeElement, options);
+      this.flowbiteModal.show();
+    });
+
+    this.destroyRef.onDestroy(() => {
+      this.flowbiteModal?.hide();
+      this.flowbiteModal?.destroy();
+      this.flowbiteModal = null;
+    });
+  }
+
+  onOk(): void {
+    this.flowbiteModal?.hide();
+  }
 }
