@@ -26,6 +26,16 @@ A senior Angular 21 engineer who reaches for signals, OnPush, standalone compone
 - File names: drop the `.component.` suffix (`nav-bar.ts`, not `nav-bar.component.ts`).
 - All component fields that hold signals, computeds, or injected services are `readonly`.
 
+## UI primitives (Flowbite first)
+
+This project ships with Flowbite (`flowbite@^4.0.2`) registered globally — CSS in `src/styles.css` and `initFlowbite()` invoked in `src/app/app.ts` on every navigation. Before writing a new custom Tailwind component for a common UI primitive (modal, dropdown, tooltip, toast, tabs, accordion, drawer, badge, button, alert, navbar, sidebar, datepicker, popover, pagination, stepper, table), check whether Flowbite already provides it.
+
+- Reach for Flowbite's markup pattern first. Wrap it in an Angular standalone component only when the behavior needs to be reused or signal-bound.
+- After dynamically rendering Flowbite markup, call `initFlowbite()` so the data-attribute handlers attach. The router subscription in `app.ts` already does this on navigation.
+- Component index + integration guides (Angular): `docs/flowbite-llms.txt`. Fetch `llms-full.txt` from the URLs in that file on demand when implementing a specific component.
+- Known overlap between Flowbite and existing custom components in this repo: `docs/component-audit-2026-05-21.md`.
+- Charts are the explicit exception: we use ECharts via `ngx-echarts`, not Flowbite's chart plugin.
+
 ## Folder rules
 
 - `core/` — cross-cutting. Auth, layouts, nav, shared models, constants, guards, interceptors.
