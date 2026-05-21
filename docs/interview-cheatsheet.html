@@ -401,6 +401,43 @@
   <div class="section-header"><span class="num">5</span> Technical Q&amp;A Prep</div>
 
   <div class="qa">
+    <div class="qa-q">What is a signal, exactly? Is it just a getter and setter?</div>
+    <div class="qa-a">
+      <p>Surface level, yes — a signal is a function you call to read (<code>mySignal()</code>) with a <code>.set()</code> / <code>.update()</code> to write. So "getter + setter" is the right starting point. The "more" is four things wrapped around it:</p>
+      <ol style="padding-left:18px;line-height:1.8;">
+        <li><strong>Automatic dependency tracking.</strong> When a <code>computed()</code> runs, Angular records which signals it read. Those become its dependencies — no need to declare them like <code>combineLatest([a$, b$])</code>. Read <code>this.mode()</code> inside a computed and it's wired up.</li>
+        <li><strong>Memoization with equality check.</strong> A <code>computed()</code> caches its result and only re-runs when a dependency actually changes. Default equality is <code>Object.is</code> — re-setting a signal to the same value is a no-op, no downstream re-computation.</li>
+        <li><strong>Glitch-free updates.</strong> Updating multiple signals in one synchronous block produces exactly one consistent recomputation of all dependents. <code>combineLatest</code> in contrast can emit intermediate "half-updated" states.</li>
+        <li><strong>First-class Angular change detection.</strong> When a signal read in a template changes, only the components using that signal are marked dirty — not the whole component tree. That's what makes zoneless change detection viable.</li>
+      </ol>
+      <p style="margin-top:8px;"><strong>Three primitives — that's the whole API:</strong></p>
+      <ul>
+        <li><code>signal(initial)</code> — writable container for one value. <code>.set(v)</code>, <code>.update(fn)</code>, <code>.asReadonly()</code>.</li>
+        <li><code>computed(() =&gt; derivation)</code> — read-only container derived from other signals. Memoized, lazy.</li>
+        <li><code>effect(() =&gt; sideEffect)</code> — runs a side-effect whenever its tracked signals change. For things like persisting state to localStorage or logging.</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>Best mental model: a spreadsheet cell.</strong> A <code>signal</code> is a cell with a value. A <code>computed</code> is a formula cell that recalculates when its referenced cells change. An <code>effect</code> is "send an email whenever this cell changes." That's it.</p>
+      <p style="margin-top:8px;"><strong>How signals compare to everything else:</strong></p>
+      <table class="req-table" style="font-size:12px;margin-top:6px;">
+        <thead><tr><th>Primitive</th><th>Has current value?</th><th>Sync read?</th><th>Auto deps?</th><th>Memoized?</th></tr></thead>
+        <tbody>
+          <tr><td>Plain variable</td><td>Yes</td><td>Yes</td><td>—</td><td>—</td></tr>
+          <tr><td>Getter/setter</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td></tr>
+          <tr><td><code>Observable</code></td><td>No</td><td>No (subscribe)</td><td>No (manual)</td><td>Optional via <code>shareReplay</code></td></tr>
+          <tr><td><code>BehaviorSubject</code></td><td>Yes</td><td>Via <code>.getValue()</code></td><td>No (manual)</td><td>No</td></tr>
+          <tr><td><code>Promise</code></td><td>Eventually</td><td>No</td><td>—</td><td>Yes (resolved once)</td></tr>
+          <tr><td><strong>Signal</strong></td><td><strong>Yes</strong></td><td><strong>Yes</strong></td><td><strong>Yes (auto)</strong></td><td><strong>Yes (built-in)</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="tip" style="margin-top:8px;">💡 <strong>What signals are NOT:</strong> not Observables (no subscription, no operators, no time/async), not Promises (always have a current value, never resolve), not just BehaviorSubjects (BS doesn't auto-track deps, doesn't memoize, isn't glitch-free). The "getter + setter + auto-tracking + memoization + CD integration" framing captures the whole thing.</div>
+      <p style="margin-top:8px;"><strong>Verbal version:</strong></p>
+      <p style="background:#fffbeb;border-left:3px solid #f59e0b;padding:10px 12px;border-radius:0 4px 4px 0;font-style:italic;color:#78350f;line-height:1.7;">
+        "A signal is a function you call to read a value, with a <code>.set()</code> to write — so on the surface it's a getter and a setter. The 'more' is four things: automatic dependency tracking so <code>computed()</code> wires itself up by reading other signals, memoization with equality check so unchanged values don't propagate, glitch-free batched updates, and direct integration with Angular's change detection so only the components actually using a signal re-render when it changes. Mental model: a spreadsheet cell. Three primitives: <code>signal</code>, <code>computed</code>, <code>effect</code>. That's the whole API."
+      </p>
+    </div>
+  </div>
+
+  <div class="qa">
     <div class="qa-q">Why Angular 21 with signals instead of RxJS?</div>
     <div class="qa-a">
       <p>Signals are Angular's new reactive primitive — synchronous, fine-grained, and predictable. All derived state in this app uses <code>computed()</code>: if you change the mode signal, every computed that depends on it (project bars, KPI, staff section, quarterly tabs) automatically re-evaluates. RxJS is reserved for async streams (HTTP calls) and bridged into the signal world with <code>toSignal()</code>. Zero <code>BehaviorSubject</code>, zero <code>subscribe()</code> for data flow in components.</p>
