@@ -429,12 +429,14 @@
   </div>
 
   <div class="qa">
-    <div class="qa-q">Why ApexCharts instead of ngx-charts or Chart.js?</div>
+    <div class="qa-q">Why ECharts for the main dashboard (with ApexCharts in supporting views)?</div>
     <div class="qa-a">
       <ul>
-        <li><strong>ngx-charts:</strong> 729 open issues, 159 stale PRs as of May 2026 — maintenance health is poor</li>
-        <li><strong>Chart.js:</strong> canvas-based, which doesn't export well to PDF (CRA submissions are often PDFs). ApexCharts is SVG-based.</li>
-        <li><strong>ApexCharts:</strong> actively maintained, SVG, visually polished, and signal-driven re-renders work natively via <code>[series]</code> and <code>[chart]</code> bindings to computed values.</li>
+        <li><strong>ngx-charts:</strong> 729 open issues, 159 stale PRs as of May 2026 — maintenance health is poor.</li>
+        <li><strong>Chart.js:</strong> canvas-based, which doesn't export well to PDF (CRA submissions are often PDFs). Both ECharts and ApexCharts are SVG-based.</li>
+        <li><strong>ECharts (primary):</strong> drives the SR&amp;ED Projects bar and the per-project employee drilldown via <code>ngx-echarts</code> (<code>sred-projects-echarts</code>, <code>employee-breakdown-echarts</code>). Best-in-class interactivity, sharp axis/tooltip control, and signal inputs flow into <code>[options]</code> as a single computed object.</li>
+        <li><strong>ApexCharts (supporting):</strong> retained for the donut variant, polar credits view, aggregate chart, and profile contributions chart. Same SVG/PDF story, just better polish for radial visuals.</li>
+        <li><strong>Chart-view toggle:</strong> the dashboard header has a bar ↔ ECharts switch — the bar view is a hand-rolled Tailwind component, giving us a zero-dependency fallback if a chart library ever needs to be swapped out.</li>
       </ul>
     </div>
   </div>
@@ -450,6 +452,61 @@
     <div class="qa-q">Explain the <code>asOf</code> signal and why it's a computed, not a constant.</div>
     <div class="qa-a">
       <p><code>asOf</code> represents "today relative to the selected claim period." For the live 2026 period, it's today (2026-05-19) — so YTD stops at today. But for a past period like 2025, using today as the cutoff would pull in 2026 entries. The fix: <code>asOf = computed(() =&gt; min(CURRENT_DATE, activeClaimPeriod.endDate))</code>. Past periods use their own end date (Dec 31); the current period uses today. <code>CURRENT_DATE</code> is still a constant — it's the raw "today" the computed reads from.</p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">Where do you draw the line between frontend and backend for data calculations?</div>
+    <div class="qa-a">
+      <p>I think about it as <strong>source-of-truth + auditability</strong>. Backend owns anything that gets filed, persisted, or audited; frontend owns view-level derivations and interactive pivots.</p>
+      <p style="margin-top:8px;"><strong>Backend owns:</strong></p>
+      <ul>
+        <li>Any number that ends up in a tax filing or ledger (the actual SR&amp;ED credit submitted to CRA)</li>
+        <li>Expensive aggregations across large datasets</li>
+        <li>Anything multiple clients need to agree on (web, mobile, scheduled email, PDF export) — three clients reimplementing the math means three chances to drift</li>
+        <li>Anything dependent on data the FE shouldn't see (access control, cross-tenant rollups)</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>Frontend owns:</strong></p>
+      <ul>
+        <li>View pivots — raw entries → bar chart bins</li>
+        <li>Anything driven by instant user interaction (the Hours/Expenditures/Credits toggle, drill-downs, filters)</li>
+        <li>Formatting, sorting, currency display</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>Litmus test:</strong> "If this number went on a tax form, would I trust the frontend to compute it?" If no → backend.</p>
+      <div class="tip" style="margin-top:8px;">💡 Defending <code>calculations/project-bar-data.ts</code>: it's a view pivot, not the canonical SR&amp;ED total. With a mode toggle that re-pivots on every click, round-tripping each toggle would feel terrible. Backend ships raw entries + the canonical claim total; frontend derives the chart bars locally.</div>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">If both backend and frontend compute the same number and they disagree, whose fault is it?</div>
+    <div class="qa-a">
+      <p><strong>The discrepancy itself is the bug.</strong> The right answer isn't to assign blame — it's to never have two implementations of the same calculation.</p>
+      <ul>
+        <li><strong>Single source of truth:</strong> backend is canonical for any number that ends up in a filing. Frontend re-derives only the presentation of that data, never the official total.</li>
+        <li><strong>If both must compute the same number:</strong> share the code — a TypeScript package both Node BE and Angular FE consume — or write contract tests against golden inputs/outputs so drift surfaces immediately.</li>
+        <li><strong>Triage rule in production:</strong> backend wins. If the dashboard shows $52k but the CRA filing says $48k, the $48k is what was actually filed — the bug is on the frontend (stale cache, wrong date filter, missing employee). You debug the divergence, you don't argue about which is "right."</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>Defense in depth:</strong> even with backend as canonical, I'd write a small set of golden tests — fixed input → expected output — that run on both sides. Catches the drift before users do.</p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">How would you structure API calls for a dashboard like this — one big call or one per card?</div>
+    <div class="qa-a">
+      <p>Three real patterns, each with tradeoffs:</p>
+      <ul>
+        <li><strong>A. One coarse "page payload" endpoint</strong> (<code>GET /tenant/:id/dashboard?period=2026</code>) — internally consistent snapshot, simple FE, one auth check. But slow if any one section is slow, and you can't cache per-card.</li>
+        <li><strong>B. Per-section endpoints</strong> (<code>/summary</code>, <code>/projects</code>, <code>/staff</code>…) — parallel load, granular caching, lazy-loading. But cards may show inconsistent snapshots mid-load, and you maintain more endpoints.</li>
+        <li><strong>C. GraphQL / BFF</strong> — frontend declares exactly what it needs, backend assembles. Best of both, but operational complexity. Worth mentioning only if Xavier brings it up.</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>What I'd actually do for a dashboard:</strong> a hybrid — coarse-grained, not one-per-card. Typically:</p>
+      <ul>
+        <li><strong>One cheap "summary" call</strong> — claim period, status, headline KPIs. Loads in &lt;200ms, page is interactive immediately.</li>
+        <li><strong>One heavier "details" call</strong> in parallel — raw entries, employees, projects — fills in the charts as it arrives.</li>
+        <li><strong>Drill-down calls on demand</strong> — clicking an employee fetches their per-day timesheet. Not loaded upfront.</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>For this project:</strong> the mock services use pattern A — one tenant payload per dashboard load — which is fine at this scale. In production I'd split <code>timeEntries[]</code> into a lazy call once it grows past a few thousand rows.</p>
+      <p style="margin-top:8px;"><strong>Caching as a senior nuance:</strong> backend returns <code>Cache-Control</code> + <code>ETag</code>; frontend caches by <code>(tenantId, periodId)</code> — this app does it implicitly via signals. "Recalculate" issues a conditional request — most cards re-render from cache if nothing changed.</p>
     </div>
   </div>
 
@@ -597,6 +654,49 @@
       <p style="background:#fffbeb;border-left:3px solid #f59e0b;padding:10px 12px;border-radius:0 4px 4px 0;font-style:italic;color:#78350f;margin-top:8px;line-height:1.7;">
         "I did an Angular major version upgrade at a previous company — that's a forced big bang, you can't do it incrementally. It was painful because we had a large, spaghetti codebase, no test suite, and custom CSS classes that weren't caught until they broke in production. The lesson I took from it wasn't about the migration pattern — it was about the audit. We didn't understand our own codebase well enough before we started. I'd never start a migration without first mapping every component, every custom class, every page that might be affected. For Angular Material → Flowbite specifically, the Strangler Fig pattern also means we don't have to big bang at all — which eliminates most of the risk we had before."
       </p>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">What if SREDio is on Angular 16 or lower? Would you upgrade Angular while migrating to Flowbite?</div>
+    <div class="qa-a">
+      <p><strong>Key fact:</strong> the official Flowbite install is <code>npm install flowbite</code> — the vanilla JS package. It has <strong>no Angular peer dependency on any version</strong>. Verified on npm: <code>flowbite@4.0.2</code> peerDeps are empty, only Tailwind 4 is a hard dep. So the Flowbite migration is <strong>decoupled from the Angular version</strong> — it works on Angular 12, 16, 19, 21, anything.</p>
+      <p style="margin-top:8px;">That means the two are independent workstreams, not one bundle:</p>
+      <ul>
+        <li><strong>Flowbite migration:</strong> can start on whatever Angular version is current. The Angular component wrapper uses whatever API the codebase already uses — <code>@Input</code>/<code>*ngIf</code> on v16, <code>input()</code>/<code>@if</code> on v18+. The Tailwind HTML and Flowbite JS init are identical either way.</li>
+        <li><strong>Angular upgrade:</strong> separate workstream, motivated by modern idioms (signals, control flow, standalone), not by Flowbite.</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>Order (if no business pressure):</strong> Angular upgrade first, then Flowbite. Writing new components with <code>signal()</code>, <code>input()</code>, and <code>@if</code> is cleaner than wrapping Flowbite in old-style decorators and refactoring later. The "refactor later" is real but small — only the Angular wrapper API changes; Tailwind classes and Flowbite JS calls stay identical.</p>
+      <p style="margin-top:8px;"><strong>Sweet spot for the Angular landing version:</strong> <strong>v18 or v19</strong>, not v21.</p>
+      <ul>
+        <li><strong>v17:</strong> control flow and signal inputs still in developer preview — would rather skip as a landing target</li>
+        <li><strong>v18:</strong> control flow stable, <code>input()</code>/<code>output()</code>/<code>model()</code> stable, zoneless experimental — minimum I'd want</li>
+        <li><strong>v19:</strong> standalone is the default, less boilerplate — even better</li>
+        <li><strong>v20 → v21:</strong> small later hops once Flowbite work is done. No need to chase v21 just to migrate UI.</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>Fallback framing if business says "we need Flowbite this quarter":</strong> "Then we start Flowbite on the current Angular version. Components written today will need a light wrapper-API refactor after the Angular upgrade — Tailwind and Flowbite parts don't change. I'd write them forward-compatibly: standalone is available back to v15, <code>toSignal</code> back to v16, so we can lean into modern patterns even on an older version."</p>
+      <div class="tip" style="margin-top:8px;">💡 <strong>Don't confuse <code>flowbite</code> with <code>flowbite-angular</code>.</strong> The latter is a community Angular-wrapper package that does pin to Angular major versions (<code>flowbite-angular@1.3.0</code> requires Angular 18–19; <code>v20</code>/<code>v21</code> require matching majors). It's not what the official docs recommend and not what this project uses. If Xavier asks specifically about <code>flowbite-angular</code>, the version-lock is real and worth flagging.</div>
+    </div>
+  </div>
+
+  <div class="qa">
+    <div class="qa-q">What if they're already on Tailwind v3? Upgrade to v4 first, or stay on v3 during the Flowbite migration?</div>
+    <div class="qa-a">
+      <p><strong>The hard constraint:</strong> <code>flowbite@4.x</code> requires <code>tailwindcss@^4.1.12</code>. <code>flowbite@3.x</code> works fine on Tailwind 3. So the real choice is: <em>Flowbite 3 on Tailwind 3</em> (no Tailwind upgrade) vs <em>Flowbite 4 on Tailwind 4</em> (upgrade first).</p>
+      <p style="margin-top:8px;"><strong>Recommendation: upgrade Tailwind 3 → 4 first, then bring in Flowbite 4.</strong> Reasoning:</p>
+      <ul>
+        <li>Tailwind 4 has an official codemod — <code>npx @tailwindcss/upgrade</code> — that handles most of the mechanical changes (CSS-first config, renamed utilities like <code>shadow-sm</code> semantics, <code>flex-shrink-0</code> → <code>shrink-0</code>, opacity modifiers).</li>
+        <li>If we migrate to Flowbite 3 on Tailwind 3 today, every component we ship needs another touch when Tailwind 4 arrives — that's writing the same Tailwind classes twice in different syntaxes.</li>
+        <li>Flowbite 4 has a year of fixes and component additions over 3.x. Better foundation for new work.</li>
+        <li>Tailwind 4 uses Lightning CSS — much faster dev builds, smaller output.</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>When I'd flip the recommendation (stay on Tailwind 3 + Flowbite 3):</strong></p>
+      <ul>
+        <li>Heavy <code>tailwind.config.js</code> customization (custom plugins, deep theme extensions) — the v4 CSS-first config migration becomes its own project</li>
+        <li>Browser support requirement below Safari 16.4 / Chrome 111 / Firefox 128 — Tailwind 4 drops older browsers</li>
+        <li>Tight timeline where Tailwind 4 audit work would delay the actual Flowbite migration</li>
+      </ul>
+      <p style="margin-top:8px;"><strong>Always audit first.</strong> Same lesson as the Angular upgrade — run the codemod on a branch, see what breaks, scope the work. A clean codebase is a one-day Tailwind upgrade. A heavily-customized one might be two weeks.</p>
     </div>
   </div>
 
